@@ -43,9 +43,9 @@
     "show_locale": true
   },
   "hero": {
-    "title": "Ship Any AI Startups in hours, not days",
-    "highlight_text": "Ship Any",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups.<br/>Ship Fast with a variety of templates and components.",
+    "title": "Convert Text to Natural Speech in Seconds, not Hours",
+    "highlight_text": "Natural Speech",
+    "description": "AudioTextHub is a smart platform for converting text to natural-sounding speech.<br/>Transform your written content into high-quality audio easily and freely.",
     "announcement": {
       "label": "2025",
       "title": "🎉 Happy New Year",
@@ -72,96 +72,89 @@
     "show_badge": false
   },
   "branding": {
-    "title": "ShipAny is built on the shoulders of giants",
+    "title": "AudioTextHub supports multiple languages and voices",
     "items": [
       {
         "title": "Next.js",
         "image": {
-          "src": "/imgs/logos/nextjs.svg",
+          "src": "/imgs/logos/icon1.png",
           "alt": "Next.js"
         }
       },
       {
         "title": "React",
         "image": {
-          "src": "/imgs/logos/react.svg",
+          "src": "/imgs/logos/icon2.png",
           "alt": "React"
         }
       },
       {
         "title": "TailwindCSS",
         "image": {
-          "src": "/imgs/logos/tailwindcss.svg",
+          "src": "/imgs/logos/icon3.webp",
           "alt": "TailwindCSS"
         }
       },
       {
         "title": "Shadcn/UI",
         "image": {
-          "src": "/imgs/logos/shadcn.svg",
+          "src": "/imgs/logos/icon4.svg",
           "alt": "Shadcn/UI"
-        }
-      },
-      {
-        "title": "Vercel",
-        "image": {
-          "src": "/imgs/logos/vercel.svg",
-          "alt": "Vercel"
         }
       }
     ]
   },
   "introduce": {
     "name": "introduce",
-    "title": "What is ShipAny",
+    "title": "What is AudioTextHub",
     "label": "Introduce",
-    "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Built in a variety of templates and components.",
+    "description": "AudioTextHub is a smart platform for converting text to natural-sounding speech. Transform your written content into high-quality audio easily and freely.",
     "image": {
       "src": "/imgs/features/1.png"
     },
     "items": [
       {
-        "title": "Ready-to-use Templates",
-        "description": "Choose from dozens of production-ready AI SaaS templates to quickly start your project.",
-        "icon": "RiNextjsFill"
+        "title": "Natural Voice Synthesis",
+        "description": "Access a variety of natural-sounding voices to bring your text to life with emotion and clarity.",
+        "icon": "RiVoiceprintFill"
       },
       {
-        "title": "Infrastructure Setup",
-        "description": "Get instant access to scalable infrastructure with best practices built-in.",
-        "icon": "RiDatabase2Line"
+        "title": "Multi-language Support",
+        "description": "Convert text to speech in multiple languages and accents to reach global audiences.",
+        "icon": "RiTranslate"
       },
       {
-        "title": "Quick Deployment",
-        "description": "Deploy your AI SaaS application to production in hours, not days.",
-        "icon": "RiCloudyFill"
+        "title": "Quick Conversion",
+        "description": "Transform your text into high-quality audio in seconds, not hours.",
+        "icon": "RiFlashlightFill"
       }
     ]
   },
   "benefit": {
     "name": "benefit",
-    "title": "Why Choose ShipAny",
+    "title": "Why Choose AudioTextHub",
     "label": "Benefits",
-    "description": "Get everything you need to launch your AI startup - from ready-to-use templates to technical support.",
+    "description": "Get everything you need for high-quality text-to-speech conversion - from natural voices to multiple language support.",
     "items": [
       {
-        "title": "Complete Framework",
-        "description": "Built on Next.js with authentication, payments, and AI integration - everything works out of the box.",
-        "icon": "RiNextjsFill",
+        "title": "Advanced Voice Technology",
+        "description": "Powered by cutting-edge AI voice synthesis to deliver natural-sounding speech that captures nuances and emotions.",
+        "icon": "RiVoiceprintFill",
         "image": {
           "src": "/imgs/features/2.png"
         }
       },
       {
-        "title": "Rich Templates Library",
-        "description": "Choose from various AI SaaS templates to kickstart your project - chatbots, image generation, and more.",
-        "icon": "RiClapperboardAiLine",
+        "title": "Multi-language Support",
+        "description": "Convert text to speech in multiple languages and accents to reach global audiences with localized content.",
+        "icon": "RiTranslate",
         "image": {
           "src": "/imgs/features/3.png"
         }
       },
       {
-        "title": "Technical Guidance",
-        "description": "Get dedicated support and join our developer community to ensure your successful launch.",
+        "title": "Easy Integration",
+        "description": "Seamlessly integrate high-quality voice output into your applications, websites, or content with our simple API.",
         "icon": "RiCodeFill",
         "image": {
           "src": "/imgs/features/4.png"
@@ -171,8 +164,8 @@
   },
   "usage": {
     "name": "usage",
-    "title": "How to Launch with ShipAny",
-    "description": "Get your AI SaaS startup running in three simple steps:",
+    "title": "How to Use AudioTextHub",
+    "description": "Convert your text to natural speech in three simple steps:",
     "image": {
       "src": "/imgs/features/1.png"
     },
@@ -180,29 +173,29 @@
     "text_align": "center",
     "items": [
       {
-        "title": "Get ShipAny",
-        "description": "Buy ShipAny with a one-time payment. Check your email for the code and documentation.",
+        "title": "Enter Your Text",
+        "description": "Type or paste the text you want to convert to speech. You can edit and format your text as needed.",
         "image": {
           "src": "/imgs/features/5.png"
         }
       },
       {
-        "title": "Start Your Project",
-        "description": "Read the documentation and clone the code of ShipAny. Start building your AI SaaS startup.",
+        "title": "Choose Your Voice",
+        "description": "Select from our wide range of natural-sounding voices in multiple languages and accents.",
         "image": {
           "src": "/imgs/features/6.png"
         }
       },
       {
-        "title": "Customize Your Project",
-        "description": "Modify the template with your data and contents. Specific AI functionality needs.",
+        "title": "Generate and Download",
+        "description": "Generate your audio with one click and download the file in your preferred format.",
         "image": {
           "src": "/imgs/features/7.png"
         }
       },
       {
-        "title": "Deploy to Production",
-        "description": "Deploy your project to production with a few steps and start serving customers immediately.",
+        "title": "Share or Integrate",
+        "description": "Share your audio file directly or integrate it into your applications with our API.",
         "image": {
           "src": "/imgs/features/8.png"
         }
@@ -211,116 +204,116 @@
   },
   "feature": {
     "name": "feature",
-    "title": "Key Features of ShipAny",
-    "description": "Everything you need to launch your AI SaaS startup quickly and efficiently.",
+    "title": "Key Features of AudioTextHub",
+    "description": "Everything you need for professional text-to-speech conversion.",
     "items": [
       {
-        "title": "Next.js Boilerplate",
-        "description": "Production-ready Next.js templates with SEO-friendly structure and i18n support.",
-        "icon": "RiNextjsFill"
+        "title": "Natural Voice Quality",
+        "description": "State-of-the-art AI voice models that create human-like speech with proper intonation and emotion.",
+        "icon": "RiVoiceprintFill"
       },
       {
-        "title": "Authentication & Payments",
-        "description": "Integrated Google OAuth, one-tap login, and Stripe payment processing.",
-        "icon": "RiKey2Fill"
+        "title": "Multiple Languages",
+        "description": "Support for numerous languages and regional accents to reach global audiences.",
+        "icon": "RiTranslate"
       },
       {
-        "title": "Data Infrastructure",
-        "description": "Built-in Supabase integration for reliable and scalable data storage.",
-        "icon": "RiDatabase2Line"
+        "title": "Voice Customization",
+        "description": "Adjust speed, pitch, and emphasis to get exactly the voice output you need.",
+        "icon": "RiSettings3Fill"
       },
       {
-        "title": "One-Click Deployment",
-        "description": "Seamless deployment to Vercel or Cloudflare with automated setup.",
-        "icon": "RiCloudy2Fill"
+        "title": "Easy Export",
+        "description": "Download your audio in multiple formats including MP3, WAV, and OGG.",
+        "icon": "RiDownloadCloudFill"
       },
       {
-        "title": "Business Analytics",
-        "description": "Integrated Google Analytics and Search Console for tracking growth.",
-        "icon": "RiBarChart2Line"
+        "title": "API Integration",
+        "description": "Integrate text-to-speech capabilities directly into your applications with our simple API.",
+        "icon": "RiCodeFill"
       },
       {
-        "title": "AI-Ready Infrastructure",
-        "description": "Pre-configured AI integration with built-in credits system and API sales.",
-        "icon": "RiRobot2Line"
+        "title": "Secure Processing",
+        "description": "Your text content is processed securely and privately with enterprise-grade protection.",
+        "icon": "RiShieldCheckFill"
       }
     ]
   },
   "stats": {
     "name": "stats",
-    "label": "Stats",
-    "title": "People Love ShipAny",
-    "description": "for it's easy to use and fast to ship.",
+    "label": "Statistics",
+    "title": "Users Love AudioTextHub",
+    "description": "Because it's easy to use and delivers high-quality speech.",
     "icon": "FaRegHeart",
     "items": [
       {
         "title": "Trusted by",
-        "label": "99+",
-        "description": "Customers"
+        "label": "10K+",
+        "description": "Users"
       },
       {
-        "title": "Built in",
-        "label": "20+",
-        "description": "Components"
+        "title": "Available",
+        "label": "500+",
+        "description": "Voices"
       },
       {
-        "title": "Ship Fast in",
+        "title": "Fast Conversion",
         "label": "5",
-        "description": "Minutes"
+        "description": "Seconds"
       }
     ]
   },
   "testimonial": {
     "name": "testimonial",
-    "label": "Testimonial",
-    "title": "What Users Say About ShipAny",
-    "description": "Hear from developers and founders who launched their AI startups with ShipAny.",
+    "label": "Testimonials",
+    "title": "What Users Say About AudioTextHub",
+    "description": "Hear from content creators, developers, and businesses who use AudioTextHub for their text-to-speech needs.",
     "icon": "GoThumbsup",
     "items": [
       {
         "title": "David Chen",
-        "label": "Founder of AIWallpaper.shop",
-        "description": "ShipAny saved us months of development time. We launched our AI wallpaper business in just 2 days and got our first paying customer within a week!",
+        "label": "Podcast Creator",
+        "description": "AudioTextHub saved me countless hours of recording time. The natural-sounding voices are perfect for my podcast intros and educational content. My listeners can't tell the difference!",
         "image": {
           "src": "/imgs/users/1.png"
         }
       },
       {
-        "title": "Rachel Kim",
-        "label": "CTO at HeyBeauty.ai",
-        "description": "The pre-built AI infrastructure is a game-changer. We didn't have to worry about architecture - just focused on our AI beauty tech and went live fast.",
+        "title": "Rachel Jin",
+        "label": "E-learning Developer",
+        "description": "The multi-language support is a game-changer. We can now create educational content in 10+ languages without hiring voice actors for each one. The quality is impressive.",
         "image": {
           "src": "/imgs/users/2.png"
         }
       },
       {
-        "title": "Marcus Thompson",
-        "label": "Solo Developer",
-        "description": "As a solo developer, ShipAny gave me everything I needed - auth, payments, AI integration, and beautiful UI. Launched my SaaS in a weekend!",
+        "title": "Marcus",
+        "label": "Independent Developer",
+        "description": "As an indie developer, AudioTextHub's API is exactly what I needed. I integrated text-to-speech into my mobile app in just one afternoon. The documentation is clear and implementation was seamless.",
         "image": {
           "src": "/imgs/users/3.png"
         }
       },
       {
-        "title": "Sofia Garcia",
-        "label": "CEO of Melodisco",
-        "description": "The templates are production-ready and highly customizable. We built our AI music platform in hours instead of months. Incredible time-to-market!",
+        "title": "Sophia",
+        "label": "Accessibility Specialist",
+        "description": "We use AudioTextHub to make web content more accessible. The natural voices and customization options help us create audio versions of articles that people actually want to listen to.",
         "image": {
           "src": "/imgs/users/4.png"
         }
       },
       {
-        "title": "James Wilson",
-        "label": "Tech Lead at GPTs.works",
-        "description": "ShipAny's infrastructure is rock-solid. We scaled from 0 to 10k users without touching the backend. Best investment for our AI startup.",
+        "title": "James",
+        "label": "Marketing Director",
+        "description": "AudioTextHub's voice technology is incredibly versatile. We use it for social media content, explainer videos, and even our IVR system. The consistent voice across all channels strengthens our brand.",
         "image": {
           "src": "/imgs/users/5.png"
         }
       },
       {
         "title": "Anna Zhang",
-        "label": "Startup Founder",
-        "description": "From idea to launch in 3 days! ShipAny's templates and deployment tools made it possible to test our AI business concept incredibly fast.",
+        "label": "Content Creator",
+        "description": "From idea to audio in minutes! AudioTextHub lets me quickly convert my scripts into professional-sounding narration for my YouTube videos without the hassle of recording and editing.",
         "image": {
           "src": "/imgs/users/6.png"
         }
@@ -330,49 +323,49 @@
   "faq": {
     "name": "faq",
     "label": "FAQ",
-    "title": "Frequently Asked Questions About ShipAny",
-    "description": "Have another question? Contact us on Discord or by email.",
+    "title": "Frequently Asked Questions About AudioTextHub",
+    "description": "Have more questions? Contact us via Discord or email.",
     "items": [
       {
-        "title": "What exactly is ShipAny and how does it work?",
-        "description": "ShipAny is a comprehensive NextJS boilerplate designed specifically for building AI SaaS startups. It provides ready-to-use templates, infrastructure setup, and deployment tools that help you launch your AI business in hours instead of days."
+        "title": "What exactly is AudioTextHub and how does it work?",
+        "description": "AudioTextHub is a comprehensive text-to-speech platform that converts written text into natural-sounding speech. It uses advanced AI voice models to generate human-like audio from your text in seconds."
       },
       {
-        "title": "Do I need advanced technical skills to use ShipAny?",
-        "description": "While basic programming knowledge is helpful, ShipAny is designed to be developer-friendly. Our templates and documentation make it easy to get started, even if you're not an expert in AI or cloud infrastructure."
+        "title": "Do I need technical skills to use AudioTextHub?",
+        "description": "Not at all! AudioTextHub is designed to be user-friendly. Our intuitive interface makes it easy for anyone to convert text to speech, regardless of technical background."
       },
       {
-        "title": "What types of AI SaaS can I build with ShipAny?",
-        "description": "ShipAny supports a wide range of AI applications, from content generation to data analysis tools. Our templates cover popular use cases like AI chatbots, content generators, image processing apps, and more."
+        "title": "What languages and voices does AudioTextHub support?",
+        "description": "AudioTextHub supports a wide range of languages and regional accents. We offer over 500 different voices across multiple languages to help you reach global audiences with localized content."
       },
       {
-        "title": "How long does it typically take to launch with ShipAny?",
-        "description": "With ShipAny, you can have a working prototype in hours and a production-ready application in hours. Our one-click deployment and pre-configured infrastructure significantly reduce the traditional months-long development cycle."
+        "title": "How long does it take to convert text to speech?",
+        "description": "With AudioTextHub, most conversions are completed in just 5 seconds. Even longer texts are processed quickly, allowing you to get your audio content ready in minutes, not hours."
       },
       {
-        "title": "What's included in the ShipAny infrastructure?",
-        "description": "ShipAny provides a complete infrastructure stack including authentication, database setup, API integration, payment processing, and scalable cloud deployment. Everything is pre-configured following industry best practices."
+        "title": "What audio formats does AudioTextHub support?",
+        "description": "AudioTextHub allows you to download your audio in multiple formats including MP3, WAV, and OGG, making it compatible with virtually any platform or application you need."
       },
       {
-        "title": "Can I customize the templates to match my brand?",
-        "description": "Absolutely! All ShipAny templates are fully customizable. You can modify the design, features, and functionality to match your brand identity and specific business requirements while maintaining the robust underlying infrastructure."
+        "title": "Can I customize the voices to match my brand?",
+        "description": "Absolutely! AudioTextHub offers extensive customization options. You can adjust speed, pitch, emphasis, and other parameters to get exactly the voice output that matches your brand identity and specific needs."
       }
     ]
   },
   "cta": {
     "name": "cta",
-    "title": "Ship your first AI SaaS Startup",
-    "description": "Start from here, ship with ShipAny.",
+    "title": "Start Converting Your Text to Speech Today",
+    "description": "Begin your journey with AudioTextHub now.",
     "buttons": [
       {
-        "title": "Get ShipAny",
-        "url": "https://shipany.ai",
-        "target": "_blank",
+        "title": "Try AudioTextHub",
+        "url": "/#pricing",
+        "target": "_self",
         "icon": "GoArrowUpRight"
       },
       {
-        "title": "Read Document",
-        "url": "https://docs.shipany.ai",
+        "title": "View Documentation",
+        "url": "https://docs.audiotexthub.com",
         "target": "_blank",
         "variant": "outline"
       }
@@ -381,15 +374,15 @@
   "footer": {
     "name": "footer",
     "brand": {
-      "title": "ShipAny",
-      "description": "ShipAny is a NextJS boilerplate for building AI SaaS startups. Ship Fast with a variety of templates and components.",
+      "title": "AudioTextHub",
+      "description": "AudioTextHub is a smart text-to-speech platform that converts your written content into high-quality natural-sounding speech in seconds.",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "AudioTextHub"
       },
       "url": "/"
     },
-    "copyright": "© 2025 • ShipAny All rights reserved.",
+    "copyright": "© 2025 • AudioTextHub. All rights reserved.",
     "nav": {
       "items": [
         {
@@ -401,7 +394,7 @@
               "target": "_self"
             },
             {
-              "title": "Showcases",
+              "title": "Showcase",
               "url": "/#showcase",
               "target": "_self"
             },
@@ -416,38 +409,38 @@
           "title": "Resources",
           "children": [
             {
-              "title": "Documents",
-              "url": "https://docs.shipany.ai",
+              "title": "Documentation",
+              "url": "https://docs.audiotexthub.com",
               "target": "_blank"
             },
             {
-              "title": "Components",
-              "url": "https://shipany.ai/components",
+              "title": "API Reference",
+              "url": "https://audiotexthub.com/api",
               "target": "_blank"
             },
             {
-              "title": "Templates",
-              "url": "https://shipany.ai/templates",
+              "title": "Voice Samples",
+              "url": "https://audiotexthub.com/samples",
               "target": "_blank"
             }
           ]
         },
         {
-          "title": "Friends",
+          "title": "Partners",
           "children": [
             {
-              "title": "ThinkAny",
-              "url": "https://thinkany.ai",
+              "title": "Content Creators",
+              "url": "https://audiotexthub.com/partners/creators",
               "target": "_blank"
             },
             {
-              "title": "HeyBeauty",
-              "url": "https://heybeauty.ai",
+              "title": "Developers",
+              "url": "https://audiotexthub.com/partners/developers",
               "target": "_blank"
             },
             {
-              "title": "Pagen",
-              "url": "https://pagen.so",
+              "title": "Accessibility Services",
+              "url": "https://audiotexthub.com/partners/accessibility",
               "target": "_blank"
             }
           ]
@@ -459,13 +452,13 @@
         {
           "title": "X",
           "icon": "RiTwitterXFill",
-          "url": "https://x.com/shipanyai",
+          "url": "https://x.com/audiotexthub",
           "target": "_blank"
         },
         {
           "title": "Github",
           "icon": "RiGithubFill",
-          "url": "https://github.com/shipanyai",
+          "url": "https://github.com/audiotexthub",
           "target": "_blank"
         },
         {
@@ -477,7 +470,7 @@
         {
           "title": "Email",
           "icon": "RiMailLine",
-          "url": "mailto:support@shipany.ai",
+          "url": "mailto:support@audiotexthub.com",
           "target": "_self"
         }
       ]
