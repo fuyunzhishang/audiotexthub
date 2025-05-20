@@ -44,7 +44,7 @@ export default function Testimonial({ section }: { section: SectionType }) {
           {section.description}
         </p>
       </div>
-      <div className="lg:container">
+      <div className="lg:container" style={{margin:  '0 auto'}}>
         <div className="mt-16 space-y-4">
           <Carousel
             opts={{
