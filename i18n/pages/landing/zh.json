@@ -48,10 +48,10 @@
     "description": "AudioTextHub是一个智能文本转语音平台。<br/>轻松免费地将您的文字内容转换成高质量的语音。",
     "announcement": {
       "label": "2025",
-      "title": "🎉 新年快乐",
+      "title": "🎉 更高效",
       "url": "/#pricing"
     },
-    "tip": "🎁 2025年前五折优惠",
+    "tip": "🎁 速度提升50%",
     "buttons": [
       {
         "title": "立即开始",
@@ -63,7 +63,7 @@
       {
         "title": "加入 Discord",
         "icon": "RiDiscordFill",
-        "url": "https://discord.gg/HQNnrzjZQS",
+        "url": "https://discord.gg/e6aDHBKp",
         "target": "_blank",
         "variant": "outline"
       }

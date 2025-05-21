@@ -48,10 +48,10 @@
     "description": "AudioTextHub is a smart platform for converting text to natural-sounding speech.<br/>Transform your written content into high-quality audio easily and freely.",
     "announcement": {
       "label": "2025",
-      "title": "🎉 Happy New Year",
+      "title": "🎉 More Productively ",
       "url": "/#pricing"
     },
-    "tip": "🎁 50% off before 2025",
+    "tip": "🎁 50% fast before 2025",
     "buttons": [
       {
         "title": "Get Started",
@@ -63,7 +63,7 @@
       {
         "title": "Join Discord",
         "icon": "RiDiscordFill",
-        "url": "https://discord.gg/HQNnrzjZQS",
+        "url": "https://discord.gg/e6aDHBKp",
         "target": "_blank",
         "variant": "outline"
       }
@@ -103,6 +103,9 @@
         }
       }
     ]
+  },
+  "textToSpeech": {
+  
   },
   "introduce": {
     "name": "introduce",

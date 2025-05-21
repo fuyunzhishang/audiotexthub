@@ -3,12 +3,14 @@ import { Hero } from "@/types/blocks/hero";
 import { Section } from "@/types/blocks/section";
 import { Footer } from "@/types/blocks/footer";
 import { Pricing } from "@/types/blocks/pricing";
+import { TextToSpeech } from "@/types/blocks/text-to-speech";
 
 export interface LandingPage {
   header?: Header;
   hero?: Hero;
   branding?: Section;
   introduce?: Section;
+  textToSpeech?: Section;
   benefit?: Section;
   usage?: Section;
   feature?: Section;
