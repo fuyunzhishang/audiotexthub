@@ -422,107 +422,187 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
             {section.description}
           </p>
         </div>
-        
-        <div className="mt-8 max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Textarea 
-              placeholder="在此输入文本，最多2000个字符..." 
-              value={text} 
-              onChange={handleTextChange}
-              className="min-h-32 resize-none"
-            />
-            <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-              <span>字符数: {text.length}/2000</span>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* 左侧语音生成区域 */}
+          <div className="col-span-1 md:col-span-2">
+            <div className="mb-6">
+              <Textarea 
+                placeholder="在此输入文本，最多2000个字符..." 
+                value={text} 
+                onChange={handleTextChange}
+                className="min-h-32 resize-none"
+              />
+              <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+                <span>字符数: {text.length}/2000</span>
+              </div>
             </div>
-          </div>
-          
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-sm font-medium">选择语言:</span>
-              <Select value={currentLanguage} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="选择语言" />
-                </SelectTrigger>
-                <SelectContent>
-                  {languageCategories.map((lang) => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{lang.flag}</span>
-                        <span>{lang.name}</span>
+            
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-sm font-medium">选择语言:</span>
+                <Select value={currentLanguage} onValueChange={handleLanguageChange}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="选择语言" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languageCategories.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{lang.flag}</span>
+                          <span>{lang.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {currentLanguage && (
+                  <Badge variant="outline" className="ml-2">
+                    {languageCategories.find(lang => lang.code === currentLanguage)?.flag} 
+                    {languageCategories.find(lang => lang.code === currentLanguage)?.name}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {currentVoices.map((voice) => (
+                <Card 
+                  key={voice.key} 
+                  className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${
+                    selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
+                  }`}
+                  onClick={() => handleSelectVoice(voice)}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="size-10 rounded-full ring-1 ring-input">
+                      <AvatarImage 
+                        src={voice.sex === 'Female' ? femaleAvatar : maleAvatar} 
+                        alt={voice.name} 
+                      />
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{voice.name}</p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground">{voice.sex}</span>
+                        <Badge variant="outline" className="text-xs px-1 py-0">
+                          {getLevelLabel(voice.level)}
+                        </Badge>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {currentLanguage && (
-                <Badge variant="outline" className="ml-2">
-                  {languageCategories.find(lang => lang.code === currentLanguage)?.flag} 
-                  {languageCategories.find(lang => lang.code === currentLanguage)?.name}
-                </Badge>
-              )}
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playAudio(voice.example_voice_url);
+                      }}
+                      className="size-8 flex-shrink-0"
+                    >
+                      {currentAudio === voice.example_voice_url && isPlaying ? (
+                        <Pause className="h-4 w-4" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="mt-6 flex justify-center">
+              <Button 
+                className="w-full md:w-60"
+                disabled={!selectedVoice || !text.trim() || isGenerating}
+                onClick={handleGenerateSpeech}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                    生成中...
+                  </>
+                ) : (
+                  '生成语音'
+                )}
+              </Button>
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {currentVoices.map((voice) => (
-              <Card 
-                key={voice.key} 
-                className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${
-                  selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
-                }`}
-                onClick={() => handleSelectVoice(voice)}
-              >
-                <div className="flex items-center gap-3">
-                  <Avatar className="size-10 rounded-full ring-1 ring-input">
-                    <AvatarImage 
-                      src={voice.sex === 'Female' ? femaleAvatar : maleAvatar} 
-                      alt={voice.name} 
-                    />
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{voice.name}</p>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">{voice.sex}</span>
-                      <Badge variant="outline" className="text-xs px-1 py-0">
-                        {getLevelLabel(voice.level)}
-                      </Badge>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation(); // 阻止冒泡，避免触发卡片的点击事件
-                      playAudio(voice.example_voice_url);
-                    }}
-                    className="size-8 flex-shrink-0"
-                  >
-                    {currentAudio === voice.example_voice_url && isPlaying ? (
-                      <Pause className="h-4 w-4" />
-                    ) : (
-                      <Play className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="mt-6 flex justify-center">
-            <Button 
-              className="w-full md:w-60"
-              disabled={!selectedVoice || !text.trim() || isGenerating}
-              onClick={handleGenerateSpeech}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                  生成中...
-                </>
-              ) : (
-                '生成语音'
-              )}
-            </Button>
+
+          {/* 右侧结果列表 */}
+          <div className="col-span-1">
+            <Card className="p-4">
+              <h3 className="text-lg font-medium mb-3">生成历史</h3>
+              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                {results.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">暂无生成记录</p>
+                ) : (
+                  results.map((result) => (
+                    <Card key={result.id} className="p-3">
+                      <div className="mb-2">
+                        <p className="text-sm font-medium truncate">{result.text}</p>
+                        <p className="text-xs text-muted-foreground">{result.voiceName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {result.createdAt.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center gap-2">
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          className="h-8"
+                          onClick={() => playAudio(result.audioUrl)}
+                        >
+                          {currentAudio === result.audioUrl && isPlaying ? (
+                            <><Pause className="h-3.5 w-3.5 mr-1" /> 暂停</>
+                          ) : (
+                            <><Play className="h-3.5 w-3.5 mr-1" /> 播放</>
+                          )}
+                        </Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8"
+                            onClick={() => {
+                              const a = document.createElement('a');
+                              a.href = result.audioUrl;
+                              a.download = `语音_${result.voiceName}_${new Date().getTime()}.mp3`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                            }}
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8"
+                            onClick={() => handleDeleteResult(result.id)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M3 6h18" />
+                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                            </svg>
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </Card>
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@ export default function Hero({ hero }: { hero: HeroType }) {
   return (
     <>
       <HeroBg />
-      <section className="py-24">
+      <section className="py-12">
         <div className="container">
           {hero.show_badge && (
             <div className="flex items-center justify-center mb-8">
