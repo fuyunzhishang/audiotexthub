@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ttsList } from "./tts";
-import { any } from "zod";
+import { useTranslations } from "next-intl";
 
 // 添加静态图片引用
 const femaleAvatar = "/imgs/female.png";
@@ -56,15 +56,41 @@ interface SpeechResult {
 
 // 定义等级列表
 export const leveList = [
-  { value: 1, label: '免费' },
-  { value: 2, label: '高级' },
-  { value: 3, label: '专业' },
+  { value: 1, label: 'free' },
+  { value: 2, label: 'premium' },
+  { value: 3, label: 'professional' },
 ];
 
-export default function TextToSpeech({ section }: { section: SectionType }) {
+// 定义 Section 的类型
+interface TextToSpeechSection extends SectionType {
+// 基础属性
+input_placeholder: string;
+character_count: string;
+select_language: string;
+select_language_placeholder: string;
+generating: string;
+generate_voice: string;
+generation_history: string;
+no_history: string;
+pause: string;
+play: string;
+voice_file_prefix: string;
+
+// 语音等级标签
+voice_level: {
+free: string;
+premium: string;
+professional: string;
+};
+}
+
+export default function TextToSpeech({ section }: { section: TextToSpeechSection }) {
   if (section.disabled) {
     return null;
   }
+
+  // 移除 useTranslations
+  // const t = useTranslations();
 
   const [text, setText] = useState("");
   const [currentLanguage, setCurrentLanguage] = useState("");
@@ -430,22 +456,22 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
           <div className="col-span-1 md:col-span-2">
             <div className="mb-6">
               <Textarea 
-                placeholder="在此输入文本，最多2000个字符..." 
+                placeholder={section.input_placeholder}
                 value={text} 
                 onChange={handleTextChange}
                 className="min-h-32 resize-none"
               />
               <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                <span>字符数: {text.length}/2000</span>
+                <span>{section.character_count.replace('{count}', text.length.toString())}</span>
               </div>
             </div>
             
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-sm font-medium">选择语言:</span>
+                <span className="text-sm font-medium">{section.select_language}:</span>
                 <Select value={currentLanguage} onValueChange={handleLanguageChange}>
                   <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="选择语言" />
+                    <SelectValue placeholder={section.select_language_placeholder} />
                   </SelectTrigger>
                   <SelectContent>
                     {languageCategories.map((lang) => (
@@ -521,10 +547,10 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                    生成中...
+                    {section.generating}
                   </>
                 ) : (
-                  '生成语音'
+                  section.generate_voice
                 )}
               </Button>
             </div>
@@ -533,10 +559,10 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
           {/* 右侧结果列表 */}
           <div className="col-span-1">
             <Card className="p-4">
-              <h3 className="text-lg font-medium mb-3">生成历史</h3>
+              <h3 className="text-lg font-medium mb-3">{section.generation_history}</h3>
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {results.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">暂无生成记录</p>
+                  <p className="text-center text-muted-foreground py-8">{section.no_history}</p>
                 ) : (
                   results.map((result) => (
                     <Card key={result.id} className="p-3">
@@ -555,9 +581,9 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
                           onClick={() => playAudio(result.audioUrl)}
                         >
                           {currentAudio === result.audioUrl && isPlaying ? (
-                            <><Pause className="h-3.5 w-3.5 mr-1" /> 暂停</>
+                            <><Pause className="h-3.5 w-3.5 mr-1" /> {section.pause}</>
                           ) : (
-                            <><Play className="h-3.5 w-3.5 mr-1" /> 播放</>
+                            <><Play className="h-3.5 w-3.5 mr-1" /> {section.play}</>
                           )}
                         </Button>
                         <div className="flex gap-2">
@@ -568,35 +594,13 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
                             onClick={() => {
                               const a = document.createElement('a');
                               a.href = result.audioUrl;
-                              a.download = `语音_${result.voiceName}_${new Date().getTime()}.mp3`;
+                              a.download = `${section.voice_file_prefix}_${result.voiceName}_${new Date().getTime()}.mp3`;
                               document.body.appendChild(a);
                               a.click();
                               document.body.removeChild(a);
                             }}
                           >
                             <Download className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8"
-                            onClick={() => handleDeleteResult(result.id)}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path d="M3 6h18" />
-                              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                            </svg>
                           </Button>
                         </div>
                       </div>

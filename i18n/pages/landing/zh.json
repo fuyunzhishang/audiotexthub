@@ -104,6 +104,26 @@
       }
     ]
   },
+  "textToSpeech": {
+    "input_placeholder": "在此输入文本，最多2000个字符...",
+    "character_count": "字符数：{count}/2000",
+    "select_language": "选择语言",
+    "selected_language": "已选语言",
+    "voice_level": {
+      "free": "免费",
+      "premium": "高级",
+      "professional": "专业"
+    },
+    "generate_button": "生成语音",
+    "generating": "生成中...",
+    "generate_voice": "生成语音",
+    "play_audio": "播放音频",
+    "pause_audio": "暂停音频",
+    "download_audio": "下载音频",
+    "delete_result": "删除结果",
+    "no_voice_selected": "请先选择一个语音",
+    "generation_failed": "生成语音失败，请重试"
+  },
   "introduce": {
     "name": "introduce",
     "title": "什么是 AudioTextHub",
