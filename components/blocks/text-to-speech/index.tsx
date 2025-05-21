@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Play, Pause, Download, ChevronDown } from "lucide-react";
+import { Play, Pause, Download, ChevronDown, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -17,6 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ttsList } from "./tts";
+
+// 添加静态图片引用
+const femaleAvatar = "/imgs/female.png";
+const maleAvatar = "/imgs/male.png";
 
 // 定义语言分类接口
 interface LanguageCategory {
@@ -39,6 +43,16 @@ interface VoiceActor {
   type?: string;
 }
 
+// 定义语音生成结果接口
+interface SpeechResult {
+  id: string;
+  text: string;
+  voiceKey: string;
+  voiceName: string;
+  audioUrl: string;
+  createdAt: Date;
+}
+
 // 定义等级列表
 export const leveList = [
   { value: 1, label: '免费' },
@@ -56,6 +70,11 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // 添加新状态
+  const [selectedVoice, setSelectedVoice] = useState<VoiceActor | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [results, setResults] = useState<SpeechResult[]>([]);
   
   // 按语言分类整理数据
   const [languageCategories, setLanguageCategories] = useState<LanguageCategory[]>([]);
@@ -251,11 +270,12 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
     }
   }, []);
   
-  // 当语言改变时更新语音列表
+  // 当语言改变时更新语音列表和重置选中的角色
   useEffect(() => {
     const category = languageCategories.find(cat => cat.code === currentLanguage);
     if (category) {
       setCurrentVoices(category.voices);
+      setSelectedVoice(null); // 重置选中的角色
     }
   }, [currentLanguage, languageCategories]);
 
@@ -273,6 +293,11 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
     if (audioRef.current) {
       audioRef.current.pause();
     }
+  };
+
+  // 添加选择角色的处理函数
+  const handleSelectVoice = (voice: VoiceActor) => {
+    setSelectedVoice(voice === selectedVoice ? null : voice);
   };
 
   const playAudio = (audioSrc: string) => {
@@ -296,6 +321,62 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
         audioRef.current.play();
       }
     }
+  };
+
+  // 生成语音函数
+  const handleGenerateSpeech = async () => {
+    if (!selectedVoice || !text.trim() || isGenerating) return;
+    
+    try {
+      setIsGenerating(true);
+      
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key: selectedVoice.key,
+          text: text,
+          voiceRate: 0, // 默认速度
+          voiceVolume: 100 // 默认音量
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('生成语音失败');
+      }
+      
+      const data = await response.json();
+      console.log(data, 'data-----')
+      
+      // 创建新的结果记录
+      const newResult: SpeechResult = {
+        id: Date.now().toString(),
+        text: text.length > 30 ? text.substring(0, 30) + '...' : text,
+        voiceKey: selectedVoice.key,
+        voiceName: selectedVoice.name,
+        audioUrl: data.url,
+        createdAt: new Date()
+      };
+      
+      // 添加到结果列表
+      setResults(prev => [newResult, ...prev]);
+      
+      // 自动播放新生成的语音
+      playAudio(data.url);
+      
+    } catch (error) {
+      console.error('生成语音失败:', error);
+      alert('生成语音失败，请重试');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 删除结果记录
+  const handleDeleteResult = (id: string) => {
+    setResults(prev => prev.filter(item => item.id !== id));
   };
 
   // 获取等级标签
@@ -384,11 +465,17 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {currentVoices.map((voice) => (
-              <Card key={voice.key} className="p-3 hover:shadow-md transition-shadow">
+              <Card 
+                key={voice.key} 
+                className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${
+                  selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
+                }`}
+                onClick={() => handleSelectVoice(voice)}
+              >
                 <div className="flex items-center gap-3">
                   <Avatar className="size-10 rounded-full ring-1 ring-input">
                     <AvatarImage 
-                      src={voice.icon} 
+                      src={voice.sex === 'Female' ? femaleAvatar : maleAvatar} 
                       alt={voice.name} 
                     />
                   </Avatar>
@@ -404,7 +491,10 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
                   <Button 
                     variant="ghost" 
                     size="icon"
-                    onClick={() => playAudio(voice.example_voice_url)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 阻止冒泡，避免触发卡片的点击事件
+                      playAudio(voice.example_voice_url);
+                    }}
                     className="size-8 flex-shrink-0"
                   >
                     {currentAudio === voice.example_voice_url && isPlaying ? (
@@ -416,6 +506,23 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
                 </div>
               </Card>
             ))}
+          </div>
+          
+          <div className="mt-6 flex justify-center">
+            <Button 
+              className="w-full md:w-60"
+              disabled={!selectedVoice || !text.trim() || isGenerating}
+              onClick={handleGenerateSpeech}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                  生成中...
+                </>
+              ) : (
+                '生成语音'
+              )}
+            </Button>
           </div>
         </div>
       </div>
