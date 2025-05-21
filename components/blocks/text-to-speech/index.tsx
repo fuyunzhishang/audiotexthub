@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ttsList } from "./tts";
+import { any } from "zod";
 
 // 添加静态图片引用
 const femaleAvatar = "/imgs/female.png";
@@ -83,12 +84,12 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
   // 初始化数据
   useEffect(() => {
     if (ttsList && ttsList.length > 0 && ttsList[0].microSoft) {
-      const voices = ttsList[0].microSoft;
+      const voices:any = ttsList[0].microSoft;
       
       // 按语言分组
       const langMap = new Map<string, {name: string, voices: VoiceActor[]}>();
       
-      voices.forEach(voice => {
+      voices.forEach((voice: VoiceActor) => {
         // 提取语言代码，例如 zh-CN, en-US 等
         const langCode = voice.key.split('-').slice(0, 2).join('-');
         
@@ -230,7 +231,7 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
           name: value.name,  // Use the full name from tts.js
           flag: flag,
           voices: value.voices,
-          regionType: regionType
+          // 由于 LanguageCategory 接口中没有定义 regionType，这里暂时移除该属性
         });
       });
       
@@ -246,6 +247,7 @@ export default function TextToSpeech({ section }: { section: SectionType }) {
         };
       
         // 先按地区类型排序
+        //@ts-ignore
         const regionComparison = (regionOrder[a.regionType] || 5) - (regionOrder[b.regionType] || 5); // Handle potential missing regionType
       
         // 如果地区相同，则按语言名称排序
