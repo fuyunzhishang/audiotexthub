@@ -10,6 +10,7 @@ import { NextAuthSessionProvider } from "@/auth/session";
 import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme";
 import { cn } from "@/lib/utils";
+import Script from 'next/script'
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -66,6 +67,13 @@ export default async function RootLayout({
             />
           ))}
         <link rel="alternate" hrefLang="x-default" href={webUrl} />
+        <Script id="microsoft-clarity" strategy="afterInteractive">
+          {`(function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "rnisosp9su");`}
+        </Script>
       </head>
       <body
         className={cn(
