@@ -43,9 +43,9 @@
     "show_locale": true
   },
   "hero": {
-    "title": "几秒钟内将文字转换为自然语音，而不是几小时",
-    "highlight_text": "自然语音",
-    "description": "AudioTextHub是一个智能文本转语音平台。<br/>轻松免费地将您的文字内容转换成高质量的语音。",
+    "title": "免费AI文本转语音工具，让文字瞬间发声",
+    "highlight_text": "AI语音",
+    "description": "AudioTextHub是一款智能AI文本转语音平台。<br/>只需几秒钟，即可将文字转换成自然流畅的语音，支持100+种语言。",
     "announcement": {
       "label": "2025",
       "title": "🎉 更高效",
@@ -204,24 +204,24 @@
     "name": "introduce",
     "title": "什么是 AudioTextHub",
     "label": "介绍",
-    "description": "AudioTextHub是一个智能文本转语音平台。轻松免费地将您的文字内容转换成高质量的语音。",
+    "description": "AudioTextHub是一款在线免费的AI文本转语音工具。无需下载软件，即可将文字快速转换成自然的语音，支持多语言和多场景应用。",
     "image": {
       "src": "/imgs/features/1.png"
     },
     "items": [
       {
-        "title": "自然语音合成",
-        "description": "提供多种自然流畅的声音选择，为您的文字注入情感和清晰度。",
+        "title": "AI语音合成技术",
+        "description": "采用先进的AI语音合成技术，生成自然流畅、富有情感的语音内容。",
         "icon": "RiVoiceprintFill"
       },
       {
-        "title": "多语言支持",
-        "description": "支持多种语言和口音的文本转语音，帮助您触达全球受众。",
+        "title": "免费在线使用",
+        "description": "无需注册，每天免费使用200次，支持2000字符以内的文本转换。",
         "icon": "RiTranslate"
       },
       {
-        "title": "快速转换",
-        "description": "几秒钟内将您的文本转换为高质量音频，而不是几小时。",
+        "title": "极速转换体验",
+        "description": "5秒内完成转换，支持批量处理，效率提升50%。",
         "icon": "RiFlashlightFill"
       }
     ]
@@ -230,11 +230,11 @@
     "name": "benefit",
     "title": "为什么选择 AudioTextHub",
     "label": "优势",
-    "description": "获取高质量文本转语音所需的一切 - 从自然语音到多语言支持。",
+    "description": "一站式AI语音转换解决方案，让您的内容更有声有色。",
     "items": [
       {
-        "title": "先进语音技术",
-        "description": "采用尖端 AI 语音合成技术，提供能够捕捉语调和情感的自然语音。",
+        "title": "智能AI语音技术",
+        "description": "采用最新AI语音合成技术，生成自然流畅的语音，让您的内容更具吸引力。",
         "icon": "RiVoiceprintFill",
         "image": {
           "src": "/imgs/features/2.png"
@@ -423,16 +423,12 @@
     "description": "还有其他问题？通过 Discord 或电子邮件联系我们。",
     "items": [
       {
-        "title": "AudioTextHub 究竟是什么，它是如何工作的？",
-        "description": "AudioTextHub 是一个综合性文本转语音平台，可将书面文本转换为自然流畅的语音。它使用先进的 AI 语音模型，在几秒钟内从您的文本生成类人音频。"
+        "title": "AudioTextHub 是免费的吗？",
+        "description": "是的！AudioTextHub提供免费的在线文本转语音服务。每天可免费使用200次，每次支持最多2000字符的转换，无需注册即可使用。"
       },
       {
-        "title": "使用 AudioTextHub 需要技术技能吗？",
-        "description": "完全不需要！AudioTextHub 设计得非常用户友好。我们的直观界面使任何人都能轻松将文本转换为语音，无论技术背景如何。"
-      },
-      {
-        "title": "AudioTextHub 支持哪些语言和声音？",
-        "description": "AudioTextHub 支持广泛的语言和地区口音。我们提供超过500种不同的声音，覆盖多种语言，帮助您用本地化内容触达全球受众。"
+        "title": "支持哪些语言和声音？",
+        "description": "AudioTextHub支持100多种语言，400多种声音选择。覆盖全球主要语言，并提供多种音色和语气选项，满足不同场景需求。"
       },
       {
         "title": "将文本转换为语音需要多长时间？",
@@ -471,7 +467,7 @@
     "name": "footer",
     "brand": {
       "title": "AudioTextHub",
-      "description": "AudioTextHub 是一个智能文本转语音平台，几秒钟内将您的书面内容转换为高质量的自然语音。",
+      "description": "AudioTextHub是您的智能AI文本转语音助手，支持在线免费使用。只需几秒钟，即可将文字转换成自然流畅的语音内容。",
       "logo": {
         "src": "/logo.png",
         "alt": "AudioTextHub"

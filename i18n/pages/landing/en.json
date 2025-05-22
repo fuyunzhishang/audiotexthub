@@ -43,9 +43,9 @@
     "show_locale": true
   },
   "hero": {
-    "title": "Convert Text to Natural Speech in Seconds, not Hours",
-    "highlight_text": "Natural Speech",
-    "description": "AudioTextHub is a smart platform for converting text to natural-sounding speech.<br/>Transform your written content into high-quality audio easily and freely.",
+    "title": "Free Text to Speech: Convert Text to Natural AI Speech in Seconds",
+    "highlight_text": "Free Text to Speech:",
+    "description": "AudioTextHub is a free online text to speech platform powered by advanced AI voice technology.<br/>Transform your text into natural speech instantly with our free text to speech reader - no registration required.",
     "announcement": {
       "label": "2025",
       "title": "🎉 More Productively ",
@@ -204,7 +204,7 @@
     "name": "introduce",
     "title": "What is AudioTextHub",
     "label": "Introduce",
-    "description": "AudioTextHub is a smart platform for converting text to natural-sounding speech. Transform your written content into high-quality audio easily and freely.",
+    "description": "AudioTextHub is your go-to free text to speech online platform. Whether you need AI text to speech conversion or professional voice generation, our advanced technology delivers natural-sounding results in seconds.",
     "image": {
       "src": "/imgs/features/1.png"
     },
@@ -304,7 +304,7 @@
     "description": "Everything you need for professional text-to-speech conversion.",
     "items": [
       {
-        "title": "Natural Voice Quality",
+        "title": "Advanced AI Text to Speech",
         "description": "State-of-the-art AI voice models that create human-like speech with proper intonation and emotion.",
         "icon": "RiVoiceprintFill"
       },
@@ -319,8 +319,8 @@
         "icon": "RiSettings3Fill"
       },
       {
-        "title": "Easy Export",
-        "description": "Download your audio in multiple formats including MP3, WAV, and OGG.",
+         "title": "Free Online Text to Speech Converter",
+        "description": "Convert text to speech online freely, with support for multiple languages and voice options.",
         "icon": "RiDownloadCloudFill"
       },
       {
@@ -423,6 +423,10 @@
     "description": "Have more questions? Contact us via Discord or email.",
     "items": [
       {
+        "title": "Is AudioTextHub really free to use?",
+        "description": "Yes, AudioTextHub offers a free text to speech service that allows you to convert up to 2000 characters per time. Our free plan includes access to multiple AI voices and languages."
+      },
+      {
         "title": "What exactly is AudioTextHub and how does it work?",
         "description": "AudioTextHub is a comprehensive text-to-speech platform that converts written text into natural-sounding speech. It uses advanced AI voice models to generate human-like audio from your text in seconds."
       },
@@ -441,10 +445,6 @@
       {
         "title": "What audio formats does AudioTextHub support?",
         "description": "AudioTextHub allows you to download your audio in multiple formats including MP3, WAV, and OGG, making it compatible with virtually any platform or application you need."
-      },
-      {
-        "title": "Can I customize the voices to match my brand?",
-        "description": "Absolutely! AudioTextHub offers extensive customization options. You can adjust speed, pitch, emphasis, and other parameters to get exactly the voice output that matches your brand identity and specific needs."
       }
     ]
   },
