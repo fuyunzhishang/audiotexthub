@@ -514,11 +514,12 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                         playAudio(voice.example_voice_url);
                       }}
                       className="size-8 flex-shrink-0"
+                      style={{marginTop: '-30px', marginRight: '21px'}}  
                     >
                       {currentAudio === voice.example_voice_url && isPlaying ? (
-                        <Pause className="h-4 w-4" />
+                        <Pause className="h-4 w-4"/>
                       ) : (
-                        <Play className="h-4 w-4" />
+                        <Play className="h-4 w-4"/>
                       )}
                     </Button>
                   </div>
