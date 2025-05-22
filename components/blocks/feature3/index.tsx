@@ -79,6 +79,7 @@ export default function Feature3({ section }: { section: SectionType }) {
                         src={item.image.src}
                         alt={item.image.alt || item.title}
                         className="h-full w-full rounded-xl border object-cover shadow-sm"
+                        style={{width: '100%', height: 'auto'}}
                       />
                     )}
                   </TabsContent>

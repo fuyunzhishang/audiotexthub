@@ -31,8 +31,8 @@
     },
     "buttons": [
       {
-        "title": "Get ShipAny",
-        "url": "https://shipany.ai",
+        "title": "Get More Service",
+        "url": "https://www.aimix.pro/en",
         "target": "_blank",
         "variant": "link",
         "icon": "RiArrowRightUpLine"
@@ -548,25 +548,19 @@
         {
           "title": "X",
           "icon": "RiTwitterXFill",
-          "url": "https://x.com/audiotexthub",
-          "target": "_blank"
-        },
-        {
-          "title": "Github",
-          "icon": "RiGithubFill",
-          "url": "https://github.com/audiotexthub",
+          "url": "https://x.com/AudioTextHub",
           "target": "_blank"
         },
         {
           "title": "Discord",
           "icon": "RiDiscordFill",
-          "url": "https://discord.gg/HQNnrzjZQS",
+          "url": "https://discord.gg/e6aDHBKp",
           "target": "_blank"
         },
         {
           "title": "Email",
           "icon": "RiMailLine",
-          "url": "mailto:support@audiotexthub.com",
+          "url": "mailto:xiaohuiaijiaolian@aimix.pro",
           "target": "_self"
         }
       ]
