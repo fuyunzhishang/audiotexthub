@@ -749,7 +749,7 @@ export const ttsList = [
         sex: 'Female',
         name: 'Emel',
         lang: '土耳其语(Türkiye)',
-        en_lang: '土耳其语 (Turkey)',
+        en_lang: 'Turkish (Turkey)',
         type: 'other-lang',
         level: 3
       },
@@ -761,7 +761,7 @@ export const ttsList = [
         sex: 'Male',
         name: 'Ahmet',
         lang: '土耳其语(Türkiye)',
-        en_lang: '土耳其语 (Turkey)',
+        en_lang: 'Turkish (Turkey)',
         type: 'other-lang',
         level: 3
       },

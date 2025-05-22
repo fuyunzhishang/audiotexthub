@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ttsList } from "./tts";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 // 添加静态图片引用
 const femaleAvatar = "/imgs/female.png";
@@ -89,6 +89,9 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     return null;
   }
 
+  // 获取当前语言环境
+  const locale = useLocale();
+  
   // 移除 useTranslations
   // const t = useTranslations();
 
@@ -225,6 +228,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         if (match && match[1]) {
           countryName = match[1];
         }
+
+        // debugger
       
         // Extract language name from the lang string, e.g., "爱沙尼亚语(爱沙尼亚)" -> "爱沙尼亚语"
         let languageName = value.name;
@@ -252,9 +257,13 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         }
       
       
+        // 根据当前语言环境选择显示的语音名称
+        const displayName = locale === 'zh' ? value.name : 
+                       (value.voices[0]?.en_lang || value.name);
+        
         categories.push({
           code: key,
-          name: value.name,  // Use the full name from tts.js
+          name: displayName,  // 使用根据语言环境选择的名称
           flag: flag,
           voices: value.voices,
           // 由于 LanguageCategory 接口中没有定义 regionType，这里暂时移除该属性
