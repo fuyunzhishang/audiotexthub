@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Section as SectionType } from "@/types/blocks/section";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { ttsList } from "./tts";
 import { useTranslations, useLocale } from "next-intl";
+import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
 
 // 添加静态图片引用
 const femaleAvatar = "/imgs/female.png";
@@ -61,28 +61,7 @@ export const leveList = [
   { value: 3, label: 'professional' },
 ];
 
-// 定义 Section 的类型
-interface TextToSpeechSection extends SectionType {
-// 基础属性
-input_placeholder: string;
-character_count: string;
-select_language: string;
-select_language_placeholder: string;
-generating: string;
-generate_voice: string;
-generation_history: string;
-no_history: string;
-pause: string;
-play: string;
-voice_file_prefix: string;
 
-// 语音等级标签
-voice_level: {
-free: string;
-premium: string;
-professional: string;
-};
-}
 
 export default function TextToSpeech({ section }: { section: TextToSpeechSection }) {
   if (section.disabled) {
