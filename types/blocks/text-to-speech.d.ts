@@ -35,11 +35,24 @@ export interface TextToSpeechSection extends SectionType {
   pause: string;
   play: string;
   voice_file_prefix: string;
-  
+  history_title: string;
+
   // 语音等级标签
   voice_level: {
-  free: string;
-  premium: string;
-  professional: string;
+    free: string;
+    premium: string;
+    professional: string;
   };
-  }
+
+  // 语音设置
+  voice_settings: {
+    title: string;
+    speed: string;
+    volume: string;
+    pitch: string;
+    speed_tip: string;
+    volume_tip: string;
+    pitch_tip: string;
+  };
+
+}

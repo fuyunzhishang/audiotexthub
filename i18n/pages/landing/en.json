@@ -49,13 +49,13 @@
     "announcement": {
       "label": "2025",
       "title": "🎉 More Productively ",
-      "url": "/#pricing"
+      "url": "/#text-to-speech"
     },
     "buttons": [
       {
         "title": "Get Started",
         "icon": "RiFlashlightFill",
-        "url": "/#pricing",
+        "url": "/#text-to-speech",
         "target": "_self",
         "variant": "default"
       },
@@ -122,6 +122,7 @@
     "delete_result": "Delete Result",
     "no_voice_selected": "Please select a voice first",
     "generation_failed": "Speech generation failed, please try again",
+    "history_title": "Generated Record",
     "countries": {
       "china": "China",
       "taiwan": "Taiwan",
@@ -197,7 +198,16 @@
       "tagalog": "Tagalog",
       "maori": "Maori",
       "hausa": "Hausa"
-    }
+    },
+    "voice_settings": {
+    "title": "Voice Settings",
+    "speed": "Speed",
+    "volume": "Volume",
+    "pitch": "Pitch",
+    "speed_tip": "{speed}%",
+    "volume_tip": "{volume}%",
+    "pitch_tip": "{pitch}"
+  }
   },
   "introduce": {
     "name": "introduce",
