@@ -23,9 +23,9 @@
           "icon": "RiMoneyDollarCircleLine"
         },
         {
-          "title": "案例展示",
-          "url": "/showcase",
-          "icon": "RiApps2Line"
+          "title": "博客",
+          "url": "/posts", 
+          "icon": "RiArticleLine"
         }
       ]
     },
@@ -75,31 +75,31 @@
     "title": "AudioTextHub 支持多种语言和声音选择",
     "items": [
       {
-        "title": "Next.js",
+        "title": "文本转语音",
         "image": {
           "src": "/imgs/logos/icon1.png",
-          "alt": "Next.js"
+          "alt": "文本转语音"
         }
       },
       {
-        "title": "React",
+        "title": "AI 文本转语音",
         "image": {
           "src": "/imgs/logos/icon2.png",
-          "alt": "React"
+          "alt": "AI 文本转语音"
         }
       },
       {
-        "title": "TailwindCSS",
+        "title": "免费文本转语音",
         "image": {
           "src": "/imgs/logos/icon3.webp",
-          "alt": "TailwindCSS"
+          "alt": "免费文本转语音"
         }
       },
       {
-        "title": "Shadcn/UI",
+        "title": "免费TTS",
         "image": {
           "src": "/imgs/logos/icon4.svg",
-          "alt": "Shadcn/UI"
+          "alt": "免费TTS"
         }
       }
     ]

@@ -23,9 +23,9 @@
           "icon": "RiMoneyDollarCircleLine"
         },
         {
-          "title": "Showcase",
-          "url": "/showcase",
-          "icon": "RiApps2Line"
+          "title": "Blog",
+          "url": "/posts", 
+          "icon": "RiArticleLine"
         }
       ]
     },
@@ -51,7 +51,6 @@
       "title": "🎉 More Productively ",
       "url": "/#pricing"
     },
-    "tip": "🎁 50% fast before 2025",
     "buttons": [
       {
         "title": "Get Started",
@@ -75,31 +74,31 @@
     "title": "AudioTextHub supports multiple languages and voices",
     "items": [
       {
-        "title": "Next.js",
+        "title": "text to speech free",
         "image": {
           "src": "/imgs/logos/icon1.png",
-          "alt": "Next.js"
+          "alt": "text to speech free"
         }
       },
       {
-        "title": "React",
+        "title": "ai text to speech",
         "image": {
           "src": "/imgs/logos/icon2.png",
-          "alt": "React"
+          "alt": "ai text to speech"
         }
       },
       {
-        "title": "TailwindCSS",
+        "title": "free text to speech",
         "image": {
           "src": "/imgs/logos/icon3.webp",
-          "alt": "TailwindCSS"
+          "alt": "free text to speech"
         }
       },
       {
-        "title": "Shadcn/UI",
+        "title": "free tts",
         "image": {
           "src": "/imgs/logos/icon4.svg",
-          "alt": "Shadcn/UI"
+          "alt": "free tts"
         }
       }
     ]
@@ -487,11 +486,6 @@
             {
               "title": "Features",
               "url": "/#feature",
-              "target": "_self"
-            },
-            {
-              "title": "Showcase",
-              "url": "/#showcase",
               "target": "_self"
             },
             {

@@ -27,16 +27,16 @@ export default async function () {
         left_credits: userCredits?.left_credits || 0,
       }),
     },
-    toolbar: {
-      items: [
-        {
-          title: t("my_credits.recharge"),
-          url: "/pricing",
-          target: "_blank",
-          icon: "RiBankCardLine",
-        },
-      ],
-    },
+    // toolbar: {
+    //   items: [
+    //     {
+    //       title: t("my_credits.recharge"),
+    //       url: "/pricing",
+    //       target: "_blank",
+    //       icon: "RiBankCardLine",
+    //     },
+    //   ],
+    // },
     columns: [
       {
         title: t("my_credits.table.trans_no"),
