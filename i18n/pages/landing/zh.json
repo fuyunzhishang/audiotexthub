@@ -123,6 +123,7 @@
     "delete_result": "删除结果",
     "no_voice_selected": "请先选择一个语音",
     "generation_failed": "生成语音失败，请重试",
+    "history_title": "生成记录",
     "countries": {
       "china": "中国",
       "taiwan": "台湾",
@@ -198,6 +199,15 @@
       "tagalog": "他加禄语",
       "maori": "毛利语",
       "hausa": "豪萨语"
+    },
+      "voice_settings": {
+      "title": "语音设置",
+      "speed": "语速",
+      "volume": "音量",
+      "pitch": "音调",
+      "speed_tip": "{speed}%",
+      "volume_tip": "{volume}%",
+      "pitch_tip": "{pitch}"
     }
   },
   "introduce": {

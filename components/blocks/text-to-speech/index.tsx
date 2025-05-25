@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Settings } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ttsList } from "./tts";
 import { useTranslations, useLocale } from "next-intl";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
@@ -70,37 +73,42 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
 
   // 获取当前语言环境
   const locale = useLocale();
-  
-  // 移除 useTranslations
-  // const t = useTranslations();
 
   const [text, setText] = useState("");
-  const [currentLanguage, setCurrentLanguage] = useState("");
+  // 将初始语言设置为美式英语
+  const [currentLanguage, setCurrentLanguage] = useState("en");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  
+
   // 添加新状态
   const [selectedVoice, setSelectedVoice] = useState<VoiceActor | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<SpeechResult[]>([]);
-  
+
   // 按语言分类整理数据
   const [languageCategories, setLanguageCategories] = useState<LanguageCategory[]>([]);
   const [currentVoices, setCurrentVoices] = useState<VoiceActor[]>([]);
-  
+
+  const [speed, setSpeed] = useState(0)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [volume, setVolume] = useState(100); // 音量，默认1.0
+  const [pitch, setPitch] = useState(0); // 音调，默认0
+
+
+
   // 初始化数据
   useEffect(() => {
     if (ttsList && ttsList.length > 0 && ttsList[0].microSoft) {
-      const voices:any = ttsList[0].microSoft;
-      
+      const voices: any = ttsList[0].microSoft;
+
       // 按语言分组
-      const langMap = new Map<string, {name: string, voices: VoiceActor[]}>();
-      
+      const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
+
       voices.forEach((voice: VoiceActor) => {
         // 提取语言代码，例如 zh-CN, en-US 等
         const langCode = voice.key.split('-').slice(0, 2).join('-');
-        
+
         if (!langMap.has(langCode)) {
           // 直接使用tts.js中的lang字段作为显示名称
           langMap.set(langCode, {
@@ -108,14 +116,14 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
             voices: []
           });
         }
-        
+
         // 把当前语音添加到对应语言的voices数组中
         langMap.get(langCode)?.voices.push(voice);
       });
-      
+
       // 转换为语言分类数组
       const categories: LanguageCategory[] = [];
-      
+
       // Mapping for country names to flags
       const countryFlagMap: { [key: string]: string } = {
         "中国": "🇨🇳",
@@ -160,8 +168,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         "肯尼亚": "🇰🇪",
         // Add more mappings as needed based on your tts.js data
       };
-      
-      
+
+
       // Mapping for language names to flags (fallback)
       const languageFlagMap: { [key: string]: string } = {
         "中文": "🇨🇳",
@@ -198,8 +206,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         "豪萨语": "🇳🇬", // 示例
         // Add more language to flag mappings as needed
       };
-      
-      
+
+
       langMap.forEach((value, key) => {
         // Extract country name from the lang string, e.g., "爱沙尼亚语(爱沙尼亚)" -> "爱沙尼亚"
         let countryName = "";
@@ -209,7 +217,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         }
 
         // debugger
-      
+
         // Extract language name from the lang string, e.g., "爱沙尼亚语(爱沙尼亚)" -> "爱沙尼亚语"
         let languageName = value.name;
         const langMatch = value.name.match(/^(.*?)\(/);
@@ -219,10 +227,10 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           // 如果没有括号，使用整个名称作为语言名称
           languageName = value.name;
         }
-      
+
         // Get flag: first try country name, then language name, default to globe
         let flag = countryFlagMap[countryName] || languageFlagMap[languageName] || "🌐";
-      
+
         // Determine region type (can keep existing logic or simplify)
         let regionType = "其他";
         if (key.includes("en")) {
@@ -234,12 +242,12 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         } else if (key.includes("ar") || key.includes("he") || key.includes("iw") || key.includes("tr") || key.includes("fa")) {
           regionType = "中东";
         }
-      
-      
+
+
         // 根据当前语言环境选择显示的语音名称
-        const displayName = locale === 'zh' ? value.name : 
-                       (value.voices[0]?.en_lang || value.name);
-        
+        const displayName = locale === 'zh' ? value.name :
+          (value.voices[0]?.en_lang || value.name);
+
         categories.push({
           code: key,
           name: displayName,  // 使用根据语言环境选择的名称
@@ -248,7 +256,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           // 由于 LanguageCategory 接口中没有定义 regionType，这里暂时移除该属性
         });
       });
-      
+
       // 按地区类型和语言名称排序
       categories.sort((a, b) => {
         // 定义地区优先级
@@ -259,33 +267,34 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           "中东": 4,
           "其他": 5
         };
-      
+
         // 先按地区类型排序
         //@ts-ignore
         const regionComparison = (regionOrder[a.regionType] || 5) - (regionOrder[b.regionType] || 5); // Handle potential missing regionType
-      
+
         // 如果地区相同，则按语言名称排序
         if (regionComparison === 0) {
           return a.name.localeCompare(b.name);
         }
-      
+
         return regionComparison;
       });
-      
+
       setLanguageCategories(categories);
-      
+
       // 设置默认语言
       if (categories.length > 0) {
-        // 优先选择中文或英文作为默认语言
-        const defaultLang = categories.find(cat => cat.code.includes("zh")) || 
-                            categories.find(cat => cat.code.includes("en")) || 
-                            categories[0];
+        // 优先选择美式英语 (en-US) 作为默认语言
+        const defaultLang = categories.find(cat => cat.code === "en-US") ||
+          categories.find(cat => cat.code.includes("zh")) ||
+          categories.find(cat => cat.code.includes("en")) ||
+          categories[0];
         setCurrentLanguage(defaultLang.code);
         setCurrentVoices(defaultLang.voices);
       }
     }
   }, []);
-  
+
   // 当语言改变时更新语音列表和重置选中的角色
   useEffect(() => {
     const category = languageCategories.find(cat => cat.code === currentLanguage);
@@ -328,10 +337,10 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       if (audioRef.current) {
         audioRef.current.pause();
       }
-      
+
       setCurrentAudio(audioSrc);
       setIsPlaying(true);
-      
+
       if (audioRef.current) {
         audioRef.current.src = audioSrc;
         audioRef.current.play();
@@ -342,10 +351,10 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   // 生成语音函数
   const handleGenerateSpeech = async () => {
     if (!selectedVoice || !text.trim() || isGenerating) return;
-    
+
     try {
       setIsGenerating(true);
-      
+
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: {
@@ -354,18 +363,19 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         body: JSON.stringify({
           key: selectedVoice.key,
           text: text,
-          voiceRate: 0, // 默认速度
-          voiceVolume: 100 // 默认音量
+          voiceRate: speed,
+          voiceVolume: volume,
+          voicePitch: pitch
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('生成语音失败');
       }
-      
+
       const data = await response.json();
       console.log(data, 'data-----')
-      
+
       // 创建新的结果记录
       const newResult: SpeechResult = {
         id: Date.now().toString(),
@@ -375,13 +385,13 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         audioUrl: data.url,
         createdAt: new Date()
       };
-      
+
       // 添加到结果列表
       setResults(prev => [newResult, ...prev]);
-      
+
       // 自动播放新生成的语音
       playAudio(data.url);
-      
+
     } catch (error) {
       console.error('生成语音失败:', error);
       alert('生成语音失败，请重试');
@@ -405,12 +415,12 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     // 创建音频元素
     const audio = new Audio();
     audioRef.current = audio;
-    
+
     // 监听音频播放结束事件
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
     });
-    
+
     return () => {
       audio.pause();
       audio.removeEventListener('ended', () => {
@@ -420,7 +430,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   }, []);
 
   return (
-    <section id={section.name} className="py-16">
+    <section id="text-to-speech" className="py-0">
       <div className="container">
         <div className="flex flex-col items-center gap-4">
           {section.label && (
@@ -443,17 +453,17 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           {/* 左侧语音生成区域 */}
           <div className="col-span-1 md:col-span-2">
             <div className="mb-6">
-              <Textarea 
+              <Textarea
                 placeholder={section.input_placeholder}
-                value={text} 
+                value={text}
                 onChange={handleTextChange}
-                className="min-h-32 resize-none"
+                className="min-h-40 resize-none"
               />
               <div className="flex justify-between mt-2 text-sm text-muted-foreground">
                 <span>{section.character_count.replace('{count}', text.length.toString())}</span>
               </div>
             </div>
-            
+
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-sm font-medium">{section.select_language}:</span>
@@ -474,27 +484,80 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                 </Select>
                 {currentLanguage && (
                   <Badge variant="outline" className="ml-2">
-                    {languageCategories.find(lang => lang.code === currentLanguage)?.flag} 
+                    {languageCategories.find(lang => lang.code === currentLanguage)?.flag}
                     {languageCategories.find(lang => lang.code === currentLanguage)?.name}
                   </Badge>
                 )}
+                
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>{section.voice_settings.title}</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Label>{section.voice_settings.speed}: {speed}%</Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={speed}
+                            onChange={(e) => setSpeed(parseInt(e.target.value))}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>{section.voice_settings.volume}: {volume}%</Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={volume}
+                            onChange={(e) => setVolume(parseInt(e.target.value))}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>{section.voice_settings.pitch}: {pitch}</Label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="range"
+                            min="-100"
+                            max="100"
+                            value={pitch}
+                            onChange={(e) => setPitch(parseInt(e.target.value))}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {currentVoices.map((voice) => (
-                <Card 
-                  key={voice.key} 
-                  className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${
-                    selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
-                  }`}
+                <Card
+                  key={voice.key}
+                  className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
+                    }`}
                   onClick={() => handleSelectVoice(voice)}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10 rounded-full ring-1 ring-input">
-                      <AvatarImage 
-                        src={voice.sex === 'Female' ? femaleAvatar : maleAvatar} 
-                        alt={voice.name} 
+                      <AvatarImage
+                        src={voice.sex === 'Female' ? femaleAvatar : maleAvatar}
+                        alt={voice.name}
                       />
                     </Avatar>
                     <div className="flex-1 min-w-0">
@@ -506,36 +569,36 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                         </Badge>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
                         playAudio(voice.example_voice_url);
                       }}
                       className="size-8 flex-shrink-0"
-                      style={{marginTop: '-30px', marginRight: '21px'}}  
+                      style={{ marginTop: '-30px', marginRight: '21px' }}
                     >
                       {currentAudio === voice.example_voice_url && isPlaying ? (
-                        <Pause className="h-4 w-4"/>
+                        <Pause className="h-4 w-4" />
                       ) : (
-                        <Play className="h-4 w-4"/>
+                        <Play className="h-4 w-4" />
                       )}
                     </Button>
                   </div>
                 </Card>
               ))}
             </div>
-            
+
             <div className="mt-6 flex justify-center">
-              <Button 
+              <Button
                 className="w-full md:w-60"
                 disabled={!selectedVoice || !text.trim() || isGenerating}
                 onClick={handleGenerateSpeech}
               >
                 {isGenerating ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {section.generating}
                   </>
                 ) : (
@@ -548,7 +611,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           {/* 右侧结果列表 */}
           <div className="col-span-1">
             <Card className="p-4">
-              <h3 className="text-lg font-medium mb-3">{section.generation_history}</h3>
+              <h3 className="text-1xl font-bold mb-4">{section.history_title}</h3>
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
                 {results.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">{section.no_history}</p>
@@ -563,8 +626,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                         </p>
                       </div>
                       <div className="flex justify-between items-center gap-2">
-                        <Button 
-                          variant="secondary" 
+                        <Button
+                          variant="secondary"
                           size="sm"
                           className="h-8"
                           onClick={() => playAudio(result.audioUrl)}
@@ -576,8 +639,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                           )}
                         </Button>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="h-8"
                             onClick={() => {
@@ -601,7 +664,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
           </div>
         </div>
       </div>
-      
+
       {/* 隐藏的音频元素 */}
       <audio ref={audioRef} style={{ display: 'none' }} />
     </section>
