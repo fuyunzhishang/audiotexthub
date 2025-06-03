@@ -33,7 +33,11 @@ export default function TableComponent({
           {columns &&
             columns.map((item: TableColumn, idx: number) => {
               return (
-                <TableHead key={idx} className={item.className}>
+                <TableHead 
+                  key={idx} 
+                  className={item.className}
+                  style={item.width ? { width: item.width } : undefined}
+                >
                   {item.title}
                 </TableHead>
               );
@@ -83,7 +87,11 @@ export default function TableComponent({
                   }
 
                   return (
-                    <TableCell key={iidx} className={column.className}>
+                    <TableCell 
+                      key={iidx} 
+                      className={column.className}
+                      style={column.width ? { width: column.width } : undefined}
+                    >
                       {cellContent}
                     </TableCell>
                   );

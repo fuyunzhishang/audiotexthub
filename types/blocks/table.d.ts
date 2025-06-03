@@ -5,6 +5,7 @@ export interface TableColumn {
   options?: any[];
   className?: string;
   callback?: (item: any) => any;
+  width?: string; // 新增width属性
 }
 
 export interface Table {

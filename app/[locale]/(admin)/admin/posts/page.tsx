@@ -28,6 +28,8 @@ export default async function () {
       {
         name: "description",
         title: "Description",
+        width: "300px", // 限制description列的宽度
+        className: "whitespace-normal" // 添加这一行覆盖nowrap样式
       },
       {
         name: "slug",
