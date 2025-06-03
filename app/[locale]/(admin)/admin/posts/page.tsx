@@ -28,8 +28,15 @@ export default async function () {
       {
         name: "description",
         title: "Description",
-        width: "300px", // 限制description列的宽度
-        className: "whitespace-normal" // 添加这一行覆盖nowrap样式
+        width: "300px",
+        className: "truncate max-w-[300px] cursor-pointer",
+        callback: (item) => {
+          return (
+            <div className="truncate max-w-[300px]" title={item.description}>
+              {item.description}
+            </div>
+          );
+        }
       },
       {
         name: "slug",

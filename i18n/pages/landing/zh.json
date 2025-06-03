@@ -3,10 +3,10 @@
   "theme": "light",
   "header": {
     "brand": {
-      "title": "ShipAny",
+      "title": "AudioTextHub",
       "logo": {
         "src": "/logo.png",
-        "alt": "ShipAny"
+        "alt": "AudioTextHub"
       },
       "url": "/"
     },
@@ -31,8 +31,8 @@
     },
     "buttons": [
       {
-        "title": "获取 ShipAny",
-        "url": "https://shipany.ai",
+        "title": "获取 AudioTextHub",
+        "url": "https://www.audiotexthub.pro/",
         "target": "_blank",
         "variant": "link",
         "icon": "RiArrowRightUpLine"
@@ -510,41 +510,11 @@
         {
           "title": "资源",
           "children": [
-            {
-              "title": "文档",
-              "url": "https://docs.audiotexthub.com",
-              "target": "_blank"
-            },
-            {
-              "title": "API 参考",
-              "url": "https://audiotexthub.com/api",
-              "target": "_blank"
-            },
-            {
-              "title": "语音样本",
-              "url": "https://audiotexthub.com/samples",
-              "target": "_blank"
-            }
           ]
         },
         {
           "title": "合作伙伴",
           "children": [
-            {
-              "title": "内容创作者",
-              "url": "https://audiotexthub.com/partners/creators",
-              "target": "_blank"
-            },
-            {
-              "title": "开发者",
-              "url": "https://audiotexthub.com/partners/developers",
-              "target": "_blank"
-            },
-            {
-              "title": "无障碍服务",
-              "url": "https://audiotexthub.com/partners/accessibility",
-              "target": "_blank"
-            }
           ]
         }
       ]

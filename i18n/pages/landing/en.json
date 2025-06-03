@@ -467,12 +467,6 @@
         "url": "/#pricing",
         "target": "_self",
         "icon": "GoArrowUpRight"
-      },
-      {
-        "title": "View Documentation",
-        "url": "https://docs.audiotexthub.com",
-        "target": "_blank",
-        "variant": "outline"
       }
     ]
   },
@@ -508,41 +502,11 @@
         {
           "title": "Resources",
           "children": [
-            {
-              "title": "Documentation",
-              "url": "https://docs.audiotexthub.com",
-              "target": "_blank"
-            },
-            {
-              "title": "API Reference",
-              "url": "https://audiotexthub.com/api",
-              "target": "_blank"
-            },
-            {
-              "title": "Voice Samples",
-              "url": "https://audiotexthub.com/samples",
-              "target": "_blank"
-            }
           ]
         },
         {
           "title": "Partners",
           "children": [
-            {
-              "title": "Content Creators",
-              "url": "https://audiotexthub.com/partners/creators",
-              "target": "_blank"
-            },
-            {
-              "title": "Developers",
-              "url": "https://audiotexthub.com/partners/developers",
-              "target": "_blank"
-            },
-            {
-              "title": "Accessibility Services",
-              "url": "https://audiotexthub.com/partners/accessibility",
-              "target": "_blank"
-            }
           ]
         }
       ]
