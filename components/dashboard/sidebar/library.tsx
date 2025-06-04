@@ -46,7 +46,7 @@ export function Library({ library }: { library: LibraryType }) {
               }`}
             >
               <Link
-                href={(item.url || "") as any}
+                href={(item.url || "#") as any}
                 target={item.target}
                 className="w-full flex items-center gap-2 cursor-pointer"
               >

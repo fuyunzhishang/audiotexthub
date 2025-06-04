@@ -56,6 +56,7 @@ export default async function RootLayout({
         )}
 
         <link rel="icon" href="/favicon.ico" />
+        <script defer src="https://cloud.umami.is/script.js" data-website-id="2b684ccb-5696-4338-b111-6e63fdd88c20"></script>
 
         {locales &&
           locales.map((loc) => (

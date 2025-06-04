@@ -26,7 +26,7 @@ export function BottomNav({
           {nav.items?.map((item, index) => (
             <SidebarMenuItem key={index}>
               <SidebarMenuButton asChild>
-                <Link href={item.url as any} target={item.target}>
+                <Link href={(item.url || "#") as any} target={item.target}>
                   {item.icon && <Icon name={item.icon} />}
                   <span>{item.title}</span>
                 </Link>
