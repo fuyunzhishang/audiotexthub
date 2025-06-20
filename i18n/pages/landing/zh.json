@@ -13,6 +13,11 @@
     "nav": {
       "items": [
         {
+          "title": "数字人工作台",
+          "url": "/studio",
+          "icon": "RiUserVoiceLine"
+        },
+        {
           "title": "功能特点",
           "url": "/#feature",
           "icon": "RiSparkling2Line"

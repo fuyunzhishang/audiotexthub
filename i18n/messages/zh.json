@@ -121,5 +121,65 @@
     "contact_tip": "其他联系方式",
     "rating_tip": "您对 AudioTextHub 的看法如何？",
     "placeholder": "在这里留下您的反馈..."
+  },
+  "digital_human": {
+    "workspace": {
+      "title": "数字人工作台",
+      "description": "选择数字人形象，输入文本，生成专业视频"
+    },
+    "avatars": {
+      "title": "数字人管理",
+      "description": "管理和自定义您的数字人形象"
+    },
+    "voice": {
+      "title": "语音配置",
+      "description": "配置语音参数和效果",
+      "voice_type": "语音类型",
+      "voice_speed": "语速",
+      "voice_pitch": "音调",
+      "voice_volume": "音量",
+      "male": "男声",
+      "female": "女声",
+      "child": "童声",
+      "elderly": "老年声",
+      "slow": "慢速",
+      "normal": "正常",
+      "fast": "快速",
+      "low": "低沉",
+      "medium": "中等",
+      "high": "高亢",
+      "quiet": "安静",
+      "moderate": "适中",
+      "loud": "响亮"
+    },
+    "templates": {
+      "title": "模板中心",
+      "description": "使用预设模板快速生成视频"
+    },
+    "background": {
+      "title": "背景设置",
+      "description": "自定义视频背景"
+    },
+    "history": {
+      "title": "历史记录",
+      "description": "查看所有生成的视频记录"
+    },
+    "settings": {
+      "title": "高级设置",
+      "description": "配置高级选项和参数"
+    },
+    "sidebar": {
+      "workspace": "工作台",
+      "avatars": "数字人",
+      "voice": "语音配置",
+      "templates": "模板中心",
+      "background": "背景设置",
+      "history": "历史记录",
+      "settings": "高级设置",
+      "digital_human_workspace": "数字人工作台",
+      "usage": "使用量",
+      "remaining_credits": "剩余积分",
+      "new": "新"
+    }
   }
 }
