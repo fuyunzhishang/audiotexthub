@@ -13,11 +13,6 @@
     "nav": {
       "items": [
         {
-          "title": "Digital Human Studio",
-          "url": "/studio",
-          "icon": "RiUserVoiceLine"
-        },
-        {
           "title": "Features",
           "url": "/#feature",
           "icon": "RiSparkling2Line"
