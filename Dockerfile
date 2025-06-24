@@ -2,7 +2,9 @@ FROM node:18-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat && yarn global add pnpm
+# Install pnpm
+RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
@@ -15,8 +17,10 @@ FROM deps AS builder
 
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+# Copy all files
 COPY . .
+
+# Build the application
 RUN pnpm build
 
 # Production image, copy all the files and run next
