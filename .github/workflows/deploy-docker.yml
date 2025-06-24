@@ -54,8 +54,7 @@ jobs:
           
           # 创建目录结构
           echo "创建目录结构..."
-          sudo mkdir -p ${APP_DIR}/{backups,logs}
-          sudo chown -R $USER:$USER ${APP_DIR}
+          mkdir -p ${APP_DIR}/{backups,logs}
           cd ${APP_DIR}
           
           # 备份当前版本（如果存在）
@@ -80,15 +79,15 @@ jobs:
             if ! docker compose version &> /dev/null; then
               echo "Docker Compose 未安装，正在安装..."
               # 安装 Docker Compose
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              sudo chmod +x /usr/local/bin/docker-compose
+              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              chmod +x /usr/local/bin/docker-compose
             fi
           fi
           
           # 加载新镜像
           echo "加载 Docker 镜像..."
-          sudo docker load < /tmp/audiotexthub.tar.gz
-          sudo rm -f /tmp/audiotexthub.tar.gz
+          docker load < /tmp/audiotexthub.tar.gz
+          rm -f /tmp/audiotexthub.tar.gz
           
           # 检查环境变量文件
           if [ ! -f "${APP_DIR}/.env" ]; then
@@ -103,14 +102,14 @@ jobs:
           
           # 停止旧容器
           echo "停止旧容器..."
-          sudo docker-compose down || sudo docker compose down || true
+          docker-compose down || docker compose down || true
           
           # 启动新容器
           echo "启动新容器..."
           if command -v docker-compose &> /dev/null; then
-            sudo docker-compose up -d
+            docker-compose up -d
           else
-            sudo docker compose up -d
+            docker compose up -d
           fi
           
           # 等待容器启动
@@ -119,15 +118,15 @@ jobs:
           
           # 显示容器状态
           echo "容器状态："
-          sudo docker ps -a | grep audiotexthub || true
+          docker ps -a | grep audiotexthub || true
           
           # 显示容器日志
           echo "最近的容器日志："
-          sudo docker logs --tail 50 audiotexthub_app_1 || sudo docker logs --tail 50 audiotexthub-app-1 || true
+          docker logs --tail 50 audiotexthub_app_1 || docker logs --tail 50 audiotexthub-app-1 || true
           
           # 清理旧镜像
           echo "清理未使用的镜像..."
-          sudo docker image prune -f || true
+          docker image prune -f || true
           
           echo "部署完成！"
 
@@ -144,9 +143,9 @@ jobs:
           echo "执行健康检查..."
           
           # 检查容器状态
-          if ! sudo docker ps | grep -q audiotexthub; then
+          if ! docker ps | grep -q audiotexthub; then
             echo "错误：容器未运行！"
-            sudo docker ps -a
+            docker ps -a
             exit 1
           fi
           
@@ -163,11 +162,11 @@ jobs:
               
               # 显示容器信息
               echo "容器运行状态："
-              sudo docker ps | grep audiotexthub
+              docker ps | grep audiotexthub
               
               # 显示端口监听
               echo "端口监听状态："
-              sudo netstat -tlpn | grep :3000 || sudo ss -tlpn | grep :3000 || true
+              netstat -tlpn | grep :3000 || ss -tlpn | grep :3000 || true
               
               # 测试API端点
               echo "测试API端点..."
@@ -185,7 +184,7 @@ jobs:
           # 健康检查失败
           echo "❌ 健康检查失败！"
           echo "容器日志："
-          sudo docker logs --tail 100 audiotexthub_app_1 || sudo docker logs --tail 100 audiotexthub-app-1
+          docker logs --tail 100 audiotexthub_app_1 || docker logs --tail 100 audiotexthub-app-1
           exit 1
 
     # 清理工作流产物
