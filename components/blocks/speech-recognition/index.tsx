@@ -315,8 +315,8 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
               </div> */}
 
               <div className="flex flex-col items-center gap-6">
-                {/* Microphone button */}
-                <Button
+                {/* Microphone button - HIDDEN */}
+                {/* <Button
                   size="lg"
                   variant={isRecording ? "destructive" : "default"}
                   className="w-32 h-32 rounded-full"
@@ -332,11 +332,11 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                 
                 <p className="text-sm text-muted-foreground">
                   {isRecording ? section.recording : section.click_to_record}
-                </p>
+                </p> */}
 
                 {/* File upload option */}
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">{section.or}</span>
+                  {/* <span className="text-sm text-muted-foreground">{section.or}</span> */}
                   <Button variant="outline" asChild>
                     <label className="cursor-pointer">
                       <input
