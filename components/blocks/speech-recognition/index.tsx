@@ -350,6 +350,11 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                     </label>
                   </Button>
                 </div>
+                
+                {/* File format tip */}
+                <p className="text-xs text-muted-foreground text-center max-w-md mx-auto">
+                  {section.fileFormatTip}
+                </p>
 
                 {isProcessing && (
                   <div className="flex items-center gap-2">
