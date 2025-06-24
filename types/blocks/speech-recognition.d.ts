@@ -1,4 +1,7 @@
 export interface SpeechRecognitionSection {
+  fileFormatTip: ReactNode;
+  mic_permission_tip: string;
+  mac_permission_guide: string;
   disabled?: boolean;
   label?: string;
   icon?: string;

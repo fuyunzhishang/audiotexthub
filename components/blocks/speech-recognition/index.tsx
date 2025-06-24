@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
-import { Mic, MicOff, Copy, Download, Loader2 } from "lucide-react";
+import { Mic, MicOff, Copy, Download, Loader2, HelpCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,12 @@ import {
 } from "@/components/ui/select";
 import { useTranslations, useLocale } from "next-intl";
 import { SpeechRecognitionSection } from "@/types/blocks/speech-recognition";
+import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface RecognitionResult {
   id: string;
@@ -246,10 +252,31 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
     processAudio(file);
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      // Could add a toast notification here
-    });
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('Text copied to clipboard');
+      toast.success('复制成功');
+    } catch (err) {
+      console.error('Failed to copy text:', err);
+      // 降级方案：使用 execCommand
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        console.log('Text copied using execCommand');
+        toast.success('复制成功');
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+        toast.error('复制失败');
+      }
+      textArea.remove();
+    }
   };
 
   const downloadText = (result: RecognitionResult) => {
@@ -282,10 +309,10 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Left side - Recognition controls */}
           <div className="col-span-1 md:col-span-2">
-            <Card className="p-6">
+            <Card className="p-4">
               {/* Engine selector temporarily hidden */}
               {/* <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -314,29 +341,42 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                 </div>
               </div> */}
 
-              <div className="flex flex-col items-center gap-6">
-                {/* Microphone button - HIDDEN */}
-                {/* <Button
+              <div className="flex flex-col items-center gap-4">
+                {/* Microphone button - 恢复录音功能 */}
+                <Button
                   size="lg"
                   variant={isRecording ? "destructive" : "default"}
-                  className="w-32 h-32 rounded-full"
+                  className="w-24 h-24 rounded-full"
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={isProcessing}
                 >
                   {isRecording ? (
-                    <MicOff className="h-12 w-12" />
+                    <MicOff className="h-10 w-10" />
                   ) : (
-                    <Mic className="h-12 w-12" />
+                    <Mic className="h-10 w-10" />
                   )}
                 </Button>
                 
-                <p className="text-sm text-muted-foreground">
-                  {isRecording ? section.recording : section.click_to_record}
-                </p> */}
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-muted-foreground">
+                    {isRecording ? section.recording : section.click_to_record}
+                  </p>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      <div className="text-xs">
+                        <p className="mb-1">💡 {section.mic_permission_tip || "录音权限提醒"}</p>
+                        <p>{section.mac_permission_guide || "Mac用户：请在系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风中允许浏览器访问麦克风"}</p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
 
                 {/* File upload option */}
-                <div className="flex items-center gap-4">
-                  {/* <span className="text-sm text-muted-foreground">{section.or}</span> */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">{section.or}</span>
                   <Button variant="outline" asChild>
                     <label className="cursor-pointer">
                       <input
@@ -352,7 +392,7 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                 </div>
                 
                 {/* File format tip */}
-                <p className="text-xs text-muted-foreground text-center max-w-md mx-auto">
+                <p className="text-xs text-muted-foreground text-center max-w-sm mx-auto">
                   {section.fileFormatTip}
                 </p>
 
@@ -366,7 +406,7 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
 
               {/* Latest result display */}
               {results.length > 0 && (
-                <Card className="mt-6 p-4 bg-muted/50">
+                <Card className="mt-4 p-3 bg-muted/50">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium">{section.latest_result}</h4>
                     <div className="flex gap-2">
@@ -374,15 +414,17 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToClipboard(results[0].text)}
+                        title="复制文本"
                       >
-                        <Copy className="h-4 w-4" />
+                        <Copy className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => downloadText(results[0])}
+                        title="下载文本"
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
@@ -398,14 +440,14 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
           {/* Right side - History */}
           <div className="col-span-1">
             <Card className="p-4">
-              <h3 className="text-1xl font-bold mb-4">{section.history_title}</h3>
-              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+              <h3 className="text-lg font-semibold mb-3">{section.history_title}</h3>
+              <div className="space-y-2 max-h-[500px] overflow-y-auto">
                 {results.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">{section.no_history}</p>
                 ) : (
                   results.slice(1).map((result) => (
-                    <Card key={result.id} className="p-3">
-                      <div className="mb-2">
+                    <Card key={result.id} className="p-2.5">
+                      <div className="mb-1.5">
                         <p className="text-sm font-medium line-clamp-2">{result.text}</p>
                         <p className="text-xs text-muted-foreground">
                           {engineTypes.find(e => e.value === result.engineType)?.label}
@@ -422,18 +464,20 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2"
+                            className="h-7 px-1.5"
                             onClick={() => copyToClipboard(result.text)}
+                            title="复制文本"
                           >
-                            <Copy className="h-3.5 w-3.5" />
+                            <Copy className="h-3 w-3" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 px-2"
+                            className="h-7 px-1.5"
                             onClick={() => downloadText(result)}
+                            title="下载文本"
                           >
-                            <Download className="h-3.5 w-3.5" />
+                            <Download className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
