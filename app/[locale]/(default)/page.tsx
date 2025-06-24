@@ -10,8 +10,9 @@ import Pricing from "@/components/blocks/pricing";
 import Showcase from "@/components/blocks/showcase";
 import Stats from "@/components/blocks/stats";
 import Testimonial from "@/components/blocks/testimonial";
-import TextToSpeech from "@/components/blocks/text-to-speech";
+import SpeechTools from "@/components/blocks/speech-tools";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
+import { SpeechRecognitionSection } from "@/types/blocks/speech-recognition";
 import { getLandingPage } from "@/services/page";
 
 export async function generateMetadata({
@@ -46,7 +47,12 @@ export default async function LandingPage({
       {page.hero && <Hero hero={page.hero} />}
       {page.branding && <Branding section={page.branding} />}
       
-      {page.textToSpeech && <TextToSpeech section={page.textToSpeech as unknown as TextToSpeechSection} />}
+      {(page.textToSpeech || page.speechRecognition) && (
+        <SpeechTools 
+          textToSpeech={page.textToSpeech as unknown as TextToSpeechSection}
+          speechRecognition={page.speechRecognition as unknown as SpeechRecognitionSection}
+        />
+      )}
       {page.introduce && <Feature1 section={page.introduce} />}
       {page.benefit && <Feature2 section={page.benefit} />}
       {page.usage && <Feature3 section={page.usage} />}

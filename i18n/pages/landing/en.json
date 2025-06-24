@@ -13,6 +13,16 @@
     "nav": {
       "items": [
         {
+          "title": "Text to Speech",
+          "url": "/text-to-speech",
+          "icon": "RiVoiceprintFill"
+        },
+        {
+          "title": "Speech Recognition",
+          "url": "/speech-recognition",
+          "icon": "RiMicFill"
+        },
+        {
           "title": "Features",
           "url": "/#feature",
           "icon": "RiSparkling2Line"
@@ -200,14 +210,48 @@
       "hausa": "Hausa"
     },
     "voice_settings": {
-    "title": "Voice Settings",
-    "speed": "Speed",
-    "volume": "Volume",
-    "pitch": "Pitch",
-    "speed_tip": "{speed}%",
-    "volume_tip": "{volume}%",
-    "pitch_tip": "{pitch}"
-  }
+      "title": "Voice Settings",
+      "speed": "Speed",
+      "volume": "Volume",
+      "pitch": "Pitch",
+      "speed_tip": "{speed}%",
+      "volume_tip": "{volume}%",
+      "pitch_tip": "{pitch}"
+    },
+    "label": "Text to Speech",
+    "icon": "RiVoiceprintFill",
+    "title": "AI Text to Speech",
+    "description": "Convert text to natural-sounding speech instantly",
+    "select_language_placeholder": "Select Language",
+    "play": "Play",
+    "pause": "Pause",
+    "no_history": "No generation history",
+    "voice_file_prefix": "Voice"
+  },
+  "speechRecognition": {
+    "label": "Speech Recognition",
+    "icon": "RiMicFill",
+    "title": "AI Speech Recognition",
+    "description": "Accurately transcribe speech to text in seconds",
+    "select_engine": "Select Recognition Engine",
+    "select_engine_placeholder": "Select Engine",
+    "click_to_record": "Click to start recording",
+    "recording": "Recording...",
+    "or": "or",
+    "upload_audio": "Upload Audio File",
+    "processing": "Processing...",
+    "latest_result": "Recognition Result",
+    "duration": "Duration",
+    "history_title": "Recognition History",
+    "no_history": "No recognition history",
+    "text_file_prefix": "Transcript",
+    "error_messages": {
+      "mic_permission": "Cannot access microphone, please check permissions",
+      "recognition_failed": "Recognition failed, please try again",
+      "invalid_format": "Unsupported file format",
+      "file_too_large": "File size exceeds 100MB limit",
+      "file_too_long": "File duration exceeds 5 minutes limit"
+    }
   },
   "introduce": {
     "name": "introduce",

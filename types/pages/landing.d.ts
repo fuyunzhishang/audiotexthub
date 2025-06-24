@@ -11,6 +11,7 @@ export interface LandingPage {
   branding?: Section;
   introduce?: Section;
   textToSpeech?: Section;
+  speechRecognition?: Section;
   benefit?: Section;
   usage?: Section;
   feature?: Section;

@@ -13,6 +13,16 @@
     "nav": {
       "items": [
         {
+          "title": "文本转语音",
+          "url": "/text-to-speech",
+          "icon": "RiVoiceprintFill"
+        },
+        {
+          "title": "语音识别",
+          "url": "/speech-recognition",
+          "icon": "RiMicFill"
+        },
+        {
           "title": "功能特点",
           "url": "/#feature",
           "icon": "RiSparkling2Line"
@@ -200,7 +210,7 @@
       "maori": "毛利语",
       "hausa": "豪萨语"
     },
-      "voice_settings": {
+    "voice_settings": {
       "title": "语音设置",
       "speed": "语速",
       "volume": "音量",
@@ -208,6 +218,40 @@
       "speed_tip": "{speed}%",
       "volume_tip": "{volume}%",
       "pitch_tip": "{pitch}"
+    },
+    "label": "文本转语音",
+    "icon": "RiVoiceprintFill",
+    "title": "AI文本转语音",
+    "description": "将文字瞬间转换成自然流畅的语音",
+    "select_language_placeholder": "选择语言",
+    "play": "播放",
+    "pause": "暂停",
+    "no_history": "暂无生成记录",
+    "voice_file_prefix": "语音"
+  },
+  "speechRecognition": {
+    "label": "语音识别",
+    "icon": "RiMicFill",
+    "title": "AI语音识别",
+    "description": "精准识别语音内容，快速转换为文字",
+    "select_engine": "选择识别引擎",
+    "select_engine_placeholder": "选择引擎",
+    "click_to_record": "点击开始录音",
+    "recording": "正在录音...",
+    "or": "或者",
+    "upload_audio": "上传音频文件",
+    "processing": "正在识别...",
+    "latest_result": "识别结果",
+    "duration": "时长",
+    "history_title": "识别记录",
+    "no_history": "暂无识别记录",
+    "text_file_prefix": "识别文本",
+    "error_messages": {
+      "mic_permission": "无法访问麦克风，请检查权限设置",
+      "recognition_failed": "识别失败，请重试",
+      "invalid_format": "不支持的文件格式",
+      "file_too_large": "文件大小超过100MB限制",
+      "file_too_long": "文件时长超过5分钟限制"
     }
   },
   "introduce": {

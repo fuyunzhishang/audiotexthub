@@ -430,26 +430,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   }, []);
 
   return (
-    <section id="text-to-speech" className="py-0">
-      <div className="container">
-        <div className="flex flex-col items-center gap-4">
-          {section.label && (
-            <div className="flex items-center gap-1 text-sm font-semibold text-primary">
-              {section.icon && (
-                <Icon name={section.icon} className="h-6 w-auto border-primary" />
-              )}
-              {section.label}
-            </div>
-          )}
-          <h2 className="text-center text-3xl font-semibold lg:text-4xl">
-            {section.title}
-          </h2>
-          <p className="text-center text-muted-foreground lg:text-lg">
-            {section.description}
-          </p>
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 左侧语音生成区域 */}
           <div className="col-span-1 md:col-span-2">
             <div className="mb-6">
@@ -663,10 +645,9 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
             </Card>
           </div>
         </div>
-      </div>
 
       {/* 隐藏的音频元素 */}
       <audio ref={audioRef} style={{ display: 'none' }} />
-    </section>
+    </div>
   );
 }
