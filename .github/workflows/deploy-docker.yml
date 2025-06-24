@@ -54,7 +54,8 @@ jobs:
           
           # 创建目录结构
           echo "创建目录结构..."
-          mkdir -p ${APP_DIR}/{backups,logs}
+          sudo mkdir -p ${APP_DIR}/{backups,logs}
+          sudo chown -R $USER:$USER ${APP_DIR}
           cd ${APP_DIR}
           
           # 备份当前版本（如果存在）
@@ -79,8 +80,8 @@ jobs:
             if ! docker compose version &> /dev/null; then
               echo "Docker Compose 未安装，正在安装..."
               # 安装 Docker Compose
-              curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-              chmod +x /usr/local/bin/docker-compose
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+              sudo chmod +x /usr/local/bin/docker-compose
             fi
           fi
           
