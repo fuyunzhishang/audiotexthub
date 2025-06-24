@@ -11,7 +11,7 @@ services:
       - NEXT_PUBLIC_PROJECT_NAME=${NEXT_PUBLIC_PROJECT_NAME:-AudioTextHub}
       
       # Speech Recognition API
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3099}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://154.201.76.130:3099}
       
       # Database (if needed)
       - SUPABASE_URL=${SUPABASE_URL}
