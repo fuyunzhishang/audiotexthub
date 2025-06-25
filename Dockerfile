@@ -51,30 +51,11 @@ CMD ["node", "server.js"]
 # Nginx stage for reverse proxy
 FROM nginx:alpine AS nginx
 
-# Install openssl for generating self-signed certificates
-RUN apk add --no-cache openssl
-
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create SSL directory
-RUN mkdir -p /etc/nginx/ssl
-
-# Copy SSL certificates if they exist (ignore errors if missing)
-COPY nginx/ssl/*.pem /etc/nginx/ssl/ 2>/dev/null || true
-COPY nginx/ssl/*.crt /etc/nginx/ssl/ 2>/dev/null || true
-COPY nginx/ssl/*.key /etc/nginx/ssl/ 2>/dev/null || true
-
-# Generate self-signed certificate if cert.pem doesn't exist
-RUN if [ ! -f /etc/nginx/ssl/cert.pem ]; then \
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-        -keyout /etc/nginx/ssl/key.pem \
-        -out /etc/nginx/ssl/cert.pem \
-        -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"; \
-    fi
-
-# Set proper permissions for SSL files
-RUN chmod 600 /etc/nginx/ssl/* 2>/dev/null || true
+# Copy SSL certificates
+COPY nginx/ssl /etc/nginx/ssl
 
 # Expose ports
 EXPOSE 80 443
