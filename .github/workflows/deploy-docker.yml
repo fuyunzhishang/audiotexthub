@@ -87,28 +87,71 @@ jobs:
           
           # 加载新镜像
           echo "加载 Docker 镜像..."
-          docker load < /tmp/audiotexthub.tar.gz
+          sudo docker load < /tmp/audiotexthub.tar.gz
           rm -f /tmp/audiotexthub.tar.gz
           
           # 检查环境变量文件
           if [ ! -f "${APP_DIR}/.env" ]; then
-            echo "警告：.env 文件不存在！请手动创建并配置环境变量"
-            echo "需要配置以下环境变量："
-            echo "NEXT_PUBLIC_API_URL=你的语音识别API地址"
-            echo "AUTH_SECRET=认证密钥"
+            echo "警告：.env 文件不存在！正在创建默认配置..."
+            cat > "${APP_DIR}/.env" << 'EOF'
+# 基础配置
+NEXT_PUBLIC_API_URL=http://localhost:3000
+AUTH_SECRET=your-auth-secret-here
+NEXT_PUBLIC_APP_NAME=AudioTextHub
+NEXT_PUBLIC_ENABLE_PROTECT=false
+NEXT_PUBLIC_ENABLE_STRIPE=false
+NEXT_PUBLIC_ENABLE_BILLING=false
+NEXT_PUBLIC_ENABLE_LANDINGPAGE=true
+
+# 数据库配置（如果使用）
+DATABASE_URL=
+DATABASE_AUTH_TOKEN=
+
+# 第三方服务配置（可选）
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_ENDPOINT_URL_S3=
+S3_BUCKET_NAME=
+S3_BUCKET_ENDPOINT=
+BAIDU_TRANSLATE_APPID=
+BAIDU_TRANSLATE_KEY=
+WEBHOOK_SECRET=
+NEXT_PUBLIC_GEMINI_API_KEY=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+UMAMI_URL=
+UMAMI_TOKEN=
+NEXT_PUBLIC_UMAMI_URL=
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=
+NEXT_PUBLIC_UMAMI_SRC=
+INNGEST_EVENT_KEY=
+INNGEST_SIGNING_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+RESEND_EMAIL_FROM=
+RESEND_API_KEY=
+SENTRY_AUTH_TOKEN=
+NEXT_PUBLIC_SENTRY_DSN=
+EOF
+            echo "✅ 已创建默认 .env 文件，请根据需要修改配置"
+          else
+            echo "✅ .env 文件已存在"
           fi
           
           
           # 停止旧容器
           echo "停止旧容器..."
-          docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
+          sudo docker-compose -f docker-compose.prod.yml down || sudo docker compose -f docker-compose.prod.yml down || true
           
           # 启动新容器
           echo "启动新容器..."
           if command -v docker-compose &> /dev/null; then
-            docker-compose -f docker-compose.prod.yml up -d
+            sudo docker-compose -f docker-compose.prod.yml up -d
           else
-            docker compose -f docker-compose.prod.yml up -d
+            sudo docker compose -f docker-compose.prod.yml up -d
           fi
           
           # 等待容器启动
@@ -117,16 +160,16 @@ jobs:
           
           # 显示容器状态
           echo "容器状态："
-          docker ps -a | grep -E "audiotexthub|nginx" || true
+          sudo docker ps -a | grep audiotexthub || true
           
           # 显示容器日志
           echo "最近的应用日志："
-          docker logs --tail 50 audiotexthub-app-1 || docker logs --tail 50 audiotexthub_app_1 || true
+          sudo docker logs --tail 50 audiotexthub-app-1 || sudo docker logs --tail 50 audiotexthub_app_1 || true
           # Nginx 日志检查已移除
           
           # 清理旧镜像
           echo "清理未使用的镜像..."
-          docker image prune -f || true
+          sudo docker image prune -f || true
           
           echo "部署完成！"
 
@@ -143,9 +186,9 @@ jobs:
           echo "执行健康检查..."
           
           # 检查容器状态
-          if ! docker ps | grep -q audiotexthub; then
+          if ! sudo docker ps | grep -q audiotexthub; then
             echo "错误：应用容器未运行！"
-            docker ps -a
+            sudo docker ps -a
             exit 1
           fi
           
@@ -167,15 +210,15 @@ jobs:
               
               # 显示容器信息
               echo "容器运行状态："
-              docker ps | grep audiotexthub
+              sudo docker ps | grep audiotexthub
               
               # 显示端口监听
               echo "端口监听状态："
-              netstat -tlpn | grep -E ':80|:443|:3000' || ss -tlpn | grep -E ':80|:443|:3000' || true
+              netstat -tlpn | grep -E ':80|:3000' || ss -tlpn | grep -E ':80|:3000' || true
               
               # 测试API端点
               echo "测试API端点..."
-              curl -s http://localhost/api/test-speech-api | head -100 || true
+              curl -s http://localhost/api/ping | head -100 || echo "API测试失败，但服务可能正常运行"
               
               exit 0
             else
@@ -189,9 +232,7 @@ jobs:
           # 健康检查失败
           echo "❌ 健康检查失败！"
           echo "应用容器日志："
-          docker logs --tail 100 audiotexthub-app-1 || docker logs --tail 100 audiotexthub_app_1
-          echo "Nginx容器日志："
-          docker logs --tail 100 audiotexthub-nginx-1 || docker logs --tail 100 audiotexthub_nginx_1
+          sudo docker logs --tail 100 audiotexthub-app-1 || sudo docker logs --tail 100 audiotexthub_app_1
           exit 1
 
     # 清理工作流产物
