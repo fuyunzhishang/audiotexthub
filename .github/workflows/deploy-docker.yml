@@ -32,7 +32,7 @@ jobs:
         port: ${{ secrets.DEPLOY_PORT || 22 }}
         username: ${{ secrets.DEPLOY_USER }}
         password: ${{ secrets.DEPLOY_PASS }}
-        source: "audiotexthub.tar.gz,docker-compose.yml,.env.docker.example,Dockerfile"
+        source: "audiotexthub.tar.gz,docker-compose.prod.yml,nginx.conf,.env.docker.example,Dockerfile"
         target: "/tmp/"
 
     # 部署到服务器
@@ -54,18 +54,20 @@ jobs:
           
           # 创建目录结构
           echo "创建目录结构..."
-          sudo mkdir -p ${APP_DIR}/{backups,logs}
+          sudo mkdir -p ${APP_DIR}/{backups,logs,ssl}
           sudo chown -R $USER:$USER ${APP_DIR}
           cd ${APP_DIR}
           
           # 备份当前版本（如果存在）
-          if [ -f "docker-compose.yml" ]; then
+          if [ -f "docker-compose.prod.yml" ]; then
             echo "备份当前配置..."
-            cp docker-compose.yml ${BACKUP_DIR}/docker-compose.yml.${TIMESTAMP}
+            cp docker-compose.prod.yml ${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}
+            [ -f "nginx.conf" ] && cp nginx.conf ${BACKUP_DIR}/nginx.conf.${TIMESTAMP}
           fi
           
           # 复制新的文件
-          cp /tmp/docker-compose.yml ${APP_DIR}/
+          cp /tmp/docker-compose.prod.yml ${APP_DIR}/
+          cp /tmp/nginx.conf ${APP_DIR}/
           cp /tmp/.env.docker.example ${APP_DIR}/
           cp /tmp/Dockerfile ${APP_DIR}/
           
@@ -102,16 +104,25 @@ jobs:
             echo "AUTH_SECRET=认证密钥"
           fi
           
+          # 检查SSL证书
+          if [ ! -f "${APP_DIR}/ssl/cert.pem" ] || [ ! -f "${APP_DIR}/ssl/key.pem" ]; then
+            echo "警告：SSL证书文件不存在！"
+            echo "生成自签名证书用于测试..."
+            mkdir -p ${APP_DIR}/ssl
+            openssl req -x509 -newkey rsa:4096 -keyout ${APP_DIR}/ssl/key.pem -out ${APP_DIR}/ssl/cert.pem -days 365 -nodes -subj "/CN=localhost"
+            echo "请使用正式的SSL证书替换 ${APP_DIR}/ssl 目录中的文件"
+          fi
+          
           # 停止旧容器
           echo "停止旧容器..."
-          docker-compose down || docker compose down || true
+          docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
           
           # 启动新容器
           echo "启动新容器..."
           if command -v docker-compose &> /dev/null; then
-            docker-compose up -d
+            docker-compose -f docker-compose.prod.yml up -d
           else
-            docker compose up -d
+            docker compose -f docker-compose.prod.yml up -d
           fi
           
           # 等待容器启动
@@ -120,11 +131,13 @@ jobs:
           
           # 显示容器状态
           echo "容器状态："
-          docker ps -a | grep audiotexthub || true
+          docker ps -a | grep -E "audiotexthub|nginx" || true
           
           # 显示容器日志
-          echo "最近的容器日志："
-          docker logs --tail 50 audiotexthub_app_1 || docker logs --tail 50 audiotexthub-app-1 || true
+          echo "最近的应用日志："
+          docker logs --tail 50 audiotexthub-app-1 || docker logs --tail 50 audiotexthub_app_1 || true
+          echo "最近的Nginx日志："
+          docker logs --tail 50 audiotexthub-nginx-1 || docker logs --tail 50 audiotexthub_nginx_1 || true
           
           # 清理旧镜像
           echo "清理未使用的镜像..."
@@ -146,13 +159,19 @@ jobs:
           
           # 检查容器状态
           if ! docker ps | grep -q audiotexthub; then
-            echo "错误：容器未运行！"
+            echo "错误：应用容器未运行！"
+            docker ps -a
+            exit 1
+          fi
+          
+          if ! docker ps | grep -q nginx; then
+            echo "错误：Nginx容器未运行！"
             docker ps -a
             exit 1
           fi
           
           # HTTP 健康检查
-          HEALTH_URL="http://localhost:3000"
+          HEALTH_URL="http://localhost:80"
           MAX_ATTEMPTS=10
           ATTEMPT=1
           
@@ -168,11 +187,11 @@ jobs:
               
               # 显示端口监听
               echo "端口监听状态："
-              netstat -tlpn | grep :3000 || ss -tlpn | grep :3000 || true
+              netstat -tlpn | grep -E ':80|:443|:3000' || ss -tlpn | grep -E ':80|:443|:3000' || true
               
               # 测试API端点
               echo "测试API端点..."
-              curl -s http://localhost:3000/api/test-speech-api | head -100 || true
+              curl -s http://localhost/api/test-speech-api | head -100 || true
               
               exit 0
             else
@@ -185,8 +204,10 @@ jobs:
           
           # 健康检查失败
           echo "❌ 健康检查失败！"
-          echo "容器日志："
-          docker logs --tail 100 audiotexthub_app_1 || docker logs --tail 100 audiotexthub-app-1
+          echo "应用容器日志："
+          docker logs --tail 100 audiotexthub-app-1 || docker logs --tail 100 audiotexthub_app_1
+          echo "Nginx容器日志："
+          docker logs --tail 100 audiotexthub-nginx-1 || docker logs --tail 100 audiotexthub_nginx_1
           exit 1
 
     # 清理工作流产物
