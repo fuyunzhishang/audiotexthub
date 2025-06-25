@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: runner
     ports:
       - "3000:3000"
     environment:
@@ -17,10 +18,13 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: Dockerfile.nginx
+      dockerfile: Dockerfile
+      target: nginx
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
       - app
     restart: unless-stopped
