@@ -42,7 +42,7 @@
     "buttons": [
       {
         "title": "获取 AudioTextHub",
-        "url": "https://www.audiotexthub.pro/",
+        "url": "http://www.audiotexthub.pro/",
         "target": "_blank",
         "variant": "link",
         "icon": "RiArrowRightUpLine"
