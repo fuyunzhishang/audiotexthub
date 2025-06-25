@@ -55,7 +55,7 @@ FROM nginx:alpine AS nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # 复制整个 ssl 目录（即使目录为空也不会报错）
-COPY /nginx/ssl /etc/nginx/ssl
+COPY nginx/ssl /etc/nginx/ssl
 
 # Expose ports
 EXPOSE 80 443
