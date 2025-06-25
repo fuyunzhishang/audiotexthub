@@ -2,7 +2,9 @@ name: Docker Deploy to Production
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -41,115 +43,67 @@ jobs:
           command_timeout: 30m
           script: |
             set -e
-
             APP_DIR="/var/www/audiotexthub"
             BACKUP_DIR="${APP_DIR}/backups"
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
             echo "创建目录结构..."
-            sudo mkdir -p ${APP_DIR}/{backups,logs,ssl}
-            sudo chown -R $USER:$USER ${APP_DIR}
-            cd ${APP_DIR}
+            sudo mkdir -p "${APP_DIR}/{backups,logs,ssl}"
+            sudo chown -R "$USER:$USER" "${APP_DIR}"
+            cd "${APP_DIR}"
 
-            if [ -f "docker-compose.prod.yml" ]; then
+            if [ -f docker-compose.prod.yml ]; then
               echo "备份当前配置..."
-              cp docker-compose.prod.yml ${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}
+              cp docker-compose.prod.yml "${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}"
             fi
 
-            cp /tmp/docker-compose.prod.yml ${APP_DIR}/
-            cp /tmp/Dockerfile ${APP_DIR}/
+            cp /tmp/docker-compose.prod.yml .
+            cp /tmp/Dockerfile .
 
-            if ! command -v docker &> /dev/null; then
-              echo "Docker 未安装，请先安装 Docker！"
+            if ! command -v docker >/dev/null; then
+              echo "Docker 未安装！"
               exit 1
             fi
 
-            if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-              echo "Docker Compose 未安装，正在安装..."
+            if ! docker compose version >/dev/null && ! command -v docker-compose >/dev/null; then
+              echo "安装 Docker Compose..."
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
                 -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            echo "加载 Docker 镜像..."
+            echo "加载镜像..."
             sudo docker load < /tmp/audiotexthub.tar.gz
             rm -f /tmp/audiotexthub.tar.gz
 
-            if [ ! -f "${APP_DIR}/.env" ]; then
-              echo "警告：.env 文件不存在！正在创建默认配置..."
-              cat << 'EOF' > "${APP_DIR}/.env"
-# 基础配置
+            if [ ! -f .env ]; then
+              echo "创建默认 .env 文件..."
+              cat << 'EOF' > .env
 NEXT_PUBLIC_API_URL=http://localhost:3000
 AUTH_SECRET=your-auth-secret-here
-NEXT_PUBLIC_APP_NAME=AudioTextHub
-NEXT_PUBLIC_ENABLE_PROTECT=false
-NEXT_PUBLIC_ENABLE_STRIPE=false
-NEXT_PUBLIC_ENABLE_BILLING=false
-NEXT_PUBLIC_ENABLE_LANDINGPAGE=true
-
-# 数据库配置（如果使用）
-DATABASE_URL=
-DATABASE_AUTH_TOKEN=
-
-# 第三方服务配置（可选）
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_ENDPOINT_URL_S3=
-S3_BUCKET_NAME=
-S3_BUCKET_ENDPOINT=
-BAIDU_TRANSLATE_APPID=
-BAIDU_TRANSLATE_KEY=
-WEBHOOK_SECRET=
-NEXT_PUBLIC_GEMINI_API_KEY=
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-UMAMI_URL=
-UMAMI_TOKEN=
-NEXT_PUBLIC_UMAMI_URL=
-NEXT_PUBLIC_UMAMI_WEBSITE_ID=
-NEXT_PUBLIC_UMAMI_SRC=
-INNGEST_EVENT_KEY=
-INNGEST_SIGNING_KEY=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-RESEND_EMAIL_FROM=
-RESEND_API_KEY=
-SENTRY_AUTH_TOKEN=
-NEXT_PUBLIC_SENTRY_DSN=
 EOF
-              echo "✅ 已创建默认 .env 文件，请根据需要修改配置"
-            else
-              echo "✅ .env 文件已存在"
             fi
 
             echo "停止旧容器..."
             docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
 
             echo "启动新容器..."
-            if command -v docker-compose &> /dev/null; then
+            if command -v docker-compose >/dev/null; then
               docker-compose -f docker-compose.prod.yml up -d
             else
               docker compose -f docker-compose.prod.yml up -d
             fi
 
-            echo "等待服务启动..."
+            echo "等待启动..."
             sleep 10
 
-            CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -n 1)
+            CONTAINER=$(docker ps --format '{{.Names}}' | grep audiotexthub | head -n1)
 
-            echo "容器状态："
-            docker ps -a | grep audiotexthub || true
+            echo "日志输出："
+            docker logs --tail 50 "${CONTAINER}" || true
 
-            echo "最近的应用日志："
-            docker logs --tail 50 "$CONTAINER" || true
-
-            echo "清理未使用的镜像..."
+            echo "清理镜像..."
             docker image prune -f || true
-
-            echo "部署完成！"
 
       - name: Health Check
         uses: appleboy/ssh-action@master
@@ -159,42 +113,18 @@ EOF
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASS }}
           script: |
-            echo "执行健康检查..."
-
-            CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -n 1)
-
-            if ! docker ps | grep -q "$CONTAINER"; then
-              echo "❌ 应用容器未运行！"
-              docker ps -a
-              exit 1
+            CONTAINER=$(docker ps --format '{{.Names}}' | grep audiotexthub | head -n1)
+            if ! docker ps | grep -q "${CONTAINER}"; then
+              echo "容器未运行！" && exit 1
             fi
-
-            MAX_ATTEMPTS=10
-            ATTEMPT=1
-
-            while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
-              echo "健康检查尝试 $ATTEMPT/$MAX_ATTEMPTS..."
-              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 || echo "000")
-              echo "HTTP 响应码: $HTTP_CODE"
-
-              if [ "$HTTP_CODE" = "200" ]; then
-                echo "✅ 健康检查通过！"
-                docker ps | grep "$CONTAINER" || true
-                ss -tlpn | grep -E ':80|:3000' || netstat -tlpn | grep -E ':80|:3000' || true
-                echo "测试API端点..."
-                curl -s http://localhost/api/ping | head -100 || echo "API测试失败，但服务可能正常运行"
-                exit 0
-              else
-                echo "等待服务响应..."
-                sleep 5
+            for i in {1..10}; do
+              HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo 000)
+              if [ "${HTTP_CODE}" = "200" ]; then
+                echo "健康检查通过！" && exit 0
               fi
-
-              ATTEMPT=$((ATTEMPT + 1))
+              sleep 5
             done
-
-            echo "❌ 健康检查失败！"
-            docker logs --tail 100 "$CONTAINER" || true
-            exit 1
+            echo "健康检查失败！" && docker logs --tail 100 "${CONTAINER}" && exit 1
 
       - name: Cleanup
         if: always()
@@ -202,12 +132,8 @@ EOF
 
       - name: Success Notification
         if: success()
-        run: |
-          echo "🎉 AudioTextHub Docker 部署成功！"
-          echo "部署时间: $(date)"
-          echo "Git 提交: ${{ github.sha }}"
-          echo "部署分支: ${{ github.ref_name }}"
+        run: echo "🎉 部署成功：${{ github.sha }} on ${{ github.ref_name }}"
 
       - name: Failure Notification
         if: failure()
-        run: echo "❌ AudioTextHub Docker 部署失败，请检查日志。"
+        run: echo "❌ 部署失败，请检查日志。"
