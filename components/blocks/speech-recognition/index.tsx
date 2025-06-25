@@ -78,9 +78,11 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
 
       mediaRecorder.onstop = () => {
         console.log('MediaRecorder stopped, chunks collected:', chunksRef.current.length);
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        // 保持 MediaRecorder 的原始格式，不强制转换为 webm
+        const mimeType = mediaRecorder.mimeType || 'audio/webm';
+        const blob = new Blob(chunksRef.current, { type: mimeType });
         setRecordedBlob(blob);
-        processAudio(blob);
+        processAudio(blob, mimeType);
         // Clean up stream
         if (streamRef.current) {
           streamRef.current.getTracks().forEach(track => track.stop());
@@ -108,7 +110,7 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
     }
   };
 
-  const processAudio = async (audioBlob: Blob) => {
+  const processAudio = async (audioBlob: Blob, mimeType?: string) => {
     setIsProcessing(true);
     console.log('=== Processing Audio ===');
     console.log('Audio blob details:', {
@@ -120,7 +122,26 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
     
     try {
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
+      // 根据实际的 MIME 类型确定文件扩展名
+      let fileName = 'recording';
+      const blobType = mimeType || audioBlob.type;
+      
+      if (blobType.includes('webm')) {
+        fileName += '.webm';
+      } else if (blobType.includes('mp4')) {
+        fileName += '.mp4';
+      } else if (blobType.includes('wav')) {
+        fileName += '.wav';
+      } else if (blobType.includes('mp3') || blobType.includes('mpeg')) {
+        fileName += '.mp3';
+      } else if (blobType.includes('ogg')) {
+        fileName += '.ogg';
+      } else {
+        // 默认使用 webm 作为后备
+        fileName += '.webm';
+      }
+      
+      formData.append('audio', audioBlob, fileName);
       formData.append('engineType', engineType);
 
       console.log('Sending request to /api/speech-recognition...');
