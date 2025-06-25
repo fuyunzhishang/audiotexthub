@@ -104,14 +104,6 @@ jobs:
             echo "AUTH_SECRET=认证密钥"
           fi
           
-          # 检查SSL证书
-          if [ ! -f "${APP_DIR}/ssl/cert.pem" ] || [ ! -f "${APP_DIR}/ssl/key.pem" ]; then
-            echo "警告：SSL证书文件不存在！"
-            echo "生成自签名证书用于测试..."
-            mkdir -p ${APP_DIR}/ssl
-            openssl req -x509 -newkey rsa:4096 -keyout ${APP_DIR}/ssl/key.pem -out ${APP_DIR}/ssl/cert.pem -days 365 -nodes -subj "/CN=localhost"
-            echo "请使用正式的SSL证书替换 ${APP_DIR}/ssl 目录中的文件"
-          fi
           
           # 停止旧容器
           echo "停止旧容器..."
