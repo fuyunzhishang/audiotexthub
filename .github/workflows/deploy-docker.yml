@@ -120,11 +120,11 @@ jobs:
           
           # 检查端口是否开放
           echo "检查端口状态..."
-          netstat -tlnp | grep -E ":80|:3000" || true
+          netstat -tlnp | grep -E ":8080|:3000" || true
           
           # 检查API是否响应
           echo "测试API连接..."
-          curl -f http://localhost/api/ping || curl -f http://localhost:3000/api/ping || echo "API测试失败"
+          curl -f http://localhost:8080/api/ping || curl -f http://localhost:3000/api/ping || echo "API测试失败"
           
           # 显示容器状态
           echo "容器状态："
@@ -166,7 +166,7 @@ jobs:
             echo "健康检查尝试 $ATTEMPT/$MAX_ATTEMPTS..."
             
             # 检查 HTTP 端口
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 || echo "000")
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080 || echo "000")
             echo "HTTP 响应码: $HTTP_CODE"
             
             if [ "$HTTP_CODE" = "200" ]; then
@@ -178,11 +178,11 @@ jobs:
               
               # 显示端口监听
               echo "端口监听状态："
-              netstat -tlpn | grep -E ':80|:3000' || ss -tlpn | grep -E ':80|:3000' || true
+              netstat -tlpn | grep -E ':8080|:3000' || ss -tlpn | grep -E ':8080|:3000' || true
               
               # 测试API端点
               echo "测试API端点..."
-              curl -s http://localhost/api/ping | head -100 || true
+              curl -s http://localhost:8080/api/ping | head -100 || true
               
               exit 0
             else
