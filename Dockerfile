@@ -47,3 +47,18 @@ ENV HOSTNAME "0.0.0.0"
 
 # server.js is created by next build from the standalone output
 CMD ["node", "server.js"]
+
+# Nginx stage for reverse proxy
+FROM nginx:alpine AS nginx
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy SSL certificates
+COPY nginx/ssl /etc/nginx/ssl
+
+# Expose ports
+EXPOSE 80 443
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

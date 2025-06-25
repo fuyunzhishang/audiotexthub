@@ -16,7 +16,7 @@ API接口信息：
 - Method: POST
 - Body: multipart/form-data
   - audio: 音频文件 (wav, mp3, m4a, flv, mp4, wma, 3gp, amr, aac, ogg-opus, flac)
-  - engineType: 识别引擎 (16k_zh, 16k_zh_dialect, 16k_en, 16k_ca)
+  - engineType: 识别引擎/ (16k_zh, 16k_zh_dialect, 16k_en, 16k_ca)
 
 ## Development Commands
 
