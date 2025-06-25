@@ -54,7 +54,7 @@ FROM nginx:alpine AS nginx
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy SSL certificates
+# 复制整个 ssl 目录（即使目录为空也不会报错）
 COPY nginx/ssl /etc/nginx/ssl
 
 # Expose ports
