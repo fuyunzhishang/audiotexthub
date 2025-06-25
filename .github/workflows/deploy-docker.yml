@@ -32,7 +32,7 @@ jobs:
         port: ${{ secrets.DEPLOY_PORT || 22 }}
         username: ${{ secrets.DEPLOY_USER }}
         password: ${{ secrets.DEPLOY_PASS }}
-        source: "audiotexthub.tar.gz,docker-compose.prod.yml,nginx.conf,.env.docker.example,Dockerfile"
+        source: "audiotexthub.tar.gz,docker-compose.prod.yml,.env.docker.example,Dockerfile"
         target: "/tmp/"
 
     # 部署到服务器
@@ -62,12 +62,10 @@ jobs:
           if [ -f "docker-compose.prod.yml" ]; then
             echo "备份当前配置..."
             cp docker-compose.prod.yml ${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}
-            [ -f "nginx.conf" ] && cp nginx.conf ${BACKUP_DIR}/nginx.conf.${TIMESTAMP}
           fi
           
           # 复制新的文件
           cp /tmp/docker-compose.prod.yml ${APP_DIR}/
-          cp /tmp/nginx.conf ${APP_DIR}/
           cp /tmp/.env.docker.example ${APP_DIR}/
           cp /tmp/Dockerfile ${APP_DIR}/
           
@@ -128,8 +126,7 @@ jobs:
           # 显示容器日志
           echo "最近的应用日志："
           docker logs --tail 50 audiotexthub-app-1 || docker logs --tail 50 audiotexthub_app_1 || true
-          echo "最近的Nginx日志："
-          docker logs --tail 50 audiotexthub-nginx-1 || docker logs --tail 50 audiotexthub_nginx_1 || true
+          # Nginx 日志检查已移除
           
           # 清理旧镜像
           echo "清理未使用的镜像..."
@@ -156,11 +153,7 @@ jobs:
             exit 1
           fi
           
-          if ! docker ps | grep -q nginx; then
-            echo "错误：Nginx容器未运行！"
-            docker ps -a
-            exit 1
-          fi
+          # Nginx 检查已移除，因为不再使用 nginx
           
           # HTTP 健康检查
           MAX_ATTEMPTS=10
