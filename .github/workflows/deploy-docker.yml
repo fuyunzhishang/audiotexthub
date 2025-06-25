@@ -2,9 +2,7 @@ name: Docker Deploy to Production
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -12,108 +10,213 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    # 检出代码
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+    # 设置 Docker Buildx
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker Image
-        run: |
-          docker build -t audiotexthub:latest .
-          docker save audiotexthub:latest | gzip > audiotexthub.tar.gz
+    # 构建 Docker 镜像
+    - name: Build Docker Image
+      run: |
+        docker build -t audiotexthub:latest .
+        docker save audiotexthub:latest | gzip > audiotexthub.tar.gz
+    # 上传镜像到服务器
+    - name: Upload Docker Image
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        username: ${{ secrets.DEPLOY_USER }}
+        password: ${{ secrets.DEPLOY_PASS }}
+        source: "audiotexthub.tar.gz,docker-compose.prod.yml,Dockerfile"
+        target: "/tmp/"
 
-      - name: Upload Docker Image
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASS }}
-          source: "audiotexthub.tar.gz,docker-compose.prod.yml,nginx.conf,.env.docker.example,Dockerfile"
-          target: "/tmp/"
-
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASS }}
-          command_timeout: 30m
-          script: |
-            set -e
-            APP_DIR="/var/www/audiotexthub"
-            BACKUP_DIR="${APP_DIR}/backups"
-            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
-            echo "Creating directories..."
-            sudo mkdir -p "${APP_DIR}/{backups,logs,ssl}"
-            sudo chown -R "$USER:$USER" "${APP_DIR}"
-            cd "${APP_DIR}"
-
-            if [ -f docker-compose.prod.yml ]; then
-              cp docker-compose.prod.yml "${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}"
-              [ -f nginx.conf ] && cp nginx.conf "${BACKUP_DIR}/nginx.conf.${TIMESTAMP}"
-            fi
-
-            cp /tmp/docker-compose.prod.yml .
-            cp /tmp/nginx.conf .
-            cp /tmp/.env.docker.example .env
-            cp /tmp/Dockerfile .
-
-            command -v docker >/dev/null || { echo "Docker not installed"; exit 1; }
-
-            if ! docker compose version >/dev/null && ! command -v docker-compose >/dev/null; then
+    # 部署到服务器
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        username: ${{ secrets.DEPLOY_USER }}
+        password: ${{ secrets.DEPLOY_PASS }}
+        command_timeout: 30m
+        script: |
+          set -e
+          
+          # 定义变量
+          APP_DIR="/var/www/audiotexthub"
+          BACKUP_DIR="${APP_DIR}/backups"
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          
+          # 创建目录结构
+          echo "创建目录结构..."
+          sudo mkdir -p ${APP_DIR}/{backups,logs,ssl}
+          sudo chown -R $USER:$USER ${APP_DIR}
+          cd ${APP_DIR}
+          
+          # 备份当前版本（如果存在）
+          if [ -f "docker-compose.prod.yml" ]; then
+            echo "备份当前配置..."
+            cp docker-compose.prod.yml ${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}
+          fi
+          
+          # 复制新的文件
+          cp /tmp/docker-compose.prod.yml ${APP_DIR}/
+          cp /tmp/Dockerfile ${APP_DIR}/
+          
+          # 检查 Docker 是否安装
+          if ! command -v docker &> /dev/null; then
+            echo "Docker 未安装，请先安装 Docker！"
+            exit 1
+          fi
+          
+          # 检查 Docker Compose 是否安装
+          if ! command -v docker-compose &> /dev/null; then
+            # 尝试使用 docker compose (新版本)
+            if ! docker compose version &> /dev/null; then
+              echo "Docker Compose 未安装，正在安装..."
+              # 安装 Docker Compose
               sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
             fi
-
-            docker load < /tmp/audiotexthub.tar.gz
-            rm -f /tmp/audiotexthub.tar.gz
-
-            # Ensure .env has only necessary keys
-            echo "Ensure .env configured..."
-            sed -n 's/^NEXT_PUBLIC_API_URL/=NEXT_PUBLIC_API_URL/p; s/^AUTH_SECRET/=&/p' .env > .env.tmp && mv .env.tmp .env
-
-            echo "Stopping old containers..."
-            docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
-
-            echo "Starting new containers..."
-            if command -v docker-compose >/dev/null; then
-              docker-compose -f docker-compose.prod.yml up -d
+          fi
+          
+          # 加载新镜像
+          echo "加载 Docker 镜像..."
+          docker load < /tmp/audiotexthub.tar.gz
+          rm -f /tmp/audiotexthub.tar.gz
+          
+          # 检查环境变量文件
+          if [ ! -f "${APP_DIR}/.env" ]; then
+            echo "警告：.env 文件不存在！"
+            echo "从示例文件创建 .env..."
+            cp ${APP_DIR}/.env.docker.example ${APP_DIR}/.env
+            
+            echo "请编辑 .env 文件并配置以下环境变量："
+            echo "NEXT_PUBLIC_API_URL=你的语音识别API地址"
+            echo "AUTH_SECRET=认证密钥"
+          fi
+          
+          # 检查SSL证书
+          if [ ! -f "${APP_DIR}/ssl/cert.pem" ] || [ ! -f "${APP_DIR}/ssl/key.pem" ]; then
+            echo "警告：SSL证书文件不存在！"
+            echo "生成自签名证书用于测试..."
+            mkdir -p ${APP_DIR}/ssl
+            openssl req -x509 -newkey rsa:4096 -keyout ${APP_DIR}/ssl/key.pem -out ${APP_DIR}/ssl/cert.pem -days 365 -nodes -subj "/CN=localhost"
+            echo "请使用正式的SSL证书替换 ${APP_DIR}/ssl 目录中的文件"
+          fi
+          
+          # 停止旧容器
+          echo "停止旧容器..."
+          docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
+          
+          # 启动新容器
+          echo "启动新容器..."
+          if command -v docker-compose &> /dev/null; then
+            docker-compose -f docker-compose.prod.yml up -d
+          else
+            docker compose -f docker-compose.prod.yml up -d
+          fi
+          
+          # 等待容器启动
+          echo "等待服务启动..."
+          sleep 10
+          
+          # 显示容器状态
+          echo "容器状态："
+          docker ps -a | grep -E "audiotexthub|nginx" || true
+          
+          # 显示容器日志
+          echo "最近的应用日志："
+          docker logs --tail 50 audiotexthub-app-1 || docker logs --tail 50 audiotexthub_app_1 || true
+          echo "最近的Nginx日志："
+          docker logs --tail 50 audiotexthub-nginx-1 || docker logs --tail 50 audiotexthub_nginx_1 || true
+          
+          # 清理旧镜像
+          echo "清理未使用的镜像..."
+          docker image prune -f || true
+          
+          echo "部署完成！"
+    # 健康检查
+    - name: Health Check
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        port: ${{ secrets.DEPLOY_PORT || 22 }}
+        username: ${{ secrets.DEPLOY_USER }}
+        password: ${{ secrets.DEPLOY_PASS }}
+        script: |
+          # 等待服务完全启动
+          echo "执行健康检查..."
+          
+          # 检查容器状态
+          if ! docker ps | grep -q audiotexthub; then
+            echo "错误：应用容器未运行！"
+            docker ps -a
+            exit 1
+          fi
+          
+          if ! docker ps | grep -q nginx; then
+            echo "错误：Nginx容器未运行！"
+            docker ps -a
+            exit 1
+          fi
+          
+          # HTTP 健康检查
+          MAX_ATTEMPTS=10
+          ATTEMPT=1
+          
+          while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+            echo "健康检查尝试 $ATTEMPT/$MAX_ATTEMPTS..."
+            
+            # 检查 HTTP 端口
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 || echo "000")
+            echo "HTTP 响应码: $HTTP_CODE"
+            
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ 健康检查通过！"
+              
+              # 显示容器信息
+              echo "容器运行状态："
+              docker ps | grep audiotexthub
+              
+              # 显示端口监听
+              echo "端口监听状态："
+              netstat -tlpn | grep -E ':80|:443|:3000' || ss -tlpn | grep -E ':80|:443|:3000' || true
+              
+              # 测试API端点
+              echo "测试API端点..."
+              curl -s http://localhost/api/test-speech-api | head -100 || true
+              
+              exit 0
             else
-              docker compose -f docker-compose.prod.yml up -d
-            fi
-
-            sleep 10
-            echo "Deployment complete."
-
-      - name: Health Check
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          port: ${{ secrets.DEPLOY_PORT }}
-          username: ${{ secrets.DEPLOY_USER }}
-          password: ${{ secrets.DEPLOY_PASS }}
-          script: |
-            CONTAINER=$(docker ps --format '{{.Names}}' | grep audiotexthub | head -n1)
-            docker ps | grep -q "$CONTAINER" || { echo "App container not running"; exit 1; }
-            for i in {1..10}; do
-              CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo 000)
-              [ "$CODE" = "200" ] && exit 0
+              echo "等待服务响应..."
               sleep 5
-            done
-            echo "Health check failed" && docker logs --tail 100 "$CONTAINER" && exit 1
-
-      - name: Cleanup
-        if: always()
-        run: rm -f audiotexthub.tar.gz
-
-      - name: Success Notification
-        if: success()
-        run: echo "🎉 Deployment succeeded: ${{ github.sha }} on ${{ github.ref_name }}"
-
-      - name: Failure Notification
-        if: failure()
-        run: echo "❌ Deployment failed, check logs."
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+          done
+          
+          # 健康检查失败
+          echo "❌ 健康检查失败！"
+          echo "应用容器日志："
+          docker logs --tail 100 audiotexthub-app-1 || docker logs --tail 100 audiotexthub_app_1
+          echo "Nginx容器日志："
+          docker logs --tail 100 audiotexthub-nginx-1 || docker logs --tail 100 audiotexthub_nginx_1
+          exit 1
+    # 清理工作流产物
+    - name: Cleanup
+      if: always()
+      run: |
+        rm -f audiotexthub.tar.gz
+    # 成功通知
+    - name: Success Notification
+      if: success()
+      run: |
+        echo "🎉 AudioTextHub Docker 部署成功！"
+        echo "部署时间: $(date)"
+        echo "Git 提交: ${{ github.sha }}"
+        echo "部署分支: ${{ github.ref_name }}"
