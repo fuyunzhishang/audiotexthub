@@ -177,15 +177,11 @@ jobs:
           while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
             echo "健康检查尝试 $ATTEMPT/$MAX_ATTEMPTS..."
             
-            # 检查 HTTP 端口（应该返回 301 重定向）
+            # 检查 HTTP 端口
             HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80 || echo "000")
             echo "HTTP 响应码: $HTTP_CODE"
             
-            # 检查 HTTPS 端口（使用 -k 忽略证书验证）
-            HTTPS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -k https://localhost:443 || echo "000")
-            echo "HTTPS 响应码: $HTTPS_CODE"
-            
-            if [ "$HTTP_CODE" = "301" ] && [ "$HTTPS_CODE" = "200" ]; then
+            if [ "$HTTP_CODE" = "200" ]; then
               echo "✅ 健康检查通过！"
               
               # 显示容器信息
@@ -198,7 +194,7 @@ jobs:
               
               # 测试API端点
               echo "测试API端点..."
-              curl -s -k https://localhost/api/test-speech-api | head -100 || true
+              curl -s http://localhost/api/test-speech-api | head -100 || true
               
               exit 0
             else
