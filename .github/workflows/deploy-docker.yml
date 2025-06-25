@@ -93,7 +93,7 @@ jobs:
           # 检查环境变量文件
           if [ ! -f "${APP_DIR}/.env" ]; then
             echo "警告：.env 文件不存在！正在创建默认配置..."
-            cat > "${APP_DIR}/.env" << 'EOF'
+            cat > "${APP_DIR}/.env" << EOF
 # 基础配置
 NEXT_PUBLIC_API_URL=http://localhost:3000
 AUTH_SECRET=your-auth-secret-here
