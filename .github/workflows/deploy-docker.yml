@@ -30,7 +30,7 @@ jobs:
           port: ${{ secrets.DEPLOY_PORT }}
           username: ${{ secrets.DEPLOY_USER }}
           password: ${{ secrets.DEPLOY_PASS }}
-          source: "audiotexthub.tar.gz,docker-compose.prod.yml,Dockerfile"
+          source: "audiotexthub.tar.gz,docker-compose.prod.yml,nginx.conf,.env.docker.example,Dockerfile"
           target: "/tmp/"
 
       - name: Deploy to Server
@@ -47,63 +47,47 @@ jobs:
             BACKUP_DIR="${APP_DIR}/backups"
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-            echo "创建目录结构..."
+            echo "Creating directories..."
             sudo mkdir -p "${APP_DIR}/{backups,logs,ssl}"
             sudo chown -R "$USER:$USER" "${APP_DIR}"
             cd "${APP_DIR}"
 
             if [ -f docker-compose.prod.yml ]; then
-              echo "备份当前配置..."
               cp docker-compose.prod.yml "${BACKUP_DIR}/docker-compose.prod.yml.${TIMESTAMP}"
+              [ -f nginx.conf ] && cp nginx.conf "${BACKUP_DIR}/nginx.conf.${TIMESTAMP}"
             fi
 
             cp /tmp/docker-compose.prod.yml .
+            cp /tmp/nginx.conf .
+            cp /tmp/.env.docker.example .env
             cp /tmp/Dockerfile .
 
-            if ! command -v docker >/dev/null; then
-              echo "Docker 未安装！"
-              exit 1
-            fi
+            command -v docker >/dev/null || { echo "Docker not installed"; exit 1; }
 
             if ! docker compose version >/dev/null && ! command -v docker-compose >/dev/null; then
-              echo "安装 Docker Compose..."
-              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
-                -o /usr/local/bin/docker-compose
+              sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            echo "加载镜像..."
-            sudo docker load < /tmp/audiotexthub.tar.gz
+            docker load < /tmp/audiotexthub.tar.gz
             rm -f /tmp/audiotexthub.tar.gz
 
-            if [ ! -f .env ]; then
-              echo "创建默认 .env 文件..."
-              cat << 'EOF' > .env
-NEXT_PUBLIC_API_URL=http://localhost:3000
-AUTH_SECRET=your-auth-secret-here
-EOF
-            fi
+            # Ensure .env has only necessary keys
+            echo "Ensure .env configured..."
+            sed -n 's/^NEXT_PUBLIC_API_URL/=NEXT_PUBLIC_API_URL/p; s/^AUTH_SECRET/=&/p' .env > .env.tmp && mv .env.tmp .env
 
-            echo "停止旧容器..."
+            echo "Stopping old containers..."
             docker-compose -f docker-compose.prod.yml down || docker compose -f docker-compose.prod.yml down || true
 
-            echo "启动新容器..."
+            echo "Starting new containers..."
             if command -v docker-compose >/dev/null; then
               docker-compose -f docker-compose.prod.yml up -d
             else
               docker compose -f docker-compose.prod.yml up -d
             fi
 
-            echo "等待启动..."
             sleep 10
-
-            CONTAINER=$(docker ps --format '{{.Names}}' | grep audiotexthub | head -n1)
-
-            echo "日志输出："
-            docker logs --tail 50 "${CONTAINER}" || true
-
-            echo "清理镜像..."
-            docker image prune -f || true
+            echo "Deployment complete."
 
       - name: Health Check
         uses: appleboy/ssh-action@master
@@ -114,17 +98,13 @@ EOF
           password: ${{ secrets.DEPLOY_PASS }}
           script: |
             CONTAINER=$(docker ps --format '{{.Names}}' | grep audiotexthub | head -n1)
-            if ! docker ps | grep -q "${CONTAINER}"; then
-              echo "容器未运行！" && exit 1
-            fi
+            docker ps | grep -q "$CONTAINER" || { echo "App container not running"; exit 1; }
             for i in {1..10}; do
-              HTTP_CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo 000)
-              if [ "${HTTP_CODE}" = "200" ]; then
-                echo "健康检查通过！" && exit 0
-              fi
+              CODE=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:80 || echo 000)
+              [ "$CODE" = "200" ] && exit 0
               sleep 5
             done
-            echo "健康检查失败！" && docker logs --tail 100 "${CONTAINER}" && exit 1
+            echo "Health check failed" && docker logs --tail 100 "$CONTAINER" && exit 1
 
       - name: Cleanup
         if: always()
@@ -132,8 +112,8 @@ EOF
 
       - name: Success Notification
         if: success()
-        run: echo "🎉 部署成功：${{ github.sha }} on ${{ github.ref_name }}"
+        run: echo "🎉 Deployment succeeded: ${{ github.sha }} on ${{ github.ref_name }}"
 
       - name: Failure Notification
         if: failure()
-        run: echo "❌ 部署失败，请检查日志。"
+        run: echo "❌ Deployment failed, check logs."
