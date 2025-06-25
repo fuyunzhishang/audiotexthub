@@ -94,11 +94,11 @@ jobs:
             echo "警告：.env 文件不存在！"
             echo "创建默认 .env 文件..."
             cat > "${APP_DIR}/.env" << EOF
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
-AUTH_SECRET=your-auth-secret-here
-NEXT_PUBLIC_WEB_URL=http://localhost
-AUTH_URL=http://localhost:3000
-EOF
+          NEXT_PUBLIC_API_URL=http://localhost:3000/api
+          AUTH_SECRET=your-auth-secret-here
+          NEXT_PUBLIC_WEB_URL=http://localhost
+          AUTH_URL=http://localhost:3000
+          EOF
             echo "已创建默认 .env 文件，请根据需要修改配置"
           fi
           
@@ -158,12 +158,6 @@ EOF
             exit 1
           fi
           
-          if ! docker ps | grep -q nginx; then
-            echo "错误：Nginx容器未运行！"
-            docker ps -a
-            exit 1
-          fi
-          
           # HTTP 健康检查
           MAX_ATTEMPTS=10
           ATTEMPT=1
@@ -184,11 +178,11 @@ EOF
               
               # 显示端口监听
               echo "端口监听状态："
-              netstat -tlpn | grep -E ':80|:443|:3000' || ss -tlpn | grep -E ':80|:443|:3000' || true
+              netstat -tlpn | grep -E ':80|:3000' || ss -tlpn | grep -E ':80|:3000' || true
               
               # 测试API端点
               echo "测试API端点..."
-              curl -s http://localhost/api/test-speech-api | head -100 || true
+              curl -s http://localhost/api/ping | head -100 || true
               
               exit 0
             else
@@ -203,8 +197,6 @@ EOF
           echo "❌ 健康检查失败！"
           echo "应用容器日志："
           docker logs --tail 100 audiotexthub-app-1 || docker logs --tail 100 audiotexthub_app_1
-          echo "Nginx容器日志："
-          docker logs --tail 100 audiotexthub-nginx-1 || docker logs --tail 100 audiotexthub_nginx_1
           exit 1
     # 清理工作流产物
     - name: Cleanup
