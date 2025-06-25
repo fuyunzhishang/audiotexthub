@@ -92,21 +92,14 @@ jobs:
           # 检查环境变量文件
           if [ ! -f "${APP_DIR}/.env" ]; then
             echo "警告：.env 文件不存在！"
-            echo "从示例文件创建 .env..."
-            cp ${APP_DIR}/.env.docker.example ${APP_DIR}/.env
-            
-            echo "请编辑 .env 文件并配置以下环境变量："
-            echo "NEXT_PUBLIC_API_URL=你的语音识别API地址"
-            echo "AUTH_SECRET=认证密钥"
-          fi
-          
-          # 检查SSL证书
-          if [ ! -f "${APP_DIR}/ssl/cert.pem" ] || [ ! -f "${APP_DIR}/ssl/key.pem" ]; then
-            echo "警告：SSL证书文件不存在！"
-            echo "生成自签名证书用于测试..."
-            mkdir -p ${APP_DIR}/ssl
-            openssl req -x509 -newkey rsa:4096 -keyout ${APP_DIR}/ssl/key.pem -out ${APP_DIR}/ssl/cert.pem -days 365 -nodes -subj "/CN=localhost"
-            echo "请使用正式的SSL证书替换 ${APP_DIR}/ssl 目录中的文件"
+            echo "创建默认 .env 文件..."
+            cat > "${APP_DIR}/.env" << EOF
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+AUTH_SECRET=your-auth-secret-here
+NEXT_PUBLIC_WEB_URL=http://localhost
+AUTH_URL=http://localhost:3000
+EOF
+            echo "已创建默认 .env 文件，请根据需要修改配置"
           fi
           
           # 停止旧容器
@@ -123,17 +116,23 @@ jobs:
           
           # 等待容器启动
           echo "等待服务启动..."
-          sleep 10
+          sleep 30
+          
+          # 检查端口是否开放
+          echo "检查端口状态..."
+          netstat -tlnp | grep -E ":80|:3000" || true
+          
+          # 检查API是否响应
+          echo "测试API连接..."
+          curl -f http://localhost/api/ping || curl -f http://localhost:3000/api/ping || echo "API测试失败"
           
           # 显示容器状态
           echo "容器状态："
-          docker ps -a | grep -E "audiotexthub|nginx" || true
+          docker ps -a | grep audiotexthub || true
           
           # 显示容器日志
           echo "最近的应用日志："
           docker logs --tail 50 audiotexthub-app-1 || docker logs --tail 50 audiotexthub_app_1 || true
-          echo "最近的Nginx日志："
-          docker logs --tail 50 audiotexthub-nginx-1 || docker logs --tail 50 audiotexthub_nginx_1 || true
           
           # 清理旧镜像
           echo "清理未使用的镜像..."
