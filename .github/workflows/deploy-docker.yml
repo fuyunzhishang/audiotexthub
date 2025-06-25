@@ -76,7 +76,7 @@ jobs:
 
           if [ ! -f "${APP_DIR}/.env" ]; then
             echo "警告：.env 文件不存在！正在创建默认配置..."
-            cat > "${APP_DIR}/.env" << 'EOF'
+            cat > "${APP_DIR}/.env" <<'EOF'
 # 基础配置
 NEXT_PUBLIC_API_URL=http://localhost:3000
 AUTH_SECRET=your-auth-secret-here
@@ -137,7 +137,7 @@ EOF
           echo "等待服务启动..."
           sleep 10
 
-          CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -1)
+          CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -n 1)
 
           echo "容器状态："
           docker ps -a | grep audiotexthub || true
@@ -160,7 +160,7 @@ EOF
         script: |
           echo "执行健康检查..."
 
-          CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -1)
+          CONTAINER=$(docker ps --format "{{.Names}}" | grep audiotexthub | head -n 1)
 
           if ! docker ps | grep -q "$CONTAINER"; then
             echo "❌ 应用容器未运行！"
@@ -209,5 +209,4 @@ EOF
 
     - name: Failure Notification
       if: failure()
-      run: |
-        echo "❌ AudioTextHub Docker 部署失败，请检查日志。"
+      run: echo "❌ AudioTextHub Docker 部署失败，请检查日志。"
