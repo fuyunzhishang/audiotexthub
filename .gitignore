@@ -20,11 +20,6 @@
 .DS_Store
 *.pem
 
-# SSL certificates
-nginx/ssl/*.pem
-nginx/ssl/*.key
-nginx/ssl/*.crt
-nginx/ssl/*.cer
 
 # debug
 npm-debug.log*
