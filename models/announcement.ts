@@ -32,7 +32,7 @@ export interface LocalizedAnnouncement {
 }
 
 // Get active announcements for users (with localization)
-export async function getActiveAnnouncements(locale: string = 'zh'): Promise<LocalizedAnnouncement[]> {
+export async function getActiveAnnouncements(locale: string = 'en'): Promise<LocalizedAnnouncement[]> {
   const supabase = getSupabaseClient();
   const now = new Date().toISOString();
   
@@ -55,10 +55,13 @@ export async function getActiveAnnouncements(locale: string = 'zh'): Promise<Loc
     const titleField = locale === 'en' ? 'title_en' : 'title_zh';
     const contentField = locale === 'en' ? 'content_en' : 'content_zh';
     
+    // Check if multilingual fields exist in the data
+    const hasMultilingualFields = titleField in announcement || contentField in announcement;
+    
     return {
       uuid: announcement.uuid,
-      title: announcement[titleField] || announcement.title || '',
-      content: announcement[contentField] || announcement.content || '',
+      title: hasMultilingualFields ? (announcement[titleField] || announcement.title || '') : announcement.title || '',
+      content: hasMultilingualFields ? (announcement[contentField] || announcement.content || '') : announcement.content || '',
       type: announcement.type,
       priority: announcement.priority,
       is_active: announcement.is_active,
@@ -95,9 +98,36 @@ export async function createAnnouncement(
 ): Promise<Announcement> {
   const supabase = getSupabaseClient();
   
+  // First, check if multilingual columns exist by attempting a test query
+  const { error: testError } = await supabase
+    .from("announcements")
+    .select("title_en, content_en, title_zh, content_zh")
+    .limit(1);
+  
+  let dataToInsert: any = {
+    title: announcement.title,
+    content: announcement.content,
+    type: announcement.type,
+    priority: announcement.priority,
+    is_active: announcement.is_active,
+    start_time: announcement.start_time,
+    end_time: announcement.end_time
+  };
+  
+  // Only include multilingual fields if the columns exist
+  if (!testError || !testError.message.includes('column')) {
+    if (announcement.title_zh) dataToInsert.title_zh = announcement.title_zh;
+    if (announcement.content_zh) dataToInsert.content_zh = announcement.content_zh;
+    if (announcement.title_en) dataToInsert.title_en = announcement.title_en;
+    if (announcement.content_en) dataToInsert.content_en = announcement.content_en;
+    if (announcement.default_language) dataToInsert.default_language = announcement.default_language;
+  } else {
+    console.warn("Multilingual columns not found in database, inserting without them");
+  }
+  
   const { data, error } = await supabase
     .from("announcements")
-    .insert(announcement)
+    .insert(dataToInsert)
     .select()
     .single();
 
@@ -116,9 +146,37 @@ export async function updateAnnouncement(
 ): Promise<Announcement> {
   const supabase = getSupabaseClient();
   
+  // First, check if multilingual columns exist by attempting a test query
+  const { error: testError } = await supabase
+    .from("announcements")
+    .select("title_en, content_en, title_zh, content_zh")
+    .limit(1);
+  
+  let dataToUpdate: any = {};
+  
+  // Always include basic fields if they're in the updates
+  if ('title' in updates) dataToUpdate.title = updates.title;
+  if ('content' in updates) dataToUpdate.content = updates.content;
+  if ('type' in updates) dataToUpdate.type = updates.type;
+  if ('priority' in updates) dataToUpdate.priority = updates.priority;
+  if ('is_active' in updates) dataToUpdate.is_active = updates.is_active;
+  if ('start_time' in updates) dataToUpdate.start_time = updates.start_time;
+  if ('end_time' in updates) dataToUpdate.end_time = updates.end_time;
+  
+  // Only include multilingual fields if the columns exist
+  if (!testError || !testError.message.includes('column')) {
+    if ('title_zh' in updates) dataToUpdate.title_zh = updates.title_zh;
+    if ('content_zh' in updates) dataToUpdate.content_zh = updates.content_zh;
+    if ('title_en' in updates) dataToUpdate.title_en = updates.title_en;
+    if ('content_en' in updates) dataToUpdate.content_en = updates.content_en;
+    if ('default_language' in updates) dataToUpdate.default_language = updates.default_language;
+  } else {
+    console.warn("Multilingual columns not found in database, updating without them");
+  }
+  
   const { data, error } = await supabase
     .from("announcements")
-    .update(updates)
+    .update(dataToUpdate)
     .eq("uuid", uuid)
     .select()
     .single();

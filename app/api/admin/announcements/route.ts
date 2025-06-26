@@ -40,7 +40,20 @@ export async function POST(request: NextRequest) {
     // }
 
     const body = await request.json();
-    const { title, content, type, priority, is_active, start_time, end_time } = body;
+    const { 
+      title, 
+      content, 
+      title_zh, 
+      content_zh, 
+      title_en, 
+      content_en, 
+      default_language,
+      type, 
+      priority, 
+      is_active, 
+      start_time, 
+      end_time 
+    } = body;
 
     // Validate required fields
     if (!title || !content) {
@@ -53,15 +66,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const announcement = await createAnnouncement({
+    console.log('Creating announcement with multilingual content:', {
+      title_zh,
+      content_zh,
+      title_en,
+      content_en,
+      default_language
+    });
+
+    // Build announcement object, filtering out undefined values
+    const announcementData: any = {
       title,
       content,
       type: type || 'info',
       priority: priority || 0,
       is_active: is_active !== false,
       start_time: start_time || new Date().toISOString(),
-      end_time: end_time || null
-    });
+      default_language: default_language || 'en'
+    };
+
+    // Only add optional fields if they have values
+    if (title_zh) announcementData.title_zh = title_zh;
+    if (content_zh) announcementData.content_zh = content_zh;
+    if (title_en) announcementData.title_en = title_en;
+    if (content_en) announcementData.content_en = content_en;
+    if (end_time) announcementData.end_time = end_time;
+
+    const announcement = await createAnnouncement(announcementData);
 
     return NextResponse.json({
       success: true,
@@ -74,7 +105,7 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: 'Failed to create announcement',
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : JSON.stringify(error)
       },
       { status: 500 }
     );

@@ -14,12 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useTranslations } from 'next-intl';
 
 export function AnnouncementModal() {
   const { unreadAnnouncements, markAsRead } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<typeof unreadAnnouncements[0] | null>(null);
   const [viewedAnnouncementIds, setViewedAnnouncementIds] = useState<Set<string>>(new Set());
+  const t = useTranslations('announcement');
 
   useEffect(() => {
     // Show the latest unread announcement that hasn't been viewed in this session
@@ -77,14 +79,11 @@ export function AnnouncementModal() {
               currentAnnouncement.type === 'success' ? 'default' :
               'outline'
             }>
-              {currentAnnouncement.type === 'error' ? '重要' :
-               currentAnnouncement.type === 'warning' ? '提醒' :
-               currentAnnouncement.type === 'success' ? '成功' :
-               '通知'}
+              {t(`type_labels.${currentAnnouncement.type}`)}
             </Badge>
           </div>
           <DialogDescription className="text-sm text-muted-foreground">
-            发布时间：{new Date(currentAnnouncement.created_at).toLocaleString()}
+            {t('publish_time')}：{new Date(currentAnnouncement.created_at).toLocaleString()}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[400px] mt-4">
@@ -94,10 +93,10 @@ export function AnnouncementModal() {
         </ScrollArea>
         <DialogFooter className="mt-6">
           <Button variant="outline" onClick={handleClose}>
-            稍后再看
+            {t('read_later')}
           </Button>
           <Button onClick={handleMarkAsRead}>
-            已读
+            {t('has_read')}
           </Button>
         </DialogFooter>
       </DialogContent>

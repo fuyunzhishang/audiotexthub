@@ -52,11 +52,11 @@ export default function AnnouncementEditDialog({
     is_active: true,
     start_time: new Date().toISOString().slice(0, 16),
     end_time: "",
-    default_language: "zh",
+    default_language: "en",
   });
   const [saving, setSaving] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const [activeTab, setActiveTab] = useState("zh");
+  const [activeTab, setActiveTab] = useState("en");
 
   useEffect(() => {
     if (announcement) {
@@ -72,7 +72,7 @@ export default function AnnouncementEditDialog({
         is_active: announcement.is_active,
         start_time: new Date(announcement.start_time).toISOString().slice(0, 16),
         end_time: announcement.end_time ? new Date(announcement.end_time).toISOString().slice(0, 16) : "",
-        default_language: announcement.default_language || "zh",
+        default_language: announcement.default_language || "en",
       });
     } else {
       setFormData({
@@ -87,7 +87,7 @@ export default function AnnouncementEditDialog({
         is_active: true,
         start_time: new Date().toISOString().slice(0, 16),
         end_time: "",
-        default_language: "zh",
+        default_language: "en",
       });
     }
   }, [announcement]);
@@ -142,12 +142,18 @@ export default function AnnouncementEditDialog({
       const content = formData.default_language === "zh" ? formData.content_zh : formData.content_en;
 
       const payload = {
-        ...formData,
         title,
         content,
+        title_zh: formData.title_zh,
+        content_zh: formData.content_zh,
+        title_en: formData.title_en,
+        content_en: formData.content_en,
+        type: formData.type,
         priority: Number(formData.priority),
+        is_active: formData.is_active,
         start_time: new Date(formData.start_time).toISOString(),
         end_time: formData.end_time ? new Date(formData.end_time).toISOString() : null,
+        default_language: formData.default_language,
       };
 
       const url = announcement

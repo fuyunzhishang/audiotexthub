@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 export function AnnouncementIcon() {
   const { announcements, unreadAnnouncements, markAsRead } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations('announcement');
 
   const handleAnnouncementClick = (announcement: Announcement) => {
     // 点击未读公告时才标记为已读
@@ -47,17 +49,17 @@ export function AnnouncementIcon() {
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">公告通知</h3>
+          <h3 className="font-semibold">{t('title')}</h3>
           {unreadAnnouncements.length > 0 && (
             <span className="text-sm text-muted-foreground">
-              {unreadAnnouncements.length} 条未读
+              {t('unread_count', { count: unreadAnnouncements.length })}
             </span>
           )}
         </div>
         <ScrollArea className="h-[400px]">
           {announcements.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
-              暂无公告
+              {t('no_announcements')}
             </div>
           ) : (
             <div className="divide-y">
@@ -85,7 +87,7 @@ export function AnnouncementIcon() {
                           {announcement.title}
                           {isUnread && (
                             <Badge variant="secondary" className="ml-2 text-xs">
-                              新
+                              {t('new')}
                             </Badge>
                           )}
                         </h4>

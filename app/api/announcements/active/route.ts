@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const locale = searchParams.get('locale') || 
                   request.headers.get('accept-language')?.split(',')[0].split('-')[0] || 
-                  'zh';
+                  'en';
     
     const announcements = await getActiveAnnouncements(locale);
     

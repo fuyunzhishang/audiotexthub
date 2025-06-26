@@ -16,6 +16,8 @@ export async function PUT(
     // }
 
     const body = await request.json();
+    console.log('Updating announcement with id:', id);
+    console.log('Update payload:', body);
     const announcement = await updateAnnouncement(id, body);
 
     return NextResponse.json({
