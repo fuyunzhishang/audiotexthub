@@ -20,39 +20,43 @@ export function AnnouncementModal() {
   const { unreadAnnouncements, markAsRead } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<typeof unreadAnnouncements[0] | null>(null);
-  const [viewedAnnouncementIds, setViewedAnnouncementIds] = useState<Set<string>>(new Set());
+  const [shownInSession, setShownInSession] = useState<Set<string>>(new Set());
   const t = useTranslations('announcement');
 
   useEffect(() => {
-    // Show the latest unread announcement that hasn't been viewed in this session
+    // Load shown announcements from session storage
+    const shownIds = sessionStorage.getItem('shownAnnouncements');
+    if (shownIds) {
+      setShownInSession(new Set(JSON.parse(shownIds)));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Only show the latest unread announcement that hasn't been shown in this session
     if (unreadAnnouncements.length > 0 && !isOpen) {
-      const unviewedAnnouncement = unreadAnnouncements.find(
-        announcement => !viewedAnnouncementIds.has(announcement.uuid)
-      );
+      // Get the latest announcement (first one since they're ordered by priority and created_at)
+      const latestAnnouncement = unreadAnnouncements[0];
       
-      if (unviewedAnnouncement) {
-        setCurrentAnnouncement(unviewedAnnouncement);
+      if (!shownInSession.has(latestAnnouncement.uuid)) {
+        setCurrentAnnouncement(latestAnnouncement);
         setIsOpen(true);
+        
+        // Mark as shown in session
+        const newShownIds = new Set(shownInSession).add(latestAnnouncement.uuid);
+        setShownInSession(newShownIds);
+        sessionStorage.setItem('shownAnnouncements', JSON.stringify(Array.from(newShownIds)));
       }
     }
-  }, [unreadAnnouncements, isOpen, viewedAnnouncementIds]);
+  }, [unreadAnnouncements, isOpen, shownInSession]);
 
   const handleClose = () => {
-    if (currentAnnouncement) {
-      // Mark this announcement as viewed in this session
-      setViewedAnnouncementIds(prev => new Set(prev).add(currentAnnouncement.uuid));
-    }
     setIsOpen(false);
-    setCurrentAnnouncement(null);
   };
 
   const handleMarkAsRead = () => {
     if (currentAnnouncement) {
       markAsRead(currentAnnouncement.uuid);
-      // Also mark as viewed
-      setViewedAnnouncementIds(prev => new Set(prev).add(currentAnnouncement.uuid));
       setIsOpen(false);
-      setCurrentAnnouncement(null);
     }
   };
 

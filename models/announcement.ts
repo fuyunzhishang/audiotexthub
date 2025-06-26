@@ -75,6 +75,12 @@ export async function getActiveAnnouncements(locale: string = 'en'): Promise<Loc
   return localizedData;
 }
 
+// Get the latest active announcement for users (with localization)
+export async function getLatestActiveAnnouncement(locale: string = 'en'): Promise<LocalizedAnnouncement | null> {
+  const announcements = await getActiveAnnouncements(locale);
+  return announcements.length > 0 ? announcements[0] : null;
+}
+
 // Get all announcements for admin
 export async function getAllAnnouncements(): Promise<Announcement[]> {
   const supabase = getSupabaseClient();
