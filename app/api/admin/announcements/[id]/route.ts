@@ -4,9 +4,8 @@ import { updateAnnouncement, deleteAnnouncement, hardDeleteAnnouncement } from '
 // Update announcement (admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  // In Next.js 13+, params might be a Promise
   const { id } = await params;
   try {
     // TODO: Add authentication check here
@@ -40,9 +39,8 @@ export async function PUT(
 // Delete announcement (admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } | Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  // In Next.js 13+, params might be a Promise
   const { id } = await params;
   try {
     // TODO: Add authentication check here
