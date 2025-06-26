@@ -61,6 +61,11 @@ export default async function AdminLayout({
           url: "/admin/feedbacks",
           icon: "RiMessage2Line",
         },
+        {
+          title: "Announcements",
+          url: "/admin/announcements",
+          icon: "RiNotification3Line",
+        },
       ],
     },
     bottomNav: {

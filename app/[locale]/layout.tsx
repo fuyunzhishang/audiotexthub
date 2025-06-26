@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { ThemeProvider } from "@/providers/theme";
 import { cn } from "@/lib/utils";
 import Script from 'next/script'
+import { AnnouncementProvider } from "@/components/announcement";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -86,7 +87,9 @@ export default async function RootLayout({
           <NextAuthSessionProvider>
             <AppContextProvider>
               <ThemeProvider attribute="class" disableTransitionOnChange>
-                {children}
+                <AnnouncementProvider>
+                  {children}
+                </AnnouncementProvider>
               </ThemeProvider>
             </AppContextProvider>
           </NextAuthSessionProvider>

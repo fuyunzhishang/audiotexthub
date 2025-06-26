@@ -32,6 +32,7 @@ import { Menu } from "lucide-react";
 import SignToggle from "@/components/sign/toggle";
 import ThemeToggle from "@/components/theme/toggle";
 import { cn } from "@/lib/utils";
+import { AnnouncementIcon } from "@/components/announcement";
 
 export default function Header({ header }: { header: HeaderType }) {
   if (header.disabled) {
@@ -144,6 +145,7 @@ export default function Header({ header }: { header: HeaderType }) {
             </div>
           </div>
           <div className="shrink-0 flex gap-2 items-center">
+            <AnnouncementIcon />
             {header.show_locale && <LocaleToggle />}
             {header.show_theme && <ThemeToggle />}
 
