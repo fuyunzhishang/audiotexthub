@@ -118,6 +118,11 @@ export const authOptions: NextAuthConfig = {
   providers,
   pages: {
     signIn: "/auth/signin",
+    error: "/api/auth/error",
+  },
+  debug: process.env.NODE_ENV === "development",
+  session: {
+    strategy: "jwt",
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
