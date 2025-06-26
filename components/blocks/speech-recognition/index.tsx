@@ -388,8 +388,8 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <div className="text-xs">
-                        <p className="mb-1">💡 {section.mic_permission_tip || "录音权限提醒"}</p>
-                        <p>{section.mac_permission_guide || "Mac用户：请在系统偏好设置 > 安全性与隐私 > 隐私 > 麦克风中允许浏览器访问麦克风"}</p>
+                        <p className="mb-1">💡 {section.mic_permission_tip}</p>
+                        <p>{section.mac_permission_guide}</p>
                       </div>
                     </TooltipContent>
                   </Tooltip>

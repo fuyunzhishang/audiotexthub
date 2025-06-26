@@ -246,6 +246,8 @@
     "no_history": "No recognition history",
     "text_file_prefix": "Recognition Result",
     "fileFormatTip": "Supported formats: wav, mp3, m4a, flv, mp4, wma, 3gp, amr, aac, ogg, opus, flac | Max 100MB | Max 5 minutes",
+    "mic_permission_tip": "Microphone Permission Reminder",
+    "mac_permission_guide": "Mac users: Please allow browser access to microphone in System Preferences > Security & Privacy > Privacy > Microphone",
     "error_messages": {
       "mic_permission": "Cannot access microphone, please check permissions",
       "recognition_failed": "Recognition failed, please try again",
