@@ -33,7 +33,18 @@ export async function GET(request: NextRequest) {
       data = await response.json();
     } catch (fetchError) {
       console.error('External API not available:', fetchError instanceof Error ? fetchError.message : String(fetchError));
-      throw new Error('TTS service is currently unavailable');
+      
+      // 返回空的语音列表而不是抛出错误
+      return NextResponse.json({
+        success: true,
+        data: {
+          'microsoft': { grouped: {} },
+          'microsoft-api': { grouped: {} },
+          'google': { grouped: {} },
+          'google-genai': { grouped: {} }
+        },
+        message: 'TTS service is temporarily unavailable'
+      });
     }
     
     // 处理语音数据，标记Google语音为高级语音

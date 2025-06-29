@@ -107,14 +107,191 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [volume, setVolume] = useState(100); // 音量，默认1.0
   const [pitch, setPitch] = useState(0); // 音调，默认0
+  
+  // 使用限制状态
+  const [usageLimit, setUsageLimit] = useState<{
+    allowed: boolean;
+    remaining: number;
+    used: number;
+    limit: number;
+  } | null>(null);
+  
+  // 处理语音数据的函数
+  const processVoicesData = (data: any) => {
+    if (!data.success || !data.data) {
+      throw new Error('Invalid API response format');
+    }
+
+    // 合并所有供应商的语音数据 - 现在API已经处理了isPremium标记
+    const allGroupedVoices: { [key: string]: VoiceActor[] } = {};
+    
+    // 处理所有提供商的语音数据
+    const providers = ['microsoft', 'microsoft-api', 'google', 'google-genai'];
+    
+    providers.forEach(provider => {
+      if (data.data && data.data[provider] && data.data[provider].grouped) {
+        Object.entries(data.data[provider].grouped).forEach(([langCode, voices]: [string, any]) => {
+          if (voices && voices.length > 0) {
+            // 为每个语音生成唯一的id并处理数据
+            const processedVoices = voices.map((voice: any, index: number) => ({
+              ...voice,
+              id: voice.id || voice.key || `${provider}-${langCode}-${index}`, // 优先使用key作为id
+              provider: voice.provider || provider, // 确保有provider字段
+              type: voice.type || voice.provider || provider, // 确保有type字段，优先使用原始type，否则使用provider
+              isPremium: voice.isPremium !== undefined ? voice.isPremium : false // 确保有isPremium字段
+            }));
+            allGroupedVoices[langCode] = (allGroupedVoices[langCode] || []).concat(processedVoices);
+          }
+        });
+      }
+    });
+
+    const groupedVoices = allGroupedVoices;
+
+    // 直接使用API返回的分组数据
+    const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
+
+    Object.entries(groupedVoices).forEach(([langCode, voices]: [string, any]) => {
+      if (voices && voices.length > 0) {
+        langMap.set(langCode, {
+          name: voices[0].lang, // 使用第一个语音的lang作为语言名称
+          voices: voices
+        });
+      }
+    });
+
+    // 转换为语言分类数组
+    const categories: LanguageCategory[] = [];
+
+    langMap.forEach((value, key) => {
+      // Determine region type (can keep existing logic or simplify)
+      let regionType = "其他";
+      if (key.includes("en")) {
+        regionType = "英语";
+      } else if (key.includes("zh")) {
+        regionType = "中文";
+      } else if (key.includes("ja") || key.includes("ko") || key.includes("th") || key.includes("vi") || key.includes("id") || key.includes("ms")) {
+        regionType = "东南亚";
+      } else if (key.includes("ar") || key.includes("he") || key.includes("iw") || key.includes("tr") || key.includes("fa")) {
+        regionType = "中东";
+      }
+
+      // 根据当前语言环境选择显示的语音名称
+      let displayName = locale === 'zh' ? value.name :
+        (value.voices[0]?.en_lang || value.name);
+      
+      // 特殊处理"多语言支持"选项
+      if (value.name === '多语言支持' || key === 'multilingual' || key === 'all') {
+        displayName = locale === 'zh' ? '多语言支持' : 'Multi-language Support';
+      }
+
+      // 对语音进行排序：普通语音在前，高级语音在后
+      const sortedVoices = value.voices.sort((a, b) => {
+        // 首先按是否为高级语音排序（普通语音在前）
+        if (a.isPremium !== b.isPremium) {
+          return a.isPremium ? 1 : -1;
+        }
+        // 然后按名字排序
+        return a.name.localeCompare(b.name);
+      });
+
+      categories.push({
+        code: key,
+        name: displayName,  // 使用根据语言环境选择的名称
+        voices: sortedVoices, // 使用排序后的语音列表
+      });
+    });
+
+    // 按地区类型和语言名称排序
+    categories.sort((a, b) => {
+      // 定义地区优先级
+      const regionOrder = {
+        "英语": 1,
+        "中文": 2,
+        "东南亚": 3,
+        "中东": 4,
+        "其他": 5
+      };
+
+      // 先按地区类型排序
+      //@ts-ignore
+      const regionComparison = (regionOrder[a.regionType] || 5) - (regionOrder[b.regionType] || 5); // Handle potential missing regionType
+
+      // 如果地区相同，则按语言名称排序
+      if (regionComparison === 0) {
+        return a.name.localeCompare(b.name);
+      }
+
+      return regionComparison;
+    });
+
+    // 添加"多语言支持"选项到第一个位置
+    const multilingualOption: LanguageCategory = {
+      code: 'multilingual',
+      name: locale === 'zh' ? '多语言支持' : 'Multi-language Support',
+      voices: [] // 稍后会填充谷歌的多语言语音
+    };
+    
+    // 只收集谷歌的语音（google-genai）到多语言选项中
+    categories.forEach(category => {
+      const googleVoices = category.voices.filter(voice => 
+        voice.provider === 'google-genai' || voice.provider === 'google'
+      );
+      multilingualOption.voices.push(...googleVoices);
+    });
+    
+    // 对多语言选项中的语音进行排序
+    multilingualOption.voices.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+    
+    // 将多语言选项插入到第一个位置
+    categories.unshift(multilingualOption);
+    
+    setLanguageCategories(categories);
+
+    // 设置默认语言
+    if (categories.length > 0) {
+      // 优先选择美式英语 (en-US) 作为默认语言
+      const defaultLang = categories.find(cat => cat.code === "en-US") ||
+        categories.find(cat => cat.code.includes("zh")) ||
+        categories.find(cat => cat.code.includes("en")) ||
+        categories[0];
+      setCurrentLanguage(defaultLang.code);
+      setCurrentVoices(defaultLang.voices);
+    }
+  };
 
 
 
   // 初始化数据 - 从服务端API获取语音列表
   useEffect(() => {
     const fetchVoices = async () => {
+      const cacheKey = 'tts_voices_cache';
+      let cachedData: string | null = null;
+      let cacheTimestamp: string | null = null;
+      
       try {
-        // 直接调用本地API路由，不使用baseUrl
+        // 检查本地缓存
+        cachedData = localStorage.getItem(cacheKey);
+        cacheTimestamp = localStorage.getItem(`${cacheKey}_timestamp`);
+        
+        // 检查缓存是否存在且未过期（24小时）
+        if (cachedData && cacheTimestamp) {
+          const now = Date.now();
+          const cacheTime = parseInt(cacheTimestamp);
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24小时的毫秒数
+          
+          if (now - cacheTime < twentyFourHours) {
+            console.log('使用缓存的语音列表数据');
+            const data = JSON.parse(cachedData);
+            processVoicesData(data);
+            return;
+          }
+        }
+        
+        // 缓存不存在或已过期，从服务器获取
+        console.log('从服务器获取语音列表数据');
         const response = await fetch('/api/tts/voices?provider=all');
         
         if (!response.ok) {
@@ -123,126 +300,24 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         
         const data = await response.json();
         
-        if (!data.success || !data.data) {
-          throw new Error('Invalid API response format');
-        }
-
-        // 合并所有供应商的语音数据 - 现在API已经处理了isPremium标记
-        const allGroupedVoices: { [key: string]: VoiceActor[] } = {};
+        // 保存到本地缓存
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(`${cacheKey}_timestamp`, Date.now().toString());
         
-        // 处理所有提供商的语音数据
-        const providers = ['microsoft', 'microsoft-api', 'google', 'google-genai'];
-        
-        providers.forEach(provider => {
-          if (data.data && data.data[provider] && data.data[provider].grouped) {
-            Object.entries(data.data[provider].grouped).forEach(([langCode, voices]: [string, any]) => {
-              if (voices && voices.length > 0) {
-                // 为每个语音生成唯一的id并处理数据
-                const processedVoices = voices.map((voice: any, index: number) => ({
-                  ...voice,
-                  id: voice.id || voice.key || `${provider}-${langCode}-${index}`, // 优先使用key作为id
-                  provider: voice.provider || provider, // 确保有provider字段
-                  type: voice.type || voice.provider || provider, // 确保有type字段，优先使用原始type，否则使用provider
-                  isPremium: voice.isPremium !== undefined ? voice.isPremium : false // 确保有isPremium字段
-                }));
-                allGroupedVoices[langCode] = (allGroupedVoices[langCode] || []).concat(processedVoices);
-              }
-            });
-          }
-        });
-
-        const groupedVoices = allGroupedVoices;
-
-        // 直接使用API返回的分组数据
-        const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
-
-        Object.entries(groupedVoices).forEach(([langCode, voices]: [string, any]) => {
-          if (voices && voices.length > 0) {
-            langMap.set(langCode, {
-              name: voices[0].lang, // 使用第一个语音的lang作为语言名称
-              voices: voices
-            });
-          }
-        });
-
-      // 转换为语言分类数组
-      const categories: LanguageCategory[] = [];
-
-
-      langMap.forEach((value, key) => {
-
-        // Determine region type (can keep existing logic or simplify)
-        let regionType = "其他";
-        if (key.includes("en")) {
-          regionType = "英语";
-        } else if (key.includes("zh")) {
-          regionType = "中文";
-        } else if (key.includes("ja") || key.includes("ko") || key.includes("th") || key.includes("vi") || key.includes("id") || key.includes("ms")) {
-          regionType = "东南亚";
-        } else if (key.includes("ar") || key.includes("he") || key.includes("iw") || key.includes("tr") || key.includes("fa")) {
-          regionType = "中东";
-        }
-
-
-        // 根据当前语言环境选择显示的语音名称
-        const displayName = locale === 'zh' ? value.name :
-          (value.voices[0]?.en_lang || value.name);
-
-        // 对语音进行排序：普通语音在前，高级语音在后
-        const sortedVoices = value.voices.sort((a, b) => {
-          // 首先按是否为高级语音排序（普通语音在前）
-          if (a.isPremium !== b.isPremium) {
-            return a.isPremium ? 1 : -1;
-          }
-          // 然后按名字排序
-          return a.name.localeCompare(b.name);
-        });
-
-        categories.push({
-          code: key,
-          name: displayName,  // 使用根据语言环境选择的名称
-          voices: sortedVoices, // 使用排序后的语音列表
-        });
-      });
-
-      // 按地区类型和语言名称排序
-      categories.sort((a, b) => {
-        // 定义地区优先级
-        const regionOrder = {
-          "英语": 1,
-          "中文": 2,
-          "东南亚": 3,
-          "中东": 4,
-          "其他": 5
-        };
-
-        // 先按地区类型排序
-        //@ts-ignore
-        const regionComparison = (regionOrder[a.regionType] || 5) - (regionOrder[b.regionType] || 5); // Handle potential missing regionType
-
-        // 如果地区相同，则按语言名称排序
-        if (regionComparison === 0) {
-          return a.name.localeCompare(b.name);
-        }
-
-        return regionComparison;
-      });
-
-      setLanguageCategories(categories);
-
-      // 设置默认语言
-      if (categories.length > 0) {
-        // 优先选择美式英语 (en-US) 作为默认语言
-        const defaultLang = categories.find(cat => cat.code === "en-US") ||
-          categories.find(cat => cat.code.includes("zh")) ||
-          categories.find(cat => cat.code.includes("en")) ||
-          categories[0];
-        setCurrentLanguage(defaultLang.code);
-        setCurrentVoices(defaultLang.voices);
-      }
+        // 处理语音数据
+        processVoicesData(data);
       } catch (error) {
         console.error('获取语音列表失败:', error);
-        // 可以在这里设置错误状态
+        // 如果从服务器获取失败，尝试使用缓存数据
+        if (cachedData) {
+          console.log('服务器请求失败，使用过期的缓存数据');
+          try {
+            const data = JSON.parse(cachedData);
+            processVoicesData(data);
+          } catch (cacheError) {
+            console.error('缓存数据解析失败:', cacheError);
+          }
+        }
       }
     };
 
@@ -267,6 +342,26 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       return () => clearTimeout(timer);
     }
   }, [latestResultId]);
+  
+  // 获取使用限制信息
+  useEffect(() => {
+    const fetchUsageLimit = async () => {
+      if (isLoggedIn) {
+        try {
+          const response = await fetch('/api/tts/usage-limit');
+          if (response.ok) {
+            const data = await response.json();
+            setUsageLimit(data.usage);
+          }
+        } catch (error) {
+          console.error('Failed to fetch usage limit:', error);
+        }
+      }
+    };
+    
+    fetchUsageLimit();
+    // 每次生成后也更新使用限制
+  }, [isLoggedIn, results]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     // 限制输入字符数为2000
@@ -461,7 +556,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
             {/* 文本输入区域 */}
             <div className="relative">
               <Textarea
-                placeholder={section.input_placeholder}
+                placeholder={currentLanguage === 'multilingual' ? section.multilingual_input_placeholder : section.input_placeholder}
                 value={text}
                 onChange={handleTextChange}
                 className="min-h-40 resize-none pr-24"
@@ -470,6 +565,17 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                 <span>{text.length}/2000</span>
               </div>
             </div>
+            
+            {/* 显示高级语音使用限制提示 */}
+            {selectedVoice?.isPremium && isLoggedIn && usageLimit && (
+              <div className="text-sm text-muted-foreground">
+                <span className="text-yellow-600">
+                  {locale === 'zh' 
+                    ? `高级语音每日限额：${usageLimit.used}/${usageLimit.limit} 次已使用` 
+                    : `Premium voice daily limit: ${usageLimit.used}/${usageLimit.limit} uses`}
+                </span>
+              </div>
+            )}
 
             {/* 生成结果显示在输入框下方 - 只显示一行 */}
             {results.length > 0 && (
@@ -511,18 +617,30 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                       // 检查该语言是否包含高级语音（谷歌语音）
                       const hasPremiumVoices = lang.voices.some(voice => voice.isPremium);
                       
+                      const isMultilingual = lang.code === 'multilingual';
+                      
                       return (
-                        <SelectItem key={lang.code} value={lang.code}>
+                        <SelectItem 
+                          key={lang.code} 
+                          value={lang.code}
+                          className={isMultilingual ? "bg-primary/10 hover:bg-primary/20" : ""}
+                        >
                           <div className="flex items-center justify-between w-full">
                             <div className="flex items-center gap-2">
-                              <FlagIcon countryCode={lang.code} size={20} />
-                              <span>{lang.name}</span>
+                              {isMultilingual ? (
+                                <div className="w-5 h-5 flex items-center justify-center">
+                                  <span className="text-lg">🌍</span>
+                                </div>
+                              ) : (
+                                <FlagIcon countryCode={lang.code} size={20} />
+                              )}
+                              <span className={isMultilingual ? "font-semibold" : ""}>{lang.name}</span>
                             </div>
-                            {hasPremiumVoices && (
+                            {hasPremiumVoices && !isMultilingual && (
                               <div className="flex items-center gap-1 ml-2">
                                 <Crown className="h-3.5 w-3.5 text-yellow-500" />
                                 <span className="text-xs text-muted-foreground">
-                                  {isLoggedIn ? '' : section.login_to_use || 'Login to use'}
+                                  {isLoggedIn ? '' : section.login_to_use}
                                 </span>
                               </div>
                             )}
@@ -682,22 +800,12 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                           {voice.gender}
                         </Badge>
                         
-                        {voice.provider && (
-                          <Badge variant="outline" className="text-xs">
-                            {voice.provider === 'microsoft-api' ? 'MS' : 
-                             voice.provider === 'microsoft' ? 'MS' :
-                             voice.provider === 'google' ? 'Google' :
-                             voice.provider === 'google-genai' ? 'Gemini' : 
-                             voice.provider}
-                          </Badge>
-                        )}
-                        
                         {voice.isPremium && (
                           <Badge 
                             variant="default" 
                             className="text-xs font-semibold bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white shadow-md"
                           >
-                            🔥 高级
+                            🔥 {section.voice_premium}
                           </Badge>
                         )}
                       </div>
@@ -707,7 +815,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                   {selectedVoice?.id && selectedVoice?.id === voice.id && (
                     <div className="absolute inset-0 rounded-lg border-2 border-primary pointer-events-none">
                       <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        已选择
+                        {section.voice_selected}
                       </div>
                     </div>
                   )}

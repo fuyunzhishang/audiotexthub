@@ -102,3 +102,14 @@ CREATE TABLE feedbacks (
     content TEXT,
     rating INT
 );
+
+CREATE TABLE tts_usage_limits (
+    id SERIAL PRIMARY KEY,
+    user_uuid VARCHAR(255) NOT NULL,
+    provider VARCHAR(50) NOT NULL,
+    usage_date DATE NOT NULL,
+    usage_count INT NOT NULL DEFAULT 0,
+    created_at timestamptz DEFAULT NOW(),
+    updated_at timestamptz DEFAULT NOW(),
+    UNIQUE(user_uuid, provider, usage_date)
+);

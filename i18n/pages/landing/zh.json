@@ -116,6 +116,7 @@
   },
   "textToSpeech": {
     "input_placeholder": "在此输入文本，最多2000个字符...",
+    "multilingual_input_placeholder": "支持多种语言：阿拉伯语、英语、西班牙语、印地语、印尼语、意大利语、日语、韩语、葡萄牙语、俄语、荷兰语、波兰语、泰语、土耳其语、越南语、罗马尼亚语、乌克兰语、孟加拉语、马拉地语、泰米尔语、泰卢固语、法语、德语等",
     "character_count": "字符数：{count}/2000",
     "select_language": "选择语言",
     "selected_language": "已选语言",
@@ -127,6 +128,9 @@
     "generate_button": "生成语音",
     "generating": "生成中...",
     "generate_voice": "生成语音",
+    "voice_selected": "已选择",
+    "voice_premium": "高级",
+    "login_to_use": "登录使用",
     "play_audio": "播放音频",
     "pause_audio": "暂停音频",
     "download_audio": "下载音频",

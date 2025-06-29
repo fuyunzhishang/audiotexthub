@@ -25,6 +25,7 @@ export interface TextToSpeech {
 export interface TextToSpeechSection extends SectionType {
   // 基础属性
   input_placeholder: string;
+  multilingual_input_placeholder?: string;
   character_count: string;
   select_language: string;
   select_language_placeholder: string;
@@ -59,4 +60,6 @@ export interface TextToSpeechSection extends SectionType {
   generated_record?: string;
   download?: string;
   login_to_use?: string;
+  voice_selected?: string;
+  voice_premium?: string;
 }

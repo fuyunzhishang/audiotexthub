@@ -19,7 +19,8 @@
       "Bash(npm run typecheck:*)",
       "Bash(pnpm list:*)",
       "WebFetch(domain:elevenlabs.io)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

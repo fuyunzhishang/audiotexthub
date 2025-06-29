@@ -115,6 +115,7 @@
   },
   "textToSpeech": {
     "input_placeholder": "Enter text here, maximum 2000 characters...",
+    "multilingual_input_placeholder": "Supports multiple languages: Arabic, English, Spanish, Hindi, Indonesian, Italian, Japanese, Korean, Portuguese, Russian, Dutch, Polish, Thai, Turkish, Vietnamese, Romanian, Ukrainian, Bengali, Marathi, Tamil, Telugu, French, German, etc.",
     "character_count": "Characters: {count}/2000",
     "select_language": "Select Language",
     "selected_language": "Selected Language",
@@ -126,6 +127,9 @@
     "generate_button": "Generate Speech",
     "generating": "Generating...",
     "generate_voice": "Generate Voice",
+    "voice_selected": "Selected",
+    "voice_premium": "Premium",
+    "login_to_use": "Login to use",
     "play_audio": "Play Audio",
     "pause_audio": "Pause Audio",
     "download_audio": "Download Audio",
