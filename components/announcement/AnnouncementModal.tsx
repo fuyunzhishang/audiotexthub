@@ -20,36 +20,26 @@ export function AnnouncementModal() {
   const { unreadAnnouncements, markAsRead } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
   const [currentAnnouncement, setCurrentAnnouncement] = useState<typeof unreadAnnouncements[0] | null>(null);
-  const [shownInSession, setShownInSession] = useState<Set<string>>(new Set());
+  const [hasShownAnnouncement, setHasShownAnnouncement] = useState(false);
   const t = useTranslations('announcement');
 
   useEffect(() => {
-    // Load shown announcements from session storage
-    const shownIds = sessionStorage.getItem('shownAnnouncements');
-    if (shownIds) {
-      setShownInSession(new Set(JSON.parse(shownIds)));
-    }
-  }, []);
-
-  useEffect(() => {
-    // Only show the latest unread announcement that hasn't been shown in this session
-    if (unreadAnnouncements.length > 0 && !isOpen) {
+    // Only show the latest unread announcement once
+    if (unreadAnnouncements.length > 0 && !isOpen && !hasShownAnnouncement) {
       // Get the latest announcement (first one since they're ordered by priority and created_at)
       const latestAnnouncement = unreadAnnouncements[0];
       
-      if (!shownInSession.has(latestAnnouncement.uuid)) {
-        setCurrentAnnouncement(latestAnnouncement);
-        setIsOpen(true);
-        
-        // Mark as shown in session
-        const newShownIds = new Set(shownInSession).add(latestAnnouncement.uuid);
-        setShownInSession(newShownIds);
-        sessionStorage.setItem('shownAnnouncements', JSON.stringify(Array.from(newShownIds)));
-      }
+      setCurrentAnnouncement(latestAnnouncement);
+      setIsOpen(true);
+      setHasShownAnnouncement(true);
     }
-  }, [unreadAnnouncements, isOpen, shownInSession]);
+  }, [unreadAnnouncements, isOpen, hasShownAnnouncement]);
 
   const handleClose = () => {
+    // 点击"稍后再看"时也标记为已读，避免再次弹出
+    if (currentAnnouncement) {
+      markAsRead(currentAnnouncement.uuid);
+    }
     setIsOpen(false);
   };
 

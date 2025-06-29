@@ -9,7 +9,15 @@
       "Bash(npx tsc:*)",
       "Bash(git config:*)",
       "mcp__apifox-docs__read_project_oas_d0ri3l",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(pnpm list:*)"
     ],
     "deny": []
   }
