@@ -12,6 +12,8 @@ interface AudioPlayerProps {
   playLabel: string;
   pauseLabel: string;
   provider?: string;
+  autoPlay?: boolean;
+  onPlayingChange?: (isPlaying: boolean) => void;
 }
 
 export default function AudioPlayer({ 
@@ -20,7 +22,9 @@ export default function AudioPlayer({
   voiceFilePrefix,
   playLabel,
   pauseLabel,
-  provider 
+  provider,
+  autoPlay = false,
+  onPlayingChange
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -76,15 +80,36 @@ export default function AudioPlayer({
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      onPlayingChange?.(false);
     });
+
+    // 监听播放状态变化
+    audio.addEventListener('play', () => {
+      setIsPlaying(true);
+      onPlayingChange?.(true);
+    });
+
+    audio.addEventListener('pause', () => {
+      setIsPlaying(false);
+      onPlayingChange?.(false);
+    });
+
+    // 如果设置了自动播放
+    if (autoPlay) {
+      audio.play().catch(error => {
+        console.error('自动播放失败:', error);
+      });
+    }
 
     return () => {
       audio.pause();
       audio.removeEventListener('loadedmetadata', () => {});
       audio.removeEventListener('timeupdate', () => {});
       audio.removeEventListener('ended', () => {});
+      audio.removeEventListener('play', () => {});
+      audio.removeEventListener('pause', () => {});
     };
-  }, [fullAudioUrl]);
+  }, [fullAudioUrl, autoPlay, onPlayingChange]);
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
@@ -92,9 +117,15 @@ export default function AudioPlayer({
     if (isPlaying) {
       audioRef.current.pause();
     } else {
+      // 停止所有其他音频
+      const allAudioElements = document.querySelectorAll('audio');
+      allAudioElements.forEach(audio => {
+        if (audio !== audioRef.current && !audio.paused) {
+          audio.pause();
+        }
+      });
       audioRef.current.play();
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSliderChange = (value: number[]) => {

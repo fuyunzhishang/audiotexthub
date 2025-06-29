@@ -17,7 +17,9 @@
       "Bash(npm run type-check:*)",
       "Bash(./node_modules/.bin/tsc:*)",
       "Bash(npm run typecheck:*)",
-      "Bash(pnpm list:*)"
+      "Bash(pnpm list:*)",
+      "WebFetch(domain:elevenlabs.io)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

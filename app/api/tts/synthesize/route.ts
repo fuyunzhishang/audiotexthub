@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     if (isGoogleVoice) {
       // 检查用户登录状态
       try {
-        const userUuid = await getUserUuid(request);
+        const userUuid = await getUserUuid();
         if (!userUuid) {
           return NextResponse.json(
             { error: 'Login required for premium voices' },

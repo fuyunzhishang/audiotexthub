@@ -54,5 +54,9 @@ export interface TextToSpeechSection extends SectionType {
     volume_tip: string;
     pitch_tip: string;
   };
-
+  
+  // 新增属性
+  generated_record?: string;
+  download?: string;
+  login_to_use?: string;
 }

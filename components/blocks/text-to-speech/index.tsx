@@ -25,6 +25,7 @@ import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
 import { useAppContext } from "@/contexts/app";
 import { useSession } from "next-auth/react";
 import AudioPlayer from "./AudioPlayer";
+import { FlagIcon } from "@/components/ui/flag-icon";
 
 // 添加静态图片引用
 const femaleAvatar = "/imgs/female.png";
@@ -34,7 +35,6 @@ const maleAvatar = "/imgs/male.png";
 interface LanguageCategory {
   code: string;
   name: string;
-  flag: string;
   voices: VoiceActor[];
 }
 
@@ -97,6 +97,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   const [selectedVoice, setSelectedVoice] = useState<VoiceActor | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<SpeechResult[]>([]);
+  const [latestResultId, setLatestResultId] = useState<string | null>(null); // 跟踪最新生成的结果
 
   // 按语言分类整理数据
   const [languageCategories, setLanguageCategories] = useState<LanguageCategory[]>([]);
@@ -167,111 +168,8 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       // 转换为语言分类数组
       const categories: LanguageCategory[] = [];
 
-      // Mapping for country names to flags
-      const countryFlagMap: { [key: string]: string } = {
-        "中国": "🇨🇳",
-        "台湾": "🇹🇼",
-        "香港特别行政区": "🇭🇰",
-        "美国": "🇺🇸",
-        "英国": "🇬🇧",
-        "澳大利亚": "🇦🇺",
-        "加拿大": "🇨🇦",
-        "日本": "🇯🇵",
-        "韩国": "🇰🇷",
-        "泰国": "🇹🇭",
-        "越南": "🇻🇳",
-        "印度尼西亚": "🇮🇩",
-        "马来西亚": "🇲🇾",
-        "阿拉伯": "🇦🇪",
-        "以色列": "🇮🇱",
-        "土耳其": "🇹🇷",
-        "伊朗": "🇮🇷",
-        "法国": "🇫🇷",
-        "德国": "🇩🇪",
-        "西班牙": "🇪🇸",
-        "墨西哥": "🇲🇽",
-        "葡萄牙": "🇵🇹",
-        "巴西": "🇧🇷",
-        "意大利": "🇮🇹",
-        "俄罗斯": "🇷🇺",
-        "阿尔巴尼亚": "🇦🇱",
-        "埃塞俄比亚": "🇪🇹",
-        "阿塞拜疆": "🇦🇿",
-        "印度": "🇮🇳",
-        "爱尔兰": "🇮🇪",
-        "爱沙尼亚": "🇪🇪",
-        "保加利亚": "🇧🇬",
-        "冰岛": "🇮🇸",
-        "南非": "🇿🇦",
-        "坦桑尼亚": "🇹🇿",
-        "新加坡": "🇸🇬",
-        "菲律宾": "🇵🇭",
-        "新西兰": "🇳🇿",
-        "尼日利亚": "🇳🇬",
-        "肯尼亚": "🇰🇪",
-        // Add more mappings as needed based on your tts.js data
-      };
-
-
-      // Mapping for language names to flags (fallback)
-      const languageFlagMap: { [key: string]: string } = {
-        "中文": "🇨🇳",
-        "普通话": "🇨🇳", // 匹配普通话到中国
-        "英语": "🇺🇸", // 默认英语匹配美国
-        "日语": "🇯🇵",
-        "韩语": "🇰🇷",
-        "泰语": "🇹🇭",
-        "越南语": "🇻🇳",
-        "印尼语": "🇮🇩",
-        "马来语": "🇲🇾",
-        "阿拉伯语": "🇦🇪",
-        "希伯来语": "🇮🇱",
-        "土耳其语": "🇹🇷",
-        "波斯语": "🇮🇷",
-        "法语": "🇫🇷",
-        "德语": "🇩🇪",
-        "西班牙语": "🇪🇸",
-        "葡萄牙语": "🇵🇹",
-        "意大利语": "🇮🇹",
-        "俄语": "🇷🇺",
-        "阿尔巴尼亚语": "🇦🇱",
-        "阿姆哈拉语": "🇪🇹",
-        "阿塞拜疆语": "🇦🇿",
-        "印地语": "🇮🇳",
-        "爱尔兰语": "🇮🇪",
-        "爱沙尼亚语": "🇪🇪",
-        "保加利亚语": "🇧🇬",
-        "冰岛语": "🇮🇸",
-        "南非荷兰语": "🇿🇦", // 示例，可能需要根据实际语言名称调整
-        "斯瓦希里语": "🇹🇿", // 示例
-        "他加禄语": "🇵🇭", // 示例
-        "毛利语": "🇳🇿", // 示例
-        "豪萨语": "🇳🇬", // 示例
-        // Add more language to flag mappings as needed
-      };
-
 
       langMap.forEach((value, key) => {
-        // Extract country name from the lang string, e.g., "爱沙尼亚语(爱沙尼亚)" -> "爱沙尼亚"
-        let countryName = "";
-        const match = value.name.match(/\((.*?)\)/);
-        if (match && match[1]) {
-          countryName = match[1];
-        }
-
-
-        // Extract language name from the lang string, e.g., "爱沙尼亚语(爱沙尼亚)" -> "爱沙尼亚语"
-        let languageName = value.name;
-        const langMatch = value.name.match(/^(.*?)\(/);
-        if (langMatch && langMatch[1]) {
-          languageName = langMatch[1];
-        } else {
-          // 如果没有括号，使用整个名称作为语言名称
-          languageName = value.name;
-        }
-
-        // Get flag: first try country name, then language name, default to globe
-        let flag = countryFlagMap[countryName] || languageFlagMap[languageName] || "🌐";
 
         // Determine region type (can keep existing logic or simplify)
         let regionType = "其他";
@@ -303,9 +201,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         categories.push({
           code: key,
           name: displayName,  // 使用根据语言环境选择的名称
-          flag: flag,
           voices: sortedVoices, // 使用排序后的语音列表
-          // 由于 LanguageCategory 接口中没有定义 regionType，这里暂时移除该属性
         });
       });
 
@@ -362,6 +258,16 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     }
   }, [currentLanguage, languageCategories]);
 
+  // 清除最新结果标记，避免重复自动播放
+  useEffect(() => {
+    if (latestResultId) {
+      const timer = setTimeout(() => {
+        setLatestResultId(null);
+      }, 1000); // 1秒后清除标记
+      return () => clearTimeout(timer);
+    }
+  }, [latestResultId]);
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     // 限制输入字符数为2000
     if (e.target.value.length <= 2000) {
@@ -411,7 +317,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       setIsPlaying(false);
       setCurrentAudio(null);
     } else {
-      // 停止所有正在播放的音频
+      // 停止所有正在播放的音频（包括AudioPlayer中的音频）
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
@@ -509,9 +415,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
 
       // 添加到结果列表
       setResults(prev => [newResult, ...prev]);
-
-      // 自动播放新生成的语音
-      playAudio(audioUrl);
+      setLatestResultId(newResult.id); // 标记为最新结果
 
     } catch (error) {
       console.error('生成语音失败:', error);
@@ -533,13 +437,14 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   };
 
   useEffect(() => {
-    // 创建音频元素
+    // 创建音频元素（只用于试听功能）
     const audio = new Audio();
     audioRef.current = audio;
 
     // 监听音频播放结束事件
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
+      setCurrentAudio(null);
     });
 
     return () => {
@@ -578,6 +483,15 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                       playLabel={section.play}
                       pauseLabel={section.pause}
                       provider={result.provider}
+                      autoPlay={result.id === latestResultId} // 只有最新的结果才自动播放
+                      onPlayingChange={(isPlaying) => {
+                        // 当AudioPlayer开始播放时，停止其他所有音频
+                        if (isPlaying && audioRef.current) {
+                          audioRef.current.pause();
+                          setIsPlaying(false);
+                          setCurrentAudio(null);
+                        }
+                      }}
                     />
                   </Card>
                 ))}
@@ -593,22 +507,37 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                     <SelectValue placeholder={section.select_language_placeholder} />
                   </SelectTrigger>
                   <SelectContent>
-                    {languageCategories.map((lang) => (
-                      <SelectItem key={lang.code} value={lang.code}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{lang.flag}</span>
-                          <span>{lang.name}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {languageCategories.map((lang) => {
+                      // 检查该语言是否包含高级语音（谷歌语音）
+                      const hasPremiumVoices = lang.voices.some(voice => voice.isPremium);
+                      
+                      return (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-2">
+                              <FlagIcon countryCode={lang.code} size={20} />
+                              <span>{lang.name}</span>
+                            </div>
+                            {hasPremiumVoices && (
+                              <div className="flex items-center gap-1 ml-2">
+                                <Crown className="h-3.5 w-3.5 text-yellow-500" />
+                                <span className="text-xs text-muted-foreground">
+                                  {isLoggedIn ? '' : section.login_to_use || 'Login to use'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
-                {currentLanguage && (
-                  <Badge variant="outline" className="ml-2">
-                    {languageCategories.find(lang => lang.code === currentLanguage)?.flag}
+                {/* {currentLanguage && (
+                  <Badge variant="outline" className="ml-2 flex items-center gap-1">
+                    <FlagIcon countryCode={currentLanguage} size={16} />
                     {languageCategories.find(lang => lang.code === currentLanguage)?.name}
                   </Badge>
-                )}
+                )} */}
                 
                 <Dialog>
                   <DialogTrigger asChild>

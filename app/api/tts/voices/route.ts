@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 
       data = await response.json();
     } catch (fetchError) {
-      console.error('External API not available:', fetchError.message);
+      console.error('External API not available:', fetchError instanceof Error ? fetchError.message : String(fetchError));
       throw new Error('TTS service is currently unavailable');
     }
     
