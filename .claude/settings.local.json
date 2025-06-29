@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.apifox.cn)",
+      "WebFetch(domain:api.apifox.cn)",
+      "Bash(rm:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git config:*)",
+      "mcp__apifox-docs__read_project_oas_d0ri3l",
+      "Bash(ls:*)"
+    ],
+    "deny": []
+  }
+}

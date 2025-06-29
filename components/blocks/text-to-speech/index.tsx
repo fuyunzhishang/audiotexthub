@@ -18,7 +18,7 @@ import {
 import { Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { ttsList } from "./tts";
+// import { ttsList } from "./tts";
 import { useTranslations, useLocale } from "next-intl";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
 
@@ -36,14 +36,14 @@ interface LanguageCategory {
 
 // 定义语音演员接口
 interface VoiceActor {
-  key: string;
+  id: string; // 改为id
   name: string;
   icon: string;
-  sex: string;
+  gender: string; // 改为gender
   lang: string;
   en_lang: string;
   example_voice_url: string;
-  level: number;
+  level?: number;
   type?: string;
 }
 
@@ -58,7 +58,7 @@ interface SpeechResult {
 }
 
 // 定义等级列表
-export const leveList = [
+const leveList = [
   { value: 1, label: 'free' },
   { value: 2, label: 'premium' },
   { value: 3, label: 'professional' },
@@ -97,29 +97,36 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
 
 
 
-  // 初始化数据
+  // 初始化数据 - 从服务端API获取语音列表
   useEffect(() => {
-    if (ttsList && ttsList.length > 0 && ttsList[0].microSoft) {
-      const voices: any = ttsList[0].microSoft;
-
-      // 按语言分组
-      const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
-
-      voices.forEach((voice: VoiceActor) => {
-        // 提取语言代码，例如 zh-CN, en-US 等
-        const langCode = voice.key.split('-').slice(0, 2).join('-');
-
-        if (!langMap.has(langCode)) {
-          // 直接使用tts.js中的lang字段作为显示名称
-          langMap.set(langCode, {
-            name: voice.lang,  // 这里直接使用voice.lang
-            voices: []
-          });
+    const fetchVoices = async () => {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const response = await fetch(`${baseUrl}/api/tts/voices?provider=microsoft`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch voices');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.success || !data.data?.microsoft?.grouped) {
+          throw new Error('Invalid API response format');
         }
 
-        // 把当前语音添加到对应语言的voices数组中
-        langMap.get(langCode)?.voices.push(voice);
-      });
+        const groupedVoices = data.data.microsoft.grouped;
+
+        // 直接使用API返回的分组数据
+        const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
+
+        Object.entries(groupedVoices).forEach(([langCode, voices]: [string, any]) => {
+          if (voices && voices.length > 0) {
+            langMap.set(langCode, {
+              name: voices[0].lang, // 使用第一个语音的lang作为语言名称
+              voices: voices
+            });
+          }
+        });
 
       // 转换为语言分类数组
       const categories: LanguageCategory[] = [];
@@ -292,7 +299,13 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
         setCurrentLanguage(defaultLang.code);
         setCurrentVoices(defaultLang.voices);
       }
-    }
+      } catch (error) {
+        console.error('获取语音列表失败:', error);
+        // 可以在这里设置错误状态
+      }
+    };
+
+    fetchVoices();
   }, []);
 
   // 当语言改变时更新语音列表和重置选中的角色
@@ -355,17 +368,20 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     try {
       setIsGenerating(true);
 
-      const response = await fetch('/api/tts', {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const response = await fetch(`${baseUrl}/api/tts/synthesize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          key: selectedVoice.key,
+          provider: 'microsoft-api',
           text: text,
-          voiceRate: speed,
-          voiceVolume: volume,
-          voicePitch: pitch
+          voiceId: selectedVoice.id,
+          speed: speed / 100 + 1, // 转换速度范围从-100~100到0.5~2
+          pitch: pitch / 100 + 1, // 转换音调范围从-100~100到0.5~2  
+          volume: volume / 100, // 转换音量范围从0~100到0~1
+          format: 'mp3'
         }),
       });
 
@@ -380,9 +396,9 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       const newResult: SpeechResult = {
         id: Date.now().toString(),
         text: text.length > 30 ? text.substring(0, 30) + '...' : text,
-        voiceKey: selectedVoice.key,
+        voiceKey: selectedVoice.id,
         voiceName: selectedVoice.name,
-        audioUrl: data.url,
+        audioUrl: data.audioUrl || data.url, // 兼容不同的响应格式
         createdAt: new Date()
       };
 
@@ -390,7 +406,7 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       setResults(prev => [newResult, ...prev]);
 
       // 自动播放新生成的语音
-      playAudio(data.url);
+      playAudio(data.audioUrl || data.url);
 
     } catch (error) {
       console.error('生成语音失败:', error);
@@ -530,24 +546,24 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {currentVoices.map((voice) => (
                 <Card
-                  key={voice.key}
-                  className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${selectedVoice?.key === voice.key ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
+                  key={voice.id}
+                  className={`p-3 hover:shadow-md transition-shadow cursor-pointer ${selectedVoice?.id === voice.id ? 'border-2 border-primary bg-primary/5 ring-1 ring-primary' : ''
                     }`}
                   onClick={() => handleSelectVoice(voice)}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="size-10 rounded-full ring-1 ring-input">
                       <AvatarImage
-                        src={voice.sex === 'Female' ? femaleAvatar : maleAvatar}
+                        src={voice.gender === 'Female' ? femaleAvatar : maleAvatar}
                         alt={voice.name}
                       />
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm truncate">{voice.name}</p>
                       <div className="flex items-center gap-1">
-                        <span className="text-xs text-muted-foreground">{voice.sex}</span>
+                        <span className="text-xs text-muted-foreground">{voice.gender}</span>
                         <Badge variant="outline" className="text-xs px-1 py-0">
-                          {getLevelLabel(voice.level)}
+                          {getLevelLabel(voice.level || 1)}
                         </Badge>
                       </div>
                     </div>

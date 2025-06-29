@@ -18,6 +18,31 @@ API接口信息：
   - audio: 音频文件 (wav, mp3, m4a, flv, mp4, wma, 3gp, amr, aac, ogg-opus, flac)
   - engineType: 识别引擎/ (16k_zh, 16k_zh_dialect, 16k_en, 16k_ca)
 
+## TTS API Information
+
+### Voice List Retrieval API
+- Endpoint: `/api/tts/voices`
+- Method: GET
+- Parameters:
+  - `provider`: TTS提供商 (optional, default: all)
+    - Supported values: all, microsoft, microsoft-api, google, google-genai
+  - `language`: 语言类型 (optional, default: all)
+    - Supported values: all, zh-CN, en-US
+
+### Voice Synthesis API
+- Endpoint: `/api/tts/synthesize`
+- Method: POST
+- Request Body Parameters:
+  - `provider`: TTS提供商 (optional, default: microsoft-api)
+    - Supported values: microsoft, microsoft-api, google-genai
+  - `text`: 要合成的文本 (required)
+  - `voiceId`: 语音ID (required, e.g., zh-CN-XiaoxiaoNeural)
+  - `speed`: 语速 (optional, default: 1, range: 0.5-2)
+  - `pitch`: 音调 (optional, default: 1, range: 0.5-2)
+  - `volume`: 音量 (optional, default: 1, range: 0-1)
+  - `format`: 输出格式 (optional, default: mp3)
+    - Supported values: mp3, wav, ogg, webm
+
 ## Development Commands
 
 Run type checking:
