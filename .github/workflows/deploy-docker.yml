@@ -213,7 +213,7 @@ jobs:
                   --data '{
                       "msgtype": "text",
                       "text": {
-                        "content": "✅ AI_Hub【Masterf分支-线上】部署成功！执行人：${{ github.actor }}。\n最后提交信息：${{ env.last_commit }}"
+                        "content": "✅ AudioTextHub【Masterf分支-线上】部署成功！执行人：${{ github.actor }}。\n最后提交信息：${{ env.last_commit }}"
                       }
                     }' `
                   "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=b0a27176-ca9b-4f08-9991-34f8174edfcb"
@@ -228,7 +228,7 @@ jobs:
                 --data '{
                     "msgtype": "text",
                     "text": {
-                      "content": "❌ AI_Hub【Masterf分支-线上】部署失败！请检查日志。\n执行人：fuyunzhishang。\n最后提交信息。"
+                      "content": "❌ AudioTextHub【Masterf分支-线上】部署失败！请检查日志。\n执行人：fuyunzhishang。\n最后提交信息。"
                     }
                   }' `
                 "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=b0a27176-ca9b-4f08-9991-34f8174edfcb"

@@ -58,6 +58,17 @@ export default async function RootLayout({
 
         <link rel="icon" href="/favicon.ico" />
         <script defer src="https://cloud.umami.is/script.js" data-website-id="2b684ccb-5696-4338-b111-6e63fdd88c20"></script>
+        {/* 百度统计代码 */}
+        <script>
+          var _hmt = _hmt || [];
+          (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?032915666314ff4e3318bb1195915043";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+          })();
+        </script>
+
 
         {locales &&
           locales.map((loc) => (
