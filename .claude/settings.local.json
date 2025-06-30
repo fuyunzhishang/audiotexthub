@@ -20,7 +20,8 @@
       "Bash(pnpm list:*)",
       "WebFetch(domain:elevenlabs.io)",
       "Bash(curl:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

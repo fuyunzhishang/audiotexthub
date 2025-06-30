@@ -6,19 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Play, Pause, Download, ChevronDown, Loader2, Crown, Lock } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { ttsList } from "./tts";
 import { useTranslations, useLocale } from "next-intl";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
@@ -26,10 +19,10 @@ import { useAppContext } from "@/contexts/app";
 import { useSession } from "next-auth/react";
 import AudioPlayer from "./AudioPlayer";
 import { FlagIcon } from "@/components/ui/flag-icon";
+import { VoiceGrid } from "./components/VoiceGrid";
+import { LanguageSelector } from "./components/LanguageSelector";
+import { MultilingualBanner } from "./components/MultilingualBanner";
 
-// 添加静态图片引用
-const femaleAvatar = "/imgs/female.png";
-const maleAvatar = "/imgs/male.png";
 
 // 定义语言分类接口
 interface LanguageCategory {
@@ -64,16 +57,13 @@ interface SpeechResult {
   provider?: string;
 }
 
-// 定义等级列表
-const leveList = [
-  { value: 1, label: 'free' },
-  { value: 2, label: 'premium' },
-  { value: 3, label: 'professional' },
-];
 
+interface TextToSpeechProps {
+  section: TextToSpeechSection;
+  showTabs?: boolean; // 控制是否显示 Tab 分离
+}
 
-
-export default function TextToSpeech({ section }: { section: TextToSpeechSection }) {
+export default function TextToSpeech({ section, showTabs = false }: TextToSpeechProps) {
   if (section.disabled) {
     return null;
   }
@@ -98,13 +88,15 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<SpeechResult[]>([]);
   const [latestResultId, setLatestResultId] = useState<string | null>(null); // 跟踪最新生成的结果
+  const [activeTab, setActiveTab] = useState<"microsoft" | "google">("microsoft"); // 添加Tab状态
 
   // 按语言分类整理数据
   const [languageCategories, setLanguageCategories] = useState<LanguageCategory[]>([]);
+  const [microsoftCategories, setMicrosoftCategories] = useState<LanguageCategory[]>([]);
+  const [googleCategories, setGoogleCategories] = useState<LanguageCategory[]>([]);
   const [currentVoices, setCurrentVoices] = useState<VoiceActor[]>([]);
 
   const [speed, setSpeed] = useState(0)
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [volume, setVolume] = useState(100); // 音量，默认1.0
   const [pitch, setPitch] = useState(0); // 音调，默认0
   
@@ -122,8 +114,9 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
       throw new Error('Invalid API response format');
     }
 
-    // 合并所有供应商的语音数据 - 现在API已经处理了isPremium标记
-    const allGroupedVoices: { [key: string]: VoiceActor[] } = {};
+    // 分别处理微软和谷歌语音
+    const microsoftGroupedVoices: { [key: string]: VoiceActor[] } = {};
+    const googleGroupedVoices: { [key: string]: VoiceActor[] } = {};
     
     // 处理所有提供商的语音数据
     const providers = ['microsoft', 'microsoft-api', 'google', 'google-genai'];
@@ -140,123 +133,127 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
               type: voice.type || voice.provider || provider, // 确保有type字段，优先使用原始type，否则使用provider
               isPremium: voice.isPremium !== undefined ? voice.isPremium : false // 确保有isPremium字段
             }));
-            allGroupedVoices[langCode] = (allGroupedVoices[langCode] || []).concat(processedVoices);
+            
+            // 根据provider分配到不同的分组
+            if (provider === 'microsoft' || provider === 'microsoft-api') {
+              microsoftGroupedVoices[langCode] = (microsoftGroupedVoices[langCode] || []).concat(processedVoices);
+            } else if (provider === 'google' || provider === 'google-genai') {
+              googleGroupedVoices[langCode] = (googleGroupedVoices[langCode] || []).concat(processedVoices);
+            }
           }
         });
       }
     });
 
-    const groupedVoices = allGroupedVoices;
+    // 处理微软语音分类
+    const processCategoriesForProvider = (groupedVoices: { [key: string]: VoiceActor[] }, excludeMultilingual: boolean = false) => {
+      const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
 
-    // 直接使用API返回的分组数据
-    const langMap = new Map<string, { name: string, voices: VoiceActor[] }>();
-
-    Object.entries(groupedVoices).forEach(([langCode, voices]: [string, any]) => {
-      if (voices && voices.length > 0) {
-        langMap.set(langCode, {
-          name: voices[0].lang, // 使用第一个语音的lang作为语言名称
-          voices: voices
-        });
-      }
-    });
-
-    // 转换为语言分类数组
-    const categories: LanguageCategory[] = [];
-
-    langMap.forEach((value, key) => {
-      // Determine region type (can keep existing logic or simplify)
-      let regionType = "其他";
-      if (key.includes("en")) {
-        regionType = "英语";
-      } else if (key.includes("zh")) {
-        regionType = "中文";
-      } else if (key.includes("ja") || key.includes("ko") || key.includes("th") || key.includes("vi") || key.includes("id") || key.includes("ms")) {
-        regionType = "东南亚";
-      } else if (key.includes("ar") || key.includes("he") || key.includes("iw") || key.includes("tr") || key.includes("fa")) {
-        regionType = "中东";
-      }
-
-      // 根据当前语言环境选择显示的语音名称
-      let displayName = locale === 'zh' ? value.name :
-        (value.voices[0]?.en_lang || value.name);
-      
-      // 特殊处理"多语言支持"选项
-      if (value.name === '多语言支持' || key === 'multilingual' || key === 'all') {
-        displayName = locale === 'zh' ? '多语言支持' : 'Multi-language Support';
-      }
-
-      // 对语音进行排序：普通语音在前，高级语音在后
-      const sortedVoices = value.voices.sort((a, b) => {
-        // 首先按是否为高级语音排序（普通语音在前）
-        if (a.isPremium !== b.isPremium) {
-          return a.isPremium ? 1 : -1;
+      Object.entries(groupedVoices).forEach(([langCode, voices]: [string, any]) => {
+        if (voices && voices.length > 0) {
+          // 如果需要排除multilingual分类（在首页模式下的谷歌语音）
+          if (excludeMultilingual && (langCode === 'multilingual' || langCode === 'all')) {
+            return;
+          }
+          
+          langMap.set(langCode, {
+            name: voices[0].lang, // 使用第一个语音的lang作为语言名称
+            voices: voices
+          });
         }
-        // 然后按名字排序
-        return a.name.localeCompare(b.name);
       });
 
-      categories.push({
-        code: key,
-        name: displayName,  // 使用根据语言环境选择的名称
-        voices: sortedVoices, // 使用排序后的语音列表
+      // 转换为语言分类数组
+      const categories: LanguageCategory[] = [];
+
+      langMap.forEach((value, key) => {
+        // 根据当前语言环境选择显示的语音名称
+        let displayName = locale === 'zh' ? value.name :
+          (value.voices[0]?.en_lang || value.name);
+        
+        // 特殊处理"多语言支持"选项
+        if (value.name === '多语言支持' || key === 'multilingual' || key === 'all') {
+          displayName = locale === 'zh' ? '多语言支持' : 'Multi-language Support';
+        }
+
+        // 对语音进行排序
+        const sortedVoices = value.voices.sort((a, b) => a.name.localeCompare(b.name));
+
+        categories.push({
+          code: key,
+          name: displayName,
+          voices: sortedVoices,
+        });
       });
-    });
 
-    // 按地区类型和语言名称排序
-    categories.sort((a, b) => {
-      // 定义地区优先级
-      const regionOrder = {
-        "英语": 1,
-        "中文": 2,
-        "东南亚": 3,
-        "中东": 4,
-        "其他": 5
-      };
-
-      // 先按地区类型排序
-      //@ts-ignore
-      const regionComparison = (regionOrder[a.regionType] || 5) - (regionOrder[b.regionType] || 5); // Handle potential missing regionType
-
-      // 如果地区相同，则按语言名称排序
-      if (regionComparison === 0) {
-        return a.name.localeCompare(b.name);
-      }
-
-      return regionComparison;
-    });
-
-    // 添加"多语言支持"选项到第一个位置
-    const multilingualOption: LanguageCategory = {
-      code: 'multilingual',
-      name: locale === 'zh' ? '多语言支持' : 'Multi-language Support',
-      voices: [] // 稍后会填充谷歌的多语言语音
+      // 按语言名称排序
+      categories.sort((a, b) => a.name.localeCompare(b.name, locale));
+      
+      return categories;
     };
     
-    // 只收集谷歌的语音（google-genai）到多语言选项中
-    categories.forEach(category => {
-      const googleVoices = category.voices.filter(voice => 
-        voice.provider === 'google-genai' || voice.provider === 'google'
+    // 分别处理微软和谷歌语音
+    const microsoftCategoriesArray = processCategoriesForProvider(microsoftGroupedVoices);
+    // 在首页模式下，谷歌语音排除原始的multilingual分类
+    const googleCategoriesArray = processCategoriesForProvider(googleGroupedVoices, !showTabs);
+    
+    // 设置分类
+    setMicrosoftCategories(microsoftCategoriesArray);
+    setGoogleCategories(googleCategoriesArray);
+    
+    // 设置合并的分类（为首页模式使用）
+    let allCategories = [...microsoftCategoriesArray, ...googleCategoriesArray];
+    
+    // 在首页模式下，创建多语言选项并放在第一位
+    if (!showTabs) {
+      // 首先检查是否已经存在多语言分类
+      const existingMultilingualIndex = allCategories.findIndex(cat => 
+        cat.code === 'multilingual' || 
+        cat.code === 'all' || 
+        cat.name === '多语言支持' || 
+        cat.name === 'Multi-language Support' ||
+        cat.name === 'Multilingual Support'
       );
-      multilingualOption.voices.push(...googleVoices);
-    });
+      
+      if (existingMultilingualIndex === -1) {
+        // 只有在不存在多语言分类时，才创建新的
+        // 收集所有谷歌语音到多语言选项
+        const multilingualVoices: VoiceActor[] = [];
+        googleCategoriesArray.forEach(category => {
+          multilingualVoices.push(...category.voices);
+        });
+        
+        if (multilingualVoices.length > 0) {
+          const multilingualCategory: LanguageCategory = {
+            code: 'multilingual',
+            name: locale === 'zh' ? '多语言支持' : 'Multilingual Support',
+            voices: multilingualVoices.sort((a, b) => a.name.localeCompare(b.name))
+          };
+          
+          // 将多语言选项插入到第一个位置
+          allCategories = [multilingualCategory, ...allCategories];
+        }
+      } else if (existingMultilingualIndex > 0) {
+        // 如果多语言分类已经存在但不在第一个位置，将其移到第一个位置
+        const multilingualCategory = allCategories[existingMultilingualIndex];
+        allCategories.splice(existingMultilingualIndex, 1);
+        allCategories.unshift(multilingualCategory);
+      }
+    }
     
-    // 对多语言选项中的语音进行排序
-    multilingualOption.voices.sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
+    setLanguageCategories(allCategories);
     
-    // 将多语言选项插入到第一个位置
-    categories.unshift(multilingualOption);
-    
-    setLanguageCategories(categories);
 
-    // 设置默认语言
-    if (categories.length > 0) {
+    // 设置默认语言 - 根据当前Tab选择
+    const categoriesForDefault = showTabs 
+      ? (activeTab === 'microsoft' ? microsoftCategoriesArray : googleCategoriesArray)
+      : allCategories;
+    if (categoriesForDefault.length > 0) {
       // 优先选择美式英语 (en-US) 作为默认语言
-      const defaultLang = categories.find(cat => cat.code === "en-US") ||
-        categories.find(cat => cat.code.includes("zh")) ||
-        categories.find(cat => cat.code.includes("en")) ||
-        categories[0];
+      const defaultLang = categoriesForDefault.find(cat => cat.code === "en-US") ||
+        categoriesForDefault.find(cat => cat.code.includes("zh")) ||
+        categoriesForDefault.find(cat => cat.code.includes("en")) ||
+        categoriesForDefault[0];
       setCurrentLanguage(defaultLang.code);
       setCurrentVoices(defaultLang.voices);
     }
@@ -322,16 +319,36 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     };
 
     fetchVoices();
-  }, []);
+  }, [showTabs, activeTab]); // 添加依赖项
 
   // 当语言改变时更新语音列表和重置选中的角色
   useEffect(() => {
-    const category = languageCategories.find(cat => cat.code === currentLanguage);
+    const categories = showTabs 
+      ? (activeTab === 'microsoft' ? microsoftCategories : googleCategories)
+      : languageCategories;
+    const category = categories.find(cat => cat.code === currentLanguage);
     if (category) {
       setCurrentVoices(category.voices);
       setSelectedVoice(null); // 重置选中的角色
     }
-  }, [currentLanguage, languageCategories]);
+  }, [currentLanguage, activeTab, microsoftCategories, googleCategories, languageCategories, showTabs]);
+  
+  // 当切换Tab时重置语言选择
+  useEffect(() => {
+    if (!showTabs) return; // 首页模式不需要处理Tab切换
+    
+    const categories = activeTab === 'microsoft' ? microsoftCategories : googleCategories;
+    if (categories.length > 0) {
+      const defaultLang = categories.find(cat => cat.code === "en-US") ||
+        categories.find(cat => cat.code.includes("zh")) ||
+        categories.find(cat => cat.code.includes("en")) ||
+        categories[0];
+      if (defaultLang) {
+        setCurrentLanguage(defaultLang.code);
+        setCurrentVoices(defaultLang.voices);
+      }
+    }
+  }, [activeTab, microsoftCategories, googleCategories, showTabs]);
 
   // 清除最新结果标记，避免重复自动播放
   useEffect(() => {
@@ -520,16 +537,6 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
     }
   };
 
-  // 删除结果记录
-  const handleDeleteResult = (id: string) => {
-    setResults(prev => prev.filter(item => item.id !== id));
-  };
-
-  // 获取等级标签
-  const getLevelLabel = (level: number) => {
-    const levelItem = leveList.find(item => item.value === level);
-    return levelItem ? levelItem.label : '';
-  };
 
   useEffect(() => {
     // 创建音频元素（只用于试听功能）
@@ -604,67 +611,34 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
               </div>
             )}
 
-            {/* 语言选择、设置和生成按钮 */}
-            <div>
-              <div className="flex items-center gap-2 mb-4 flex-wrap">
-                <span className="text-sm font-medium">{section.select_language}:</span>
-                <span 
-                  className="text-xs text-muted-foreground bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
-                  onClick={() => handleLanguageChange('multilingual')}
-                >
-                  {locale === 'zh' ? '🎉 新增30个多语言角色' : '🎉 30 new multilingual voices'}
-                </span>
-                <Select value={currentLanguage} onValueChange={handleLanguageChange}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder={section.select_language_placeholder} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {languageCategories.map((lang) => {
-                      // 检查该语言是否包含高级语音（谷歌语音）
-                      const hasPremiumVoices = lang.voices.some(voice => voice.isPremium);
-                      
-                      const isMultilingual = lang.code === 'multilingual';
-                      
-                      return (
-                        <SelectItem 
-                          key={lang.code} 
-                          value={lang.code}
-                          className={isMultilingual ? "bg-primary/10 hover:bg-primary/20" : ""}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-2">
-                              {isMultilingual ? (
-                                <div className="w-5 h-5 flex items-center justify-center">
-                                  <span className="text-lg">🌍</span>
-                                </div>
-                              ) : (
-                                <FlagIcon countryCode={lang.code} size={20} />
-                              )}
-                              <span className={isMultilingual ? "font-semibold" : ""}>{lang.name}</span>
-                            </div>
-                            {(hasPremiumVoices || isMultilingual) && (
-                              <div className="flex items-center gap-1 ml-2">
-                                <Crown className="h-3.5 w-3.5 text-yellow-500" />
-                                {!isMultilingual && (
-                                  <span className="text-xs text-muted-foreground">
-                                    {isLoggedIn ? '' : section.login_to_use}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-                {/* {currentLanguage && (
-                  <Badge variant="outline" className="ml-2 flex items-center gap-1">
-                    <FlagIcon countryCode={currentLanguage} size={16} />
-                    {languageCategories.find(lang => lang.code === currentLanguage)?.name}
-                  </Badge>
-                )} */}
-                
+            {/* 根据 showTabs 决定显示方式 */}
+            {showTabs ? (
+              // Tab 模式（独立页面）
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "microsoft" | "google")} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="microsoft">
+                    {section.tab_microsoft || (locale === 'zh' ? '500+AI配音' : '500+ AI Voices')}
+                  </TabsTrigger>
+                  <TabsTrigger value="google">
+                    {section.tab_google || (locale === 'zh' ? 'AI多语言配音' : 'AI Multilingual Voices')}
+                  </TabsTrigger>
+                </TabsList>
+              
+              <TabsContent value="microsoft" className="mt-0">
+                {/* 语言选择、设置和生成按钮 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <span className="text-sm font-medium">{section.select_language}:</span>
+                    <LanguageSelector
+                      categories={microsoftCategories}
+                      currentLanguage={currentLanguage}
+                      onLanguageChange={handleLanguageChange}
+                      placeholder={section.select_language_placeholder}
+                      isLoggedIn={isLoggedIn}
+                      loginToUseLabel={section.login_to_use}
+                      showPremiumIcon={false}
+                    />
+                  
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="icon">
@@ -740,98 +714,254 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                   </Button>
                 </div>
               </div>
-            </div>
+                </div>
 
-            {/* 语音角色选择 */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {currentVoices.map((voice) => (
-                <Card
-                  key={voice.id}
-                  className={`relative p-4 transition-all duration-200 cursor-pointer group ${
-                    selectedVoice?.id === voice.id 
-                      ? 'border-2 border-primary bg-primary/5 shadow-lg' 
-                      : voice.isPremium
-                        ? 'hover:border-yellow-400/50 hover:shadow-xl hover:shadow-yellow-100/25 ring-1 ring-yellow-200/30'
-                        : 'hover:border-primary/50 hover:shadow-lg'
-                  }`}
-                  onClick={() => handleSelectVoice(voice)}
-                >
-                  {/* 高级语音标识 - 只显示高级会员图标 */}
-                  {voice.isPremium && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white p-1.5 rounded-full shadow-lg ring-2 ring-yellow-300/50">
-                        <Crown className="h-3.5 w-3.5" />
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="relative">
-                      <Avatar className="size-12 rounded-full ring-2 ring-input group-hover:ring-primary/50 transition-all">
-                        <AvatarImage
-                          src={voice.gender === 'Female' ? femaleAvatar : maleAvatar}
-                          alt={voice.name}
-                        />
-                      </Avatar>
-                      
-                      {/* 播放按钮 - 试听不需要登录验证 */}
+                {/* 语音角色选择 */}
+                <VoiceGrid
+                  voices={currentVoices}
+                  selectedVoice={selectedVoice}
+                  currentAudio={currentAudio}
+                  isPlaying={isPlaying}
+                  onSelectVoice={handleSelectVoice}
+                  onPlayAudio={playAudio}
+                  getFullAudioUrl={getFullAudioUrl}
+                  voiceSelectedLabel={section.voice_selected}
+                  voicePremiumLabel={section.voice_premium}
+                />
+              </TabsContent>
+              
+              <TabsContent value="google" className="mt-0">
+                {/* 多语言配音介绍 */}
+                <MultilingualBanner
+                  title={section.multilingual_title}
+                  description={section.multilingual_description}
+                />
+                
+                {/* 语言选择、设置和生成按钮 */}
+                <div>
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <span className="text-sm font-medium">{section.select_language}:</span>
+                    <span 
+                      className="text-xs text-muted-foreground bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
+                      onClick={() => handleLanguageChange('multilingual')}
+                    >
+                      {locale === 'zh' ? '🎉 新增30个多语言角色' : '🎉 30 new multilingual voices'}
+                    </span>
+                    <LanguageSelector
+                      categories={googleCategories}
+                      currentLanguage={currentLanguage}
+                      onLanguageChange={handleLanguageChange}
+                      placeholder={section.select_language_placeholder}
+                      isLoggedIn={isLoggedIn}
+                      loginToUseLabel={section.login_to_use}
+                      showPremiumIcon={true}
+                    />
+                    
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="icon">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>{section.voice_settings.title}</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                          <div className="grid gap-2">
+                            <Label>{section.voice_settings.speed}: {speed}%</Label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="-100"
+                                max="100"
+                                value={speed}
+                                onChange={(e) => setSpeed(parseInt(e.target.value))}
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label>{section.voice_settings.volume}: {volume}%</Label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={volume}
+                                onChange={(e) => setVolume(parseInt(e.target.value))}
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid gap-2">
+                            <Label>{section.voice_settings.pitch}: {pitch}</Label>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="range"
+                                min="-100"
+                                max="100"
+                                value={pitch}
+                                onChange={(e) => setPitch(parseInt(e.target.value))}
+                                className="w-full"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                    
+                    {/* 生成按钮 */}
+                    <div className="ml-auto">
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // 试听功能对所有用户开放，不需要登录验证
-                          const fullUrl = getFullAudioUrl(voice.example_voice_url, voice.provider);
-                          playAudio(fullUrl);
-                        }}
-                        className="absolute -bottom-1 -right-1 size-7 rounded-full bg-background border shadow-sm hover:shadow-md transition-all"
-                        title="试听语音"
+                        disabled={
+                          !selectedVoice || 
+                          !text.trim() || 
+                          isGenerating
+                        }
+                        onClick={handleGenerateSpeech}
                       >
-                        {(() => {
-                          const fullUrl = getFullAudioUrl(voice.example_voice_url, voice.provider);
-                          return currentAudio === fullUrl && isPlaying ? (
-                            <Pause className="h-3 w-3" />
-                          ) : (
-                            <Play className="h-3 w-3" />
-                          );
-                        })()}
+                        {isGenerating ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {section.generating}
+                          </>
+                        ) : (
+                          section.generate_voice
+                        )}
                       </Button>
                     </div>
-                    
-                    <div className="text-center space-y-1 w-full">
-                      <p className="font-medium text-sm truncate" title={voice.name}>
-                        {voice.name}
-                      </p>
-                      
-                      <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <Badge variant="secondary" className="text-xs">
-                          {voice.gender}
-                        </Badge>
-                        
-                        {voice.isPremium && (
-                          <Badge 
-                            variant="default" 
-                            className="text-xs font-semibold bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-white shadow-md"
-                          >
-                            🔥 {section.voice_premium}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
                   </div>
-                  {/* 选中状态指示器 */}
-                  {selectedVoice?.id && selectedVoice?.id === voice.id && (
-                    <div className="absolute inset-0 rounded-lg border-2 border-primary pointer-events-none">
-                      <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                        {section.voice_selected}
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              ))}
-            </div>
+                </div>
 
-            {/* 移除了原来的生成按钮和底部结果区域 */}
+                {/* 语音角色选择 */}
+                <VoiceGrid
+                  voices={currentVoices}
+                  selectedVoice={selectedVoice}
+                  currentAudio={currentAudio}
+                  isPlaying={isPlaying}
+                  onSelectVoice={handleSelectVoice}
+                  onPlayAudio={playAudio}
+                  getFullAudioUrl={getFullAudioUrl}
+                  voiceSelectedLabel={section.voice_selected}
+                  voicePremiumLabel={section.voice_premium}
+                />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            // 无 Tab 模式（首页）
+            <>
+              {/* 语言选择、设置和生成按钮 */}
+              <div>
+                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                  <span className="text-sm font-medium">{section.select_language}:</span>
+                  <span 
+                    className="text-xs text-muted-foreground bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
+                    onClick={() => handleLanguageChange('multilingual')}
+                  >
+                    {locale === 'zh' ? '🎉 新增30个多语言角色' : '🎉 30 new multilingual voices'}
+                  </span>
+                  <LanguageSelector
+                    categories={languageCategories}
+                    currentLanguage={currentLanguage}
+                    onLanguageChange={handleLanguageChange}
+                    placeholder={section.select_language_placeholder}
+                    isLoggedIn={isLoggedIn}
+                    loginToUseLabel={section.login_to_use}
+                    showPremiumIcon={true}
+                  />
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <Settings className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogHeader>
+                        <DialogTitle>{section.voice_settings.title}</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <Label>{section.voice_settings.speed}: {speed}%</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min="-100"
+                              max="100"
+                              value={speed}
+                              onChange={(e) => setSpeed(parseInt(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>{section.voice_settings.volume}: {volume}%</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={volume}
+                              onChange={(e) => setVolume(parseInt(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label>{section.voice_settings.pitch}: {pitch}</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="range"
+                              min="-100"
+                              max="100"
+                              value={pitch}
+                              onChange={(e) => setPitch(parseInt(e.target.value))}
+                              className="w-full"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  
+                  {/* 生成按钮 */}
+                  <div className="ml-auto">
+                    <Button
+                      disabled={
+                        !selectedVoice || 
+                        !text.trim() || 
+                        isGenerating
+                      }
+                      onClick={handleGenerateSpeech}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {section.generating}
+                        </>
+                      ) : (
+                        section.generate_voice
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 语音角色选择 */}
+              <VoiceGrid
+                voices={currentVoices}
+                selectedVoice={selectedVoice}
+                currentAudio={currentAudio}
+                isPlaying={isPlaying}
+                onSelectVoice={handleSelectVoice}
+                onPlayAudio={playAudio}
+                getFullAudioUrl={getFullAudioUrl}
+                voiceSelectedLabel={section.voice_selected}
+                voicePremiumLabel={section.voice_premium}
+              />
+            </>
+          )}
       </div>
 
       {/* 隐藏的音频元素 */}

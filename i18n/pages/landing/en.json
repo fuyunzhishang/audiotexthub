@@ -230,7 +230,11 @@
     "play": "Play",
     "pause": "Pause",
     "no_history": "No generation history",
-    "voice_file_prefix": "Voice"
+    "voice_file_prefix": "Voice",
+    "tab_microsoft": "500+ AI Voices",
+    "tab_google": "AI Multilingual Voices",
+    "multilingual_title": "✨ Next-Generation AI Multilingual Voice Technology",
+    "multilingual_description": "Say goodbye to expensive and time-consuming traditional dubbing. One voice, multiple languages, instant generation. Professional, natural, and consistent voice solutions for your global content."
   },
   "speechRecognition": {
     "label": "Audio/Video to Text",

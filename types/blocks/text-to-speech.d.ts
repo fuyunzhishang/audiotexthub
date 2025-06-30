@@ -62,4 +62,12 @@ export interface TextToSpeechSection extends SectionType {
   login_to_use?: string;
   voice_selected?: string;
   voice_premium?: string;
+  
+  // Tab 标签
+  tab_microsoft?: string;
+  tab_google?: string;
+  
+  // 多语言配音介绍
+  multilingual_title?: string;
+  multilingual_description?: string;
 }

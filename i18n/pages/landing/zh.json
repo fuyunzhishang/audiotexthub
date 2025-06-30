@@ -231,7 +231,11 @@
     "play": "播放",
     "pause": "暂停",
     "no_history": "暂无生成记录",
-    "voice_file_prefix": "语音"
+    "voice_file_prefix": "语音",
+    "tab_microsoft": "500+AI配音",
+    "tab_google": "AI多语言配音",
+    "multilingual_title": "✨ 新一代AI多语言配音技术",
+    "multilingual_description": "告别传统配音的高成本和长周期。一个声音，多种语言，即时生成。为您的全球化内容提供专业、自然、一致的语音解决方案。"
   },
   "speechRecognition": {
     "label": "音/视频转文本",

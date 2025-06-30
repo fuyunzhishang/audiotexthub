@@ -36,7 +36,7 @@ export default async function TextToSpeechPage({
 
   return (
     <div className="container mx-auto py-8">
-      <TextToSpeech section={textToSpeechSection} />
+      <TextToSpeech section={textToSpeechSection} showTabs={true} />
     </div>
   );
 }
