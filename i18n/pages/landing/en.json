@@ -364,9 +364,14 @@
     "description": "Everything you need for professional text-to-speech conversion.",
     "items": [
       {
-        "title": "Advanced AI Text to Speech",
+        "title": "Natural Voice Quality",
         "description": "State-of-the-art AI voice models that create human-like speech with proper intonation and emotion.",
         "icon": "RiVoiceprintFill"
+      },
+      {
+        "title": "Speech/Video to Text",
+        "description": "Smart recognition of audio and video content, supporting multiple formats and languages with 98% accuracy.",
+        "icon": "RiMicFill"
       },
       {
         "title": "Multiple Languages",
@@ -379,14 +384,9 @@
         "icon": "RiSettings3Fill"
       },
       {
-         "title": "Free Online Text to Speech Converter",
-        "description": "Convert text to speech online freely, with support for multiple languages and voice options.",
+        "title": "Easy Export",
+        "description": "Download your audio in multiple formats including MP3, WAV, and OGG.",
         "icon": "RiDownloadCloudFill"
-      },
-      {
-        "title": "API Integration",
-        "description": "Integrate text-to-speech capabilities directly into your applications with our simple API.",
-        "icon": "RiCodeFill"
       },
       {
         "title": "Secure Processing",

@@ -46,7 +46,7 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [engineType, setEngineType] = useState("16k_zh");
-  const [results, setResults] = useState<RecognitionResult[]>([]);
+  const [latestResult, setLatestResult] = useState<RecognitionResult | null>(null);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -170,7 +170,7 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
         createdAt: new Date(),
       };
 
-      setResults(prev => [newResult, ...prev]);
+      setLatestResult(newResult);
       console.log('Recognition completed successfully');
     } catch (error) {
       console.error('Recognition failed:', error);
@@ -329,11 +329,8 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
   }, []);
 
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Left side - Recognition controls */}
-          <div className="col-span-1 md:col-span-2">
-            <Card className="p-4">
+    <div className="w-full max-w-4xl mx-auto">
+      <Card className="p-6">
               {/* Engine selector temporarily hidden */}
               {/* <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -362,43 +359,54 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                 </div>
               </div> */}
 
-              <div className="flex flex-col items-center gap-4">
-                {/* Microphone button - 恢复录音功能 */}
-                <Button
-                  size="lg"
-                  variant={isRecording ? "destructive" : "default"}
-                  className="w-24 h-24 rounded-full"
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={isProcessing}
-                >
-                  {isRecording ? (
-                    <MicOff className="h-10 w-10" />
-                  ) : (
-                    <Mic className="h-10 w-10" />
-                  )}
-                </Button>
-                
-                <div className="flex items-center gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    {isRecording ? section.recording : section.click_to_record}
-                  </p>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      <div className="text-xs">
-                        <p className="mb-1">💡 {section.mic_permission_tip}</p>
-                        <p>{section.mac_permission_guide}</p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+              <div className="flex flex-col items-center gap-6">
+                <div className="text-center space-y-4">
+                  {/* Microphone button - 恢复录音功能 */}
+                  <Button
+                    size="lg"
+                    variant={isRecording ? "destructive" : "default"}
+                    className="w-32 h-32 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={isProcessing}
+                  >
+                    {isRecording ? (
+                      <MicOff className="h-12 w-12" />
+                    ) : (
+                      <Mic className="h-12 w-12" />
+                    )}
+                  </Button>
+                  
+                  <div className="flex items-center justify-center gap-2">
+                    <p className="text-base font-medium text-foreground">
+                      {isRecording ? section.recording : section.click_to_record}
+                    </p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <div className="text-xs">
+                          <p className="mb-1">💡 {section.mic_permission_tip}</p>
+                          <p>{section.mac_permission_guide}</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="relative w-full max-w-xs">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t"></div>
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">{section.or}</span>
+                  </div>
                 </div>
 
                 {/* File upload option */}
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">{section.or}</span>
-                  <Button variant="outline" asChild>
+                <div className="text-center space-y-4">
+                  <Button variant="outline" size="lg" asChild className="hover:border-primary">
                     <label className="cursor-pointer">
                       <input
                         type="file"
@@ -407,108 +415,69 @@ export default function SpeechRecognition({ section }: { section: SpeechRecognit
                         className="hidden"
                         disabled={isProcessing || isRecording}
                       />
+                      <Icon name="RiUploadCloud2Line" className="mr-2 h-5 w-5" />
                       {section.upload_audio}
                     </label>
                   </Button>
+                  
+                  {/* File format tip */}
+                  <p className="text-xs text-muted-foreground text-center max-w-md mx-auto">
+                    {section.fileFormatTip}
+                  </p>
                 </div>
-                
-                {/* File format tip */}
-                <p className="text-xs text-muted-foreground text-center max-w-sm mx-auto">
-                  {section.fileFormatTip}
-                </p>
 
                 {isProcessing && (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">{section.processing}</span>
+                  <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-sm font-medium">{section.processing}</span>
                   </div>
                 )}
               </div>
 
-              {/* Latest result display */}
-              {results.length > 0 && (
-                <Card className="mt-4 p-3 bg-muted/50">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium">{section.latest_result}</h4>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => copyToClipboard(results[0].text)}
-                        title="复制文本"
-                      >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => downloadText(results[0])}
-                        title="下载文本"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                      </Button>
+              {/* Latest result display - 优化显示效果 */}
+              {latestResult && (
+                <div className="mt-6">
+                  <Card className="p-4 border-2 border-primary/20 bg-primary/5">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-lg">{section.latest_result}</h4>
+                        <Badge variant="secondary" className="text-xs">
+                          {engineTypes.find(e => e.value === latestResult.engineType)?.label}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyToClipboard(latestResult.text)}
+                          className="hover:bg-primary/10"
+                        >
+                          <Copy className="h-4 w-4 mr-1" />
+                          复制
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => downloadText(latestResult)}
+                          className="hover:bg-primary/10"
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          下载
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <p className="text-sm whitespace-pre-wrap">{results[0].text}</p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    {section.duration}: {results[0].duration}s
-                  </p>
-                </Card>
+                    <div className="bg-background rounded-lg p-4 border">
+                      <p className="text-base leading-relaxed whitespace-pre-wrap">{latestResult.text}</p>
+                    </div>
+                    <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                      <span>{section.duration}: {latestResult.duration}s</span>
+                      <span>•</span>
+                      <span>{latestResult.createdAt.toLocaleString()}</span>
+                    </div>
+                  </Card>
+                </div>
               )}
-            </Card>
-          </div>
-
-          {/* Right side - History */}
-          <div className="col-span-1">
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold mb-3">{section.history_title}</h3>
-              <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                {results.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">{section.no_history}</p>
-                ) : (
-                  results.slice(1).map((result) => (
-                    <Card key={result.id} className="p-2.5">
-                      <div className="mb-1.5">
-                        <p className="text-sm font-medium line-clamp-2">{result.text}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {engineTypes.find(e => e.value === result.engineType)?.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {result.createdAt.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {section.duration}: {result.duration}s
-                        </span>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-1.5"
-                            onClick={() => copyToClipboard(result.text)}
-                            title="复制文本"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-1.5"
-                            onClick={() => downloadText(result)}
-                            title="下载文本"
-                          >
-                            <Download className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))
-                )}
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
+      </Card>
+    </div>
   );
 }

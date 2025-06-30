@@ -370,6 +370,11 @@
         "icon": "RiVoiceprintFill"
       },
       {
+        "title": "音/视频转文本",
+        "description": "智能识别音视频内容，支持多种格式和语言，准确率高达98%。",
+        "icon": "RiMicFill"
+      },
+      {
         "title": "多语言支持",
         "description": "支持众多语言和地区口音，帮助您触达全球受众。",
         "icon": "RiTranslate"
@@ -383,11 +388,6 @@
         "title": "便捷导出",
         "description": "以多种格式下载您的音频，包括 MP3、WAV 和 OGG。",
         "icon": "RiDownloadCloudFill"
-      },
-      {
-        "title": "API 集成",
-        "description": "通过我们简单的 API，直接将文本转语音功能集成到您的应用程序中。",
-        "icon": "RiCodeFill"
       },
       {
         "title": "安全处理",
