@@ -18,7 +18,7 @@
           "icon": "RiVoiceprintFill"
         },
         {
-          "title": "语音识别",
+          "title": "音/视频转文本",
           "url": "/speech-recognition",
           "icon": "RiMicFill"
         },
@@ -234,9 +234,9 @@
     "voice_file_prefix": "语音"
   },
   "speechRecognition": {
-    "label": "语音识别",
+    "label": "音/视频转文本",
     "description": "将音频或视频文件转换为文字，支持多种语言识别",
-    "title": "AI 语音识别",
+    "title": "AI 音/视频转文本",
     "subtitle": "上传音频或视频文件，快速转换为文字",
     "select_engine": "选择引擎",
     "select_engine_placeholder": "请选择识别引擎",

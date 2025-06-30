@@ -5,7 +5,7 @@ This file contains project-specific information for Claude.
 ## API Configuration
 
 ### Speech Recognition API
-配置语音识别API地址：
+配置音/视频转文本API地址：
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:3099

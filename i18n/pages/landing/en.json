@@ -18,7 +18,7 @@
           "icon": "RiVoiceprintFill"
         },
         {
-          "title": "Speech Recognition",
+          "title": "Audio/Video to Text",
           "url": "/speech-recognition",
           "icon": "RiMicFill"
         },
@@ -233,9 +233,9 @@
     "voice_file_prefix": "Voice"
   },
   "speechRecognition": {
-    "label": "Speech Recognition",
+    "label": "Audio/Video to Text",
     "description": "Convert audio or video files to text with multi-language support",
-    "title": "AI Speech Recognition",
+    "title": "AI Audio/Video to Text",
     "subtitle": "Upload audio or video files and convert to text quickly",
     "select_engine": "Select Engine",
     "select_engine_placeholder": "Please select recognition engine",

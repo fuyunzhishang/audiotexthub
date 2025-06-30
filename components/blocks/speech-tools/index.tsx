@@ -44,8 +44,8 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
           </h2>
           <p className="text-center text-muted-foreground lg:text-lg max-w-2xl">
             {locale === 'zh' 
-              ? '提供文本转语音和语音识别两大核心功能，让您的内容在文字和语音之间自由转换'
-              : 'Providing text-to-speech and speech recognition features to convert between text and speech seamlessly'}
+              ? '提供文本转语音和音/视频转文本两大核心功能，让您的内容在文字和语音之间自由转换'
+              : 'Providing text-to-speech and audio/video to text features to convert between text and speech seamlessly'}
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
             {speechRecognition && !speechRecognition.disabled && (
               <TabsTrigger value="speech-recognition" className="flex items-center gap-2">
                 <Icon name={speechRecognition.icon || "RiMicFill"} className="h-4 w-4" />
-                {speechRecognition.label || "语音识别"}
+                {speechRecognition.label || "音/视频转文本"}
               </TabsTrigger>
             )}
           </TabsList>

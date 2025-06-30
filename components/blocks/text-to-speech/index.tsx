@@ -608,6 +608,12 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
             <div>
               <div className="flex items-center gap-2 mb-4 flex-wrap">
                 <span className="text-sm font-medium">{section.select_language}:</span>
+                <span 
+                  className="text-xs text-muted-foreground bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full cursor-pointer hover:bg-yellow-200 dark:hover:bg-yellow-900/50 transition-colors"
+                  onClick={() => handleLanguageChange('multilingual')}
+                >
+                  {locale === 'zh' ? '🎉 新增30个多语言角色' : '🎉 30 new multilingual voices'}
+                </span>
                 <Select value={currentLanguage} onValueChange={handleLanguageChange}>
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder={section.select_language_placeholder} />
@@ -636,12 +642,14 @@ export default function TextToSpeech({ section }: { section: TextToSpeechSection
                               )}
                               <span className={isMultilingual ? "font-semibold" : ""}>{lang.name}</span>
                             </div>
-                            {hasPremiumVoices && !isMultilingual && (
+                            {(hasPremiumVoices || isMultilingual) && (
                               <div className="flex items-center gap-1 ml-2">
                                 <Crown className="h-3.5 w-3.5 text-yellow-500" />
-                                <span className="text-xs text-muted-foreground">
-                                  {isLoggedIn ? '' : section.login_to_use}
-                                </span>
+                                {!isMultilingual && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {isLoggedIn ? '' : section.login_to_use}
+                                  </span>
+                                )}
                               </div>
                             )}
                           </div>
