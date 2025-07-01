@@ -21,7 +21,8 @@
       "WebFetch(domain:elevenlabs.io)",
       "Bash(curl:*)",
       "Bash(rg:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

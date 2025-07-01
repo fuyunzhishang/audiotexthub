@@ -21,6 +21,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { SiGithub, SiGmail, SiGoogle } from "react-icons/si";
+import { MdEmail } from "react-icons/md";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,8 @@ import { signIn } from "next-auth/react";
 import { useAppContext } from "@/contexts/app";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SignModal() {
   const t = useTranslations();
@@ -74,22 +77,11 @@ export default function SignModal() {
 
 function ProfileForm({ className }: React.ComponentProps<"form">) {
   const t = useTranslations();
+  const router = useRouter();
+  const { setShowSignModal } = useAppContext();
 
   return (
     <div className={cn("grid items-start gap-4", className)}>
-      {/* <div className="grid gap-2">
-        <Label htmlFor="email">{t("sign_modal.email_title")}</Label>
-        <Input type="email" id="email" placeholder="xxx@xxx.com" />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="password">{t("sign_modal.password_title")}</Label>
-        <Input id="password" type="password" />
-      </div>
-      <Button type="submit" className="w-full flex items-center gap-2">
-        <SiGmail className="w-4 h-4" />
-        {t("sign_modal.email_sign_in")}
-      </Button> */}
-
       {process.env.NEXT_PUBLIC_AUTH_GOOGLE_ENABLED === "true" && (
         <Button
           variant="outline"
@@ -114,6 +106,44 @@ function ProfileForm({ className }: React.ComponentProps<"form">) {
           <SiGithub className="w-4 h-4" />
           {t("sign_modal.github_sign_in")}
         </Button>
+      )}
+      
+      {process.env.NEXT_PUBLIC_AUTH_EMAIL_ENABLED === "true" && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                {t("sign_modal.or")}
+              </span>
+            </div>
+          </div>
+          
+          <Button
+            variant="outline"
+            className="w-full flex items-center gap-2"
+            onClick={() => {
+              setShowSignModal(false);
+              router.push("/auth/signin");
+            }}
+          >
+            <MdEmail className="w-4 h-4" />
+            {t("sign_modal.email_sign_in")}
+          </Button>
+          
+          <div className="text-center text-sm text-muted-foreground">
+            {t("sign_modal.no_account")}{" "}
+            <Link 
+              href="/auth/register" 
+              className="text-primary hover:underline"
+              onClick={() => setShowSignModal(false)}
+            >
+              {t("sign_modal.sign_up")}
+            </Link>
+          </div>
+        </>
       )}
     </div>
   );

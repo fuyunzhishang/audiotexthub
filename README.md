@@ -1,6 +1,6 @@
-# ShipAny Template One
+# AudioTextHub Template One
 
-Ship Any AI SaaS Startups in hours.
+AudioTextHub AI SaaS Startups in hours.
 
 ![preview](preview.png)
 
@@ -9,7 +9,7 @@ Ship Any AI SaaS Startups in hours.
 1. Clone the repository
 
 ```bash
-git clone https://github.com/shipanyai/shipany-template-one.git
+git clone https://github.com/audiotexthub/audiotexthub-template-one.git
 ```
 
 2. Install dependencies
@@ -44,7 +44,7 @@ cp .env.example .env.local
 
 - Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fshipanyai%2Fshipany-template-one&project-name=my-shipany-project&repository-name=my-shipany-project&redirect-url=https%3A%2F%2Fshipany.ai&demo-title=ShipAny&demo-description=Ship%20Any%20AI%20Startup%20in%20hours%2C%20not%20days&demo-url=https%3A%2F%2Fshipany.ai&demo-image=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FGgGSW3La8AAGJgU%3Fformat%3Djpg%26name%3Dlarge)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Faudiotexthub%2Faudiotexthub-template-one&project-name=my-audiotexthub-project&repository-name=my-audiotexthub-project&redirect-url=https%3A%2F%2Faudiotexthub.com&demo-title=AudioTextHub&demo-description=AI%20Text%20to%20Speech%20Platform&demo-url=https%3A%2F%2Faudiotexthub.com&demo-image=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2FGgGSW3La8AAGJgU%3Fformat%3Djpg%26name%3Dlarge)
 
 - Deploy to Cloudflare
 
@@ -67,10 +67,10 @@ npm run cf:deploy
 
 ## Community
 
-- [ShipAny](https://shipany.ai)
-- [Documentation](https://docs.shipany.ai)
+- [AudioTextHub](https://audiotexthub.com)
+- [Documentation](https://docs.audiotexthub.com)
 - [Discord](https://discord.gg/HQNnrzjZQS)
 
 ## License
 
-- [ShipAny AI SaaS Boilerplate License Agreement](LICENSE)
+- [AudioTextHub AI SaaS Boilerplate License Agreement](LICENSE)

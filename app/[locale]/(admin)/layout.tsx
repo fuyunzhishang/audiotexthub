@@ -72,19 +72,19 @@ export default async function AdminLayout({
       items: [
         {
           title: "Documents",
-          url: "https://docs.shipany.ai",
+          url: "https://docs.audiotexthub.com",
           target: "_blank",
           icon: "RiFileTextLine",
         },
         {
           title: "Blocks",
-          url: "https://shipany.ai/blocks",
+          url: "https://audiotexthub.com/blocks",
           target: "_blank",
           icon: "RiDashboardLine",
         },
         // {
         //   title: "Showcases",
-        //   url: "https://shipany.ai/showcase",
+        //   url: "https://audiotexthub.com/showcase",
         //   target: "_blank",
         //   icon: "RiAppsLine",
         // },
@@ -100,7 +100,7 @@ export default async function AdminLayout({
         },
         {
           title: "Github",
-          url: "https://github.com/shipanyai/shipany-template-one",
+          url: "https://github.com/audiotexthub/audiotexthub-template-one",
           target: "_blank",
           icon: "RiGithubLine",
         },
@@ -112,7 +112,7 @@ export default async function AdminLayout({
         },
         {
           title: "X",
-          url: "https://x.com/shipanyai",
+          url: "https://x.com/audiotexthub",
           target: "_blank",
           icon: "RiTwitterLine",
         },

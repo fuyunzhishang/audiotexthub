@@ -8,8 +8,65 @@ import { getClientIp } from "@/lib/ip";
 import { getIsoTimestr } from "@/lib/time";
 import { getUuid } from "@/lib/hash";
 import { saveUser } from "@/services/user";
+import { getUserByEmail, verifyPassword } from "@/lib/auth-db";
+import { z } from "zod";
 
 let providers: Provider[] = [];
+
+// Email/Password Auth
+if (process.env.NEXT_PUBLIC_AUTH_EMAIL_ENABLED === "true") {
+  providers.push(
+    CredentialsProvider({
+      id: "email",
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "email@example.com" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        try {
+          // Validate input
+          const loginSchema = z.object({
+            email: z.string().email(),
+            password: z.string().min(8)
+          });
+          
+          const { email, password } = loginSchema.parse(credentials);
+          
+          // Get user from database
+          const userCredential = await getUserByEmail(email);
+          if (!userCredential) {
+            console.log("User not found:", email);
+            return null;
+          }
+          
+          // Verify password
+          const isValid = await verifyPassword(password, userCredential.password_hash);
+          if (!isValid) {
+            console.log("Invalid password for:", email);
+            return null;
+          }
+          
+          // Check if email is verified
+          if (!userCredential.email_verified) {
+            console.log("Email not verified:", email);
+            throw new Error("Please verify your email before logging in");
+          }
+          
+          // Return user object for JWT
+          return {
+            id: userCredential.user_uuid,
+            email: userCredential.email,
+            emailVerified: userCredential.email_verified ? new Date() : null
+          };
+        } catch (error) {
+          console.error("Email auth error:", error);
+          return null;
+        }
+      }
+    })
+  );
+}
 
 // Google One Tap Auth
 if (

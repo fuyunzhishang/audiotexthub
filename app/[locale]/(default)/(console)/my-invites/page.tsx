@@ -126,7 +126,7 @@ export default async function () {
         {
           title: t("my_invites.edit_invite_link"),
           icon: "RiBookLine",
-          url: "https://docs.shipany.ai",
+          url: "https://docs.audiotexthub.com",
           target: "_blank",
           variant: "outline",
         },
