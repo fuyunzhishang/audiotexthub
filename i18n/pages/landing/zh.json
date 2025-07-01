@@ -57,16 +57,16 @@
     "highlight_text": "AI语音",
     "description": "AudioTextHub是一款智能AI文本转语音平台。<br/>只需几秒钟，即可将文字转换成自然流畅的语音，支持100+种语言。",
     "announcement": {
-      "label": "2025",
-      "title": "🎉 更高效",
-      "url": "/#pricing"
+      "label": "新增",
+      "title": "🎉 30+ 多语言音色",
+      "url": "/text-to-speech"
     },
     "tip": "🎁 速度提升50%",
     "buttons": [
       {
         "title": "立即开始",
         "icon": "RiFlashlightFill",
-        "url": "/#pricing",
+        "url": "#sign-in",
         "target": "_self",
         "variant": "default"
       },

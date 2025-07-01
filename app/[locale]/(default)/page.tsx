@@ -45,7 +45,7 @@ export default async function LandingPage({
   return (
     <>
       {page.hero && <Hero hero={page.hero} />}
-      {page.branding && <Branding section={page.branding} />}
+      {/* {page.branding && <Branding section={page.branding} />} */}
       
       {(page.textToSpeech || page.speechRecognition) && (
         <SpeechTools 

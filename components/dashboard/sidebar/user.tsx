@@ -33,6 +33,19 @@ export default function SidebarUser({ account }: { account?: Account }) {
 
   const { user, setShowSignModal } = useAppContext();
   const { isMobile, open } = useSidebar();
+  
+  // Get user initials from nickname or email
+  const getUserInitials = () => {
+    if (!user) return "U";
+    const name = user.nickname || user.email;
+    if (!name) return "U";
+    
+    // If it's an email, use the part before @
+    const displayName = name.includes('@') ? name.split('@')[0] : name;
+    
+    // Get first letter and capitalize
+    return displayName.charAt(0).toUpperCase();
+  };
 
   return (
     <>
@@ -54,7 +67,9 @@ export default function SidebarUser({ account }: { account?: Account }) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src={user?.avatar_url} alt={user?.nickname} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground font-semibold">
+                      {getUserInitials()}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
@@ -78,7 +93,9 @@ export default function SidebarUser({ account }: { account?: Account }) {
                         src={user?.avatar_url}
                         alt={user?.nickname}
                       />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-lg bg-primary text-primary-foreground font-semibold">
+                        {getUserInitials()}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">

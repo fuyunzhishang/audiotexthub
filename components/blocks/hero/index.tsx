@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import HappyUsers from "./happy-users";
@@ -5,8 +7,11 @@ import HeroBg from "./bg";
 import { Hero as HeroType } from "@/types/blocks/hero";
 import Icon from "@/components/icon";
 import { Link } from "@/i18n/routing";
+import { useAppContext } from "@/contexts/app";
 
 export default function Hero({ hero }: { hero: HeroType }) {
+  const { setShowSignModal } = useAppContext();
+  
   if (hero.disabled) {
     return null;
   }
@@ -16,6 +21,13 @@ export default function Hero({ hero }: { hero: HeroType }) {
   if (highlightText) {
     texts = hero.title?.split(highlightText, 2);
   }
+  
+  const handleButtonClick = (e: React.MouseEvent, url: string) => {
+    if (url === "#sign-in") {
+      e.preventDefault();
+      setShowSignModal(true);
+    }
+  };
 
   return (
     <>
@@ -65,6 +77,21 @@ export default function Hero({ hero }: { hero: HeroType }) {
             {hero.buttons && (
               <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
                 {hero.buttons.map((item, i) => {
+                  if (item.url === "#sign-in") {
+                    return (
+                      <div key={i} className="flex items-center">
+                        <Button
+                          className="w-full"
+                          size="lg"
+                          variant={item.variant || "default"}
+                          onClick={(e) => handleButtonClick(e, item.url || "")}
+                        >
+                          {item.icon && <Icon name={item.icon} className="" />}
+                          {item.title}
+                        </Button>
+                      </div>
+                    );
+                  }
                   return (
                     <Link
                       key={i}
@@ -88,7 +115,7 @@ export default function Hero({ hero }: { hero: HeroType }) {
             {hero.tip && (
               <p className="mt-8 text-md text-muted-foreground">{hero.tip}</p>
             )}
-            {hero.show_happy_users && <HappyUsers />}
+            {/* {hero.show_happy_users && <HappyUsers />} */}
           </div>
         </div>
       </section>

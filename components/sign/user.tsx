@@ -19,6 +19,18 @@ import { NavItem } from "@/types/blocks/base";
 
 export default function SignUser({ user }: { user: User }) {
   const t = useTranslations();
+  
+  // Get user initials from nickname or email
+  const getUserInitials = (user: User) => {
+    const name = user.nickname || user.email;
+    if (!name) return "U";
+    
+    // If it's an email, use the part before @
+    const displayName = name.includes('@') ? name.split('@')[0] : name;
+    
+    // Get first letter and capitalize
+    return displayName.charAt(0).toUpperCase();
+  };
 
   const dropdownItems: NavItem[] = [
     {
@@ -43,7 +55,9 @@ export default function SignUser({ user }: { user: User }) {
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
           <AvatarImage src={user.avatar_url} alt={user.nickname} />
-          <AvatarFallback>{user.nickname}</AvatarFallback>
+          <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+            {getUserInitials(user)}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="mx-4 bg-background">
