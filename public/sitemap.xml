@@ -9,38 +9,58 @@
 
 <url>
   <loc>https://www.audiotexthub.pro/</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
+  <loc>https://www.audiotexthub.pro/text-to-speech</loc>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
+  <priority>0.90</priority>
+</url>
+<url>
+  <loc>https://www.audiotexthub.pro/speech-recognition</loc>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
+  <priority>0.90</priority>
+</url>
+<url>
   <loc>https://www.audiotexthub.pro/pricing</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.audiotexthub.pro/posts</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://www.audiotexthub.pro/posts/top-free-text-to-speech-tools-reviewed</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.audiotexthub.pro/posts/exploring-benefits-of-text-to-speech-technology</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.audiotexthub.pro/posts/how-text-to-speech-transforms-content-consumption</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.64</priority>
 </url>
 <url>
   <loc>https://www.audiotexthub.pro/posts/text-to-speech</loc>
-  <lastmod>2025-06-05T03:37:41+00:00</lastmod>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
   <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://www.audiotexthub.pro/privacy-policy</loc>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
+  <priority>0.50</priority>
+</url>
+<url>
+  <loc>https://www.audiotexthub.pro/terms-of-service</loc>
+  <lastmod>2025-06-30T03:37:41+00:00</lastmod>
+  <priority>0.50</priority>
 </url>
 
 
