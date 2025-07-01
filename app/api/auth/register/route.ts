@@ -93,6 +93,13 @@ export async function POST(req: NextRequest) {
     
     const savedUser = await saveUser(newUser);
     
+    if (!savedUser.uuid) {
+      return NextResponse.json({
+        success: false,
+        error: "Failed to create user"
+      }, { status: 500 });
+    }
+    
     // Create user credentials
     await createUserCredentials(savedUser.uuid, email, password);
     

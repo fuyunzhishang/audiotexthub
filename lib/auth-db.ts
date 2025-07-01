@@ -1,6 +1,5 @@
 import { getSupabaseClient } from "@/models/db";
 import bcryptjs from "bcryptjs";
-import { randomBytes } from "crypto";
 
 const SALT_ROUNDS = 10;
 
@@ -34,7 +33,17 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
 
 // Generate random token
 export function generateToken(): string {
-  return randomBytes(32).toString('hex');
+  // Use crypto.getRandomValues() which works in both browser and Node.js
+  const array = new Uint8Array(32);
+  if (typeof window !== 'undefined' && window.crypto) {
+    window.crypto.getRandomValues(array);
+  } else {
+    // Fallback for server-side
+    for (let i = 0; i < array.length; i++) {
+      array[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 // Get user by email

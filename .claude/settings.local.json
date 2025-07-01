@@ -22,7 +22,8 @@
       "Bash(curl:*)",
       "Bash(rg:*)",
       "Bash(mkdir:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(pnpm build)"
     ],
     "deny": []
   }
