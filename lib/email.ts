@@ -1,12 +1,26 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 延迟初始化，确保环境变量已加载
+let resend: Resend | null = null;
+
+function getResendClient() {
+  if (!resend) {
+    const apiKey = process.env.RESEND_API_KEY;
+    console.log('Initializing Resend client, API key exists:', !!apiKey);
+    console.log('API key length:', apiKey?.length || 0);
+    if (!apiKey || apiKey === '') {
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    resend = new Resend(apiKey);
+  }
+  return resend;
+}
 
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyUrl = `${process.env.NEXT_PUBLIC_WEB_URL}/api/auth/verify-email?token=${token}`;
   
   try {
-    const data = await resend.emails.send({
+    const data = await getResendClient().emails.send({
       from: `${process.env.NEXT_PUBLIC_PROJECT_NAME} <${process.env.EMAIL_FROM || 'noreply@audiotexthub.pro'}>`,
       to: email,
       subject: '验证您的邮箱 - Verify Your Email',
@@ -53,7 +67,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${process.env.NEXT_PUBLIC_WEB_URL}/auth/reset-password?token=${token}`;
   
   try {
-    const data = await resend.emails.send({
+    const data = await getResendClient().emails.send({
       from: `${process.env.NEXT_PUBLIC_PROJECT_NAME} <${process.env.EMAIL_FROM || 'noreply@audiotexthub.pro'}>`,
       to: email,
       subject: '重置密码 - Reset Password',
