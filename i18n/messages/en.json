@@ -150,7 +150,10 @@
     "loading": "Submitting...",
     "contact_tip": "Other ways to contact us",
     "rating_tip": "How do you feel about AudioTextHub?",
-    "placeholder": "Leave your words here..."
+    "placeholder": "Leave your words here...",
+    "button_text": "Feedback",
+    "discord_priority": "We recommend joining our Discord community for faster responses and help",
+    "join_discord": "Join Discord Community"
   },
   "announcement": {
     "title": "Announcements",

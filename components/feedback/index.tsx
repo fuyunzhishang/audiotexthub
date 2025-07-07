@@ -91,11 +91,11 @@ export default function Feedback({
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
         <DialogTrigger asChild>
           <Button
-            size="icon"
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+            className="rounded-full shadow-lg hover:shadow-xl transition-all duration-300 px-4 py-2 flex items-center gap-2"
             onClick={() => setShowFeedback(true)}
           >
-            <MessageCircle className="h-6 w-6" />
+            <MessageCircle className="h-5 w-5" />
+            <span className="text-sm font-medium">{t("feedback.button_text")}</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[500px]">
@@ -136,28 +136,61 @@ export default function Feedback({
             </div>
           </div>
 
-          <div className="mt-6 flex justify-start items-center gap-4">
-            {socialLinks && socialLinks.length > 0 && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  {t("feedback.contact_tip")}
+          {/* Discord 优先反馈选项 */}
+          {socialLinks && socialLinks.length > 0 && (() => {
+            const discordLink = socialLinks.find(link => 
+              link.icon?.toLowerCase().includes('discord') || 
+              link.url?.includes('discord')
+            );
+            
+            return discordLink ? (
+              <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                <p className="text-sm font-medium mb-3">
+                  {t("feedback.discord_priority")}
                 </p>
-                <div className="flex gap-4">
-                  {socialLinks?.map((link, index) => (
-                    <a
-                      key={index}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                      title={link.title}
-                    >
-                      <Icon name={link.icon || ""} className="text-xl" />
-                    </a>
-                  ))}
-                </div>
-              </>
-            )}
+                <a
+                  href={discordLink.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                  title={discordLink.title}
+                >
+                  <Icon name={discordLink.icon || ""} className="text-xl" />
+                  <span className="text-sm font-medium">{t("feedback.join_discord")}</span>
+                </a>
+              </div>
+            ) : null;
+          })()}
+
+          <div className="mt-6 flex justify-start items-center gap-4">
+            {socialLinks && socialLinks.length > 0 && (() => {
+              const otherLinks = socialLinks.filter(link => 
+                !link.icon?.toLowerCase().includes('discord') && 
+                !link.url?.includes('discord')
+              );
+              
+              return otherLinks.length > 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {t("feedback.contact_tip")}
+                  </p>
+                  <div className="flex gap-4">
+                    {otherLinks.map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        title={link.title}
+                      >
+                        <Icon name={link.icon || ""} className="text-xl" />
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : null;
+            })()}
             <div className="flex-1"></div>
             <div className="flex gap-3">
               <Button onClick={handleSubmit} disabled={loading}>
