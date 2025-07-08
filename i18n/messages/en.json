@@ -159,6 +159,7 @@
     "title": "Announcements",
     "unread_count": "{count} unread",
     "no_announcements": "No announcements",
+    "click_to_expand": "Click to view details",
     "mark_as_read": "Mark as read",
     "new": "New",
     "read_later": "Read later",

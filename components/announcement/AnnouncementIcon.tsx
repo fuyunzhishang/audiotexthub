@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAnnouncements } from './AnnouncementProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { useTranslations } from 'next-intl';
 export function AnnouncementIcon() {
   const { announcements, unreadAnnouncements, markAsRead } = useAnnouncements();
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const t = useTranslations('announcement');
 
   const handleAnnouncementClick = (announcement: Announcement) => {
@@ -26,6 +27,17 @@ export function AnnouncementIcon() {
     if (isUnread) {
       markAsRead(announcement.uuid);
     }
+    
+    // 切换展开/收起状态
+    setExpandedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(announcement.uuid)) {
+        newSet.delete(announcement.uuid);
+      } else {
+        newSet.add(announcement.uuid);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -65,6 +77,7 @@ export function AnnouncementIcon() {
             <div className="divide-y">
               {announcements.map((announcement) => {
                 const isUnread = unreadAnnouncements.some(a => a.uuid === announcement.uuid);
+                const isExpanded = expandedItems.has(announcement.uuid);
                 return (
                   <div
                     key={announcement.uuid}
@@ -83,20 +96,37 @@ export function AnnouncementIcon() {
                         announcement.type === 'info' && "bg-blue-500"
                       )} />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium mb-1">
-                          {announcement.title}
-                          {isUnread && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
-                              {t('new')}
-                            </Badge>
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-medium">
+                            {announcement.title}
+                            {isUnread && (
+                              <Badge variant="secondary" className="ml-2 text-xs">
+                                {t('new')}
+                              </Badge>
+                            )}
+                          </h4>
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground" />
                           )}
-                        </h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
+                        </div>
+                        <p className={cn(
+                          "text-sm text-muted-foreground",
+                          !isExpanded && "line-clamp-2"
+                        )}>
                           {announcement.content}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(announcement.created_at).toLocaleString()}
-                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(announcement.created_at).toLocaleString()}
+                          </p>
+                          {!isExpanded && announcement.content.length > 100 && (
+                            <span className="text-xs text-primary">
+                              {t('click_to_expand')}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

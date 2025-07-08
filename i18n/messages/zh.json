@@ -159,6 +159,7 @@
     "title": "公告通知",
     "unread_count": "{count} 条未读",
     "no_announcements": "暂无公告",
+    "click_to_expand": "点击查看详情",
     "mark_as_read": "标记为已读",
     "new": "新",
     "read_later": "稍后再看",
