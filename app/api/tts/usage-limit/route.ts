@@ -13,19 +13,19 @@ export async function GET(request: NextRequest) {
           allowed: false,
           remaining: 0,
           used: 0,
-          limit: 10
+          limit: 20
         }
       });
     }
     
     // 检查Google语音的使用限制
-    const usageLimit = await checkTtsUsageLimit(userUuid, 'google', 10);
+    const usageLimit = await checkTtsUsageLimit(userUuid, 'google', 20);
     
     return NextResponse.json({
       isLoggedIn: true,
       usage: {
         ...usageLimit,
-        limit: 10
+        limit: 20
       }
     });
   } catch (error) {

@@ -11,6 +11,7 @@ import { Settings } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { ttsList } from "./tts";
 import { useTranslations, useLocale } from "next-intl";
@@ -70,6 +71,87 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
 
   // 获取当前语言环境
   const locale = useLocale();
+  const t = useTranslations();
+  
+  // 优化后的提示词选项
+  const promptOptions = {
+    tone: {
+      gentle: "gentle",
+      spooky: "spooky",
+      excited: "excited", 
+      bored: "bored and monotone",
+      cheerful: "cheerful"
+    },
+    speed: {
+      slow: "very slowly",
+      moderate: "at a moderate pace",
+      fast: "quickly but clearly"
+    },
+    emotion: {
+      sad: "sadly",
+      angry: "angrily",
+      happy: "happily",
+      tired: "tiredly",
+      excited: "excitedly",
+      nervous: "nervously",
+      confident: "confidently",
+      fearful: "fearfully"
+    },
+    special: {
+      hesitant: "with hesitation",
+      dramatic: "dramatically",
+      whisper: "in a whisper",
+      stutter: "with a stutter",
+      echo: "with an echo effect",
+      robotic: "in a robotic manner"
+    }
+  };
+  
+  
+  // 更新某个维度的提示词
+  const updatePromptDimension = (dimension: keyof typeof promptDimensions, value: string) => {
+    const newDimensions = { ...promptDimensions, [dimension]: value };
+    setPromptDimensions(newDimensions);
+    
+    // 自动组合并更新总的提示词
+    let command = "Speak";
+    
+    // 收集所有修饰词
+    const modifiers = [];
+    
+    // 添加速度（如果有）
+    if (newDimensions.speed) {
+      modifiers.push(newDimensions.speed);
+    }
+    
+    // 添加情感（副词形式）
+    if (newDimensions.emotion) {
+      modifiers.push(newDimensions.emotion);
+    }
+    
+    // 添加特殊效果
+    if (newDimensions.special) {
+      modifiers.push(newDimensions.special);
+    }
+    
+    // 添加语气
+    if (newDimensions.tone) {
+      if (newDimensions.tone === "bored and monotone") {
+        modifiers.push("in a bored, monotone voice");
+      } else if (newDimensions.tone === "excited") {
+        modifiers.push("in an excited voice");
+      } else {
+        modifiers.push(`in a ${newDimensions.tone} voice`);
+      }
+    }
+    
+    // 组合成一句话
+    if (modifiers.length > 0) {
+      command += " " + modifiers.join(" ");
+    }
+    
+    setPrompt(command);
+  };
   
   // 获取用户登录状态
   const { data: session } = useSession();
@@ -77,8 +159,16 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   const isLoggedIn = !!(session && user);
 
   const [text, setText] = useState("");
-  // 将初始语言设置为美式英语
-  const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [prompt, setPrompt] = useState(""); // 风格提示词
+  // 风格提示词的各个维度
+  const [promptDimensions, setPromptDimensions] = useState({
+    tone: "",
+    speed: "",
+    emotion: "",
+    special: ""
+  });
+  // 将初始语言设置为美式英语，但如果是首页则默认为多语言
+  const [currentLanguage, setCurrentLanguage] = useState(!showTabs ? "multilingual" : "en");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -88,7 +178,10 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<SpeechResult[]>([]);
   const [latestResultId, setLatestResultId] = useState<string | null>(null); // 跟踪最新生成的结果
-  const [activeTab, setActiveTab] = useState<"microsoft" | "google">("microsoft"); // 添加Tab状态
+  const [activeTab, setActiveTab] = useState<"microsoft" | "google">("google"); // 添加Tab状态
+  const isInitialMount = useRef(true); // 跟踪是否是初次加载
+  const userHasSelectedLanguage = useRef(false); // 跟踪用户是否手动选择过语言
+  const hasInitializedLanguage = useRef(false); // 跟踪是否已经初始化过语言
 
   // 按语言分类整理数据
   const [languageCategories, setLanguageCategories] = useState<LanguageCategory[]>([]);
@@ -109,7 +202,8 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   } | null>(null);
   
   // 处理语音数据的函数
-  const processVoicesData = (data: any) => {
+  const processVoicesData = useCallback((data: any) => {
+    console.log('[processVoicesData] Starting processing, showTabs:', showTabs, 'currentLanguage:', currentLanguage);
     if (!data.success || !data.data) {
       throw new Error('Invalid API response format');
     }
@@ -194,8 +288,8 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     
     // 分别处理微软和谷歌语音
     const microsoftCategoriesArray = processCategoriesForProvider(microsoftGroupedVoices);
-    // 在首页模式下，谷歌语音排除原始的multilingual分类
-    const googleCategoriesArray = processCategoriesForProvider(googleGroupedVoices, !showTabs);
+    // 处理谷歌语音，不排除multilingual分类
+    const googleCategoriesArray = processCategoriesForProvider(googleGroupedVoices, false);
     
     // 设置分类
     setMicrosoftCategories(microsoftCategoriesArray);
@@ -204,9 +298,12 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     // 设置合并的分类（为首页模式使用）
     let allCategories = [...microsoftCategoriesArray, ...googleCategoriesArray];
     
-    // 在首页模式下，创建多语言选项并放在第一位
+    // 在首页模式下，确保多语言选项在第一位
     if (!showTabs) {
-      // 首先检查是否已经存在多语言分类
+      console.log('[processVoicesData] Homepage mode, organizing multilingual category');
+      console.log('[processVoicesData] All categories before:', allCategories.map(c => ({ code: c.code, name: c.name })).slice(0, 5));
+      
+      // 查找现有的多语言分类（可能来自 Google API）
       const existingMultilingualIndex = allCategories.findIndex(cat => 
         cat.code === 'multilingual' || 
         cat.code === 'all' || 
@@ -215,49 +312,109 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
         cat.name === 'Multilingual Support'
       );
       
-      if (existingMultilingualIndex === -1) {
-        // 只有在不存在多语言分类时，才创建新的
-        // 收集所有谷歌语音到多语言选项
+      console.log('[processVoicesData] Existing multilingual index:', existingMultilingualIndex);
+      
+      if (existingMultilingualIndex >= 0) {
+        // 如果找到了多语言分类
+        if (existingMultilingualIndex > 0) {
+          // 如果不在第一个位置，将其移到第一个位置
+          const multilingualCategory = allCategories[existingMultilingualIndex];
+          allCategories.splice(existingMultilingualIndex, 1);
+          allCategories.unshift(multilingualCategory);
+          console.log('[processVoicesData] Moved multilingual category to first position');
+        } else {
+          console.log('[processVoicesData] Multilingual category already at first position');
+        }
+        
+        // 确保名称统一为 "Multi-language Support"
+        if (allCategories[0]) {
+          allCategories[0].name = locale === 'zh' ? '多语言支持' : 'Multi-language Support';
+          // 确保 code 统一为 'multilingual'
+          allCategories[0].code = 'multilingual';
+        }
+      } else {
+        // 如果没有找到多语言分类，创建一个
+        console.log('[processVoicesData] No multilingual category found, creating one');
+        
+        // 收集所有谷歌语音
         const multilingualVoices: VoiceActor[] = [];
         googleCategoriesArray.forEach(category => {
           multilingualVoices.push(...category.voices);
         });
         
+        console.log('[processVoicesData] Collected multilingual voices:', multilingualVoices.length);
+        
         if (multilingualVoices.length > 0) {
           const multilingualCategory: LanguageCategory = {
             code: 'multilingual',
-            name: locale === 'zh' ? '多语言支持' : 'Multilingual Support',
+            name: locale === 'zh' ? '多语言支持' : 'Multi-language Support',
             voices: multilingualVoices.sort((a, b) => a.name.localeCompare(b.name))
           };
           
           // 将多语言选项插入到第一个位置
           allCategories = [multilingualCategory, ...allCategories];
+          console.log('[processVoicesData] Created and added multilingual category');
         }
-      } else if (existingMultilingualIndex > 0) {
-        // 如果多语言分类已经存在但不在第一个位置，将其移到第一个位置
-        const multilingualCategory = allCategories[existingMultilingualIndex];
-        allCategories.splice(existingMultilingualIndex, 1);
-        allCategories.unshift(multilingualCategory);
       }
     }
     
     setLanguageCategories(allCategories);
     
 
-    // 设置默认语言 - 根据当前Tab选择
-    const categoriesForDefault = showTabs 
-      ? (activeTab === 'microsoft' ? microsoftCategoriesArray : googleCategoriesArray)
-      : allCategories;
-    if (categoriesForDefault.length > 0) {
-      // 优先选择美式英语 (en-US) 作为默认语言
-      const defaultLang = categoriesForDefault.find(cat => cat.code === "en-US") ||
-        categoriesForDefault.find(cat => cat.code.includes("zh")) ||
-        categoriesForDefault.find(cat => cat.code.includes("en")) ||
-        categoriesForDefault[0];
-      setCurrentLanguage(defaultLang.code);
-      setCurrentVoices(defaultLang.voices);
+    // 只在用户没有手动选择过语言且未初始化过时设置默认语言
+    if (!userHasSelectedLanguage.current && !hasInitializedLanguage.current) {
+      const categoriesForDefault = showTabs 
+        ? (activeTab === 'microsoft' ? microsoftCategoriesArray : googleCategoriesArray)
+        : allCategories;
+      
+      console.log('[processVoicesData] Setting default language, categories count:', categoriesForDefault.length);
+      console.log('[processVoicesData] First 5 categories:', categoriesForDefault.slice(0, 5).map(c => ({ code: c.code, name: c.name })));
+      console.log('[processVoicesData] hasInitializedLanguage:', hasInitializedLanguage.current, 'userHasSelectedLanguage:', userHasSelectedLanguage.current);
+      
+      if (categoriesForDefault.length > 0) {
+        // 首页模式：优先选择multilingual
+        if (!showTabs) {
+          const multilingualCategory = categoriesForDefault.find(cat => cat.code === "multilingual");
+          console.log('[processVoicesData] Looking for multilingual category, found:', multilingualCategory?.name);
+          if (multilingualCategory) {
+            console.log('[processVoicesData] Setting language to multilingual');
+            setCurrentLanguage("multilingual");
+            setCurrentVoices(multilingualCategory.voices);
+            hasInitializedLanguage.current = true;
+            return;
+          }
+        }
+        
+        // 设置默认语言（Tab模式或首页找不到multilingual时）
+        const defaultLang = categoriesForDefault.find(cat => cat.code === "en-US") ||
+          categoriesForDefault.find(cat => cat.code.includes("zh")) ||
+          categoriesForDefault.find(cat => cat.code.includes("en")) ||
+          categoriesForDefault[0];
+        
+        if (defaultLang) {
+          setCurrentLanguage(defaultLang.code);
+          setCurrentVoices(defaultLang.voices);
+          hasInitializedLanguage.current = true;
+        }
+      }
+    } else {
+      // 用户已手动选择或已初始化，更新当前语言的语音列表
+      const categoriesForCurrent = showTabs 
+        ? (activeTab === 'microsoft' ? microsoftCategoriesArray : googleCategoriesArray)
+        : allCategories;
+      const currentCategory = categoriesForCurrent.find(cat => cat.code === currentLanguage);
+      if (currentCategory) {
+        setCurrentVoices(currentCategory.voices);
+      } else if (!showTabs && currentLanguage === "multilingual") {
+        // 首页模式下，如果当前选中的是multilingual但没找到对应分类，尝试使用第一个分类
+        const multilingualCategory = categoriesForCurrent.find(cat => cat.code === "multilingual");
+        if (multilingualCategory) {
+          setCurrentVoices(multilingualCategory.voices);
+        }
+      }
     }
-  };
+    console.log('[processVoicesData] Completed processing');
+  }, [showTabs, locale, activeTab]);
 
 
 
@@ -319,7 +476,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     };
 
     fetchVoices();
-  }, [showTabs, activeTab]); // 添加依赖项
+  }, [processVoicesData]); // 依赖 processVoicesData
 
   // 当语言改变时更新语音列表和重置选中的角色
   useEffect(() => {
@@ -335,17 +492,23 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   
   // 当切换Tab时重置语言选择
   useEffect(() => {
-    if (!showTabs) return; // 首页模式不需要处理Tab切换
+    // 首页模式不处理Tab切换
+    if (!showTabs) {
+      return;
+    }
     
-    const categories = activeTab === 'microsoft' ? microsoftCategories : googleCategories;
-    if (categories.length > 0) {
-      const defaultLang = categories.find(cat => cat.code === "en-US") ||
-        categories.find(cat => cat.code.includes("zh")) ||
-        categories.find(cat => cat.code.includes("en")) ||
-        categories[0];
-      if (defaultLang) {
-        setCurrentLanguage(defaultLang.code);
-        setCurrentVoices(defaultLang.voices);
+    // Tab模式下，切换Tab时重置语言（除非用户已手动选择）
+    if (!userHasSelectedLanguage.current) {
+      const categories = activeTab === 'microsoft' ? microsoftCategories : googleCategories;
+      if (categories.length > 0) {
+        const defaultLang = categories.find(cat => cat.code === "en-US") ||
+          categories.find(cat => cat.code.includes("zh")) ||
+          categories.find(cat => cat.code.includes("en")) ||
+          categories[0];
+        if (defaultLang) {
+          setCurrentLanguage(defaultLang.code);
+          setCurrentVoices(defaultLang.voices);
+        }
       }
     }
   }, [activeTab, microsoftCategories, googleCategories, showTabs]);
@@ -388,6 +551,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   };
 
   const handleLanguageChange = (value: string) => {
+    userHasSelectedLanguage.current = true; // 标记用户已手动选择
     setCurrentLanguage(value);
     setCurrentAudio(null);
     setIsPlaying(false);
@@ -471,6 +635,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     try {
       setIsGenerating(true);
 
+
       // 调用本地API包装接口
       const response = await fetch('/api/tts/synthesize', {
         method: 'POST',
@@ -484,12 +649,27 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
           speed: speed / 100 + 1, // 转换速度范围从-100~100到0.5~2
           pitch: pitch / 100 + 1, // 转换音调范围从-100~100到0.5~2  
           volume: volume / 100, // 转换音量范围从0~100到0~1
-          format: 'mp3'
+          format: 'mp3',
+          ...(prompt && (selectedVoice.type === 'google-genai' || selectedVoice.provider === 'google-genai') 
+            ? { stylePrompt: prompt } 
+            : {})
         }),
       });
 
       if (!response.ok) {
-        throw new Error('生成语音失败');
+        let errorMessage = t('tts.generate_failed');
+        try {
+          const errorData = await response.json();
+          // 优先使用 message 字段，其次是 error 字段
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // 如果解析 JSON 失败，使用默认错误消息
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -511,7 +691,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       
       if (!audioUrl) {
         console.error('No audio URL found in response:', data);
-        throw new Error('服务器未返回音频文件地址');
+        throw new Error(t('tts.no_audio_url'));
       }
 
       // 创建新的结果记录
@@ -531,7 +711,9 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
 
     } catch (error) {
       console.error('生成语音失败:', error);
-      toast.error('生成语音失败，请重试');
+      // 显示具体的错误信息
+      const errorMessage = error instanceof Error ? error.message : t('tts.generate_failed');
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -556,10 +738,261 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       });
     };
   }, []);
+  
+  
+  
 
   return (
     <div className="w-full max-w-7xl mx-auto">
       <div className="space-y-6">
+            {/* 风格提示词输入 - 仅限 Google 语音或首页多语言模式 */}
+            {((showTabs && activeTab === "google") || (!showTabs && currentLanguage === "multilingual")) && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="prompt">{t("tts.style_prompt")}</Label>
+                  <div className="flex items-center gap-2">
+                    {prompt && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setPrompt("");
+                          setPromptDimensions({ tone: "", speed: "", emotion: "", special: "" });
+                        }}
+                        className="text-xs h-6 px-2"
+                      >
+                        {locale === 'zh' ? '清除' : 'Clear'}
+                      </Button>
+                    )}
+                    <span className="text-xs text-muted-foreground">
+                      {t("tts.prompt_english_only")}
+                    </span>
+                  </div>
+                </div>
+                <Input
+                  id="prompt"
+                  placeholder={t("tts.prompt_placeholder_single")}
+                  value={prompt}
+                  onChange={(e) => {
+                    setPrompt(e.target.value);
+                    // 手动编辑时清除维度选择
+                    setPromptDimensions({ tone: "", speed: "", emotion: "", special: "" });
+                  }}
+                />
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground mb-1">
+                    {locale === 'zh' ? '基本语气' : 'Basic Tone'}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      variant={promptDimensions.tone === "gentle" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("tone", promptDimensions.tone === "gentle" ? "" : "gentle")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '温柔' : 'Gentle'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.tone === "spooky" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("tone", promptDimensions.tone === "spooky" ? "" : "spooky")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '诡异' : 'Spooky'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.tone === "excited" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("tone", promptDimensions.tone === "excited" ? "" : "excited")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '兴奋' : 'Excited'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.tone === "bored and monotone" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("tone", promptDimensions.tone === "bored and monotone" ? "" : "bored and monotone")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '无聊单调' : 'Bored'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.tone === "cheerful" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("tone", promptDimensions.tone === "cheerful" ? "" : "cheerful")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '愉快' : 'Cheerful'}
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground mt-2 mb-1">
+                    {locale === 'zh' ? '速度控制' : 'Speed Control'}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      variant={promptDimensions.speed === "very slowly" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("speed", promptDimensions.speed === "very slowly" ? "" : "very slowly")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '非常缓慢' : 'Very Slow'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.speed === "at a moderate pace" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("speed", promptDimensions.speed === "at a moderate pace" ? "" : "at a moderate pace")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '中等速度' : 'Moderate'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.speed === "quickly but clearly" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("speed", promptDimensions.speed === "quickly but clearly" ? "" : "quickly but clearly")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '快速清晰' : 'Fast & Clear'}
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground mt-2 mb-1">
+                    {locale === 'zh' ? '情感表达' : 'Emotions'}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      variant={promptDimensions.emotion === "sadly" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "sadly" ? "" : "sadly")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '悲伤' : 'Sad'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "angrily" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "angrily" ? "" : "angrily")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '生气' : 'Angry'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "happily" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "happily" ? "" : "happily")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '开心' : 'Happy'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "tiredly" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "tiredly" ? "" : "tiredly")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '疲惫' : 'Tired'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "excitedly" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "excitedly" ? "" : "excitedly")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '兴奋' : 'Excited'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "nervously" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "nervously" ? "" : "nervously")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '紧张' : 'Nervous'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "confidently" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "confidently" ? "" : "confidently")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '自信' : 'Confident'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.emotion === "fearfully" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("emotion", promptDimensions.emotion === "fearfully" ? "" : "fearfully")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '恐惧' : 'Fearful'}
+                    </Button>
+                  </div>
+                  
+                  <div className="text-xs text-muted-foreground mt-2 mb-1">
+                    {locale === 'zh' ? '特殊效果' : 'Special Effects'}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    <Button
+                      variant={promptDimensions.special === "with hesitation" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "with hesitation" ? "" : "with hesitation")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '犹豫' : 'Hesitant'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.special === "dramatically" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "dramatically" ? "" : "dramatically")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '戏剧性' : 'Dramatic'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.special === "in a whisper" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "in a whisper" ? "" : "in a whisper")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '低语' : 'Whisper'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.special === "with a stutter" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "with a stutter" ? "" : "with a stutter")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '结巴' : 'Stutter'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.special === "with an echo effect" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "with an echo effect" ? "" : "with an echo effect")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '回声' : 'Echo'}
+                    </Button>
+                    <Button
+                      variant={promptDimensions.special === "in a robotic manner" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => updatePromptDimension("special", promptDimensions.special === "in a robotic manner" ? "" : "in a robotic manner")}
+                      className="text-xs"
+                    >
+                      {locale === 'zh' ? '机械' : 'Robotic'}
+                    </Button>
+                  </div>
+                  
+                  {/* 组合提示 */}
+                  {prompt && (
+                    <div className="mt-2 p-2 bg-muted/50 rounded-md">
+                      <p className="text-xs text-muted-foreground">
+                        {locale === 'zh' ? '当前组合效果：' : 'Current combination: '}
+                        <span className="text-foreground font-medium">{prompt}</span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* 文本输入区域 */}
             <div className="relative">
               <Textarea
@@ -616,11 +1049,11 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
               // Tab 模式（独立页面）
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "microsoft" | "google")} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="microsoft">
-                    {section.tab_microsoft || (locale === 'zh' ? '500+AI配音' : '500+ AI Voices')}
-                  </TabsTrigger>
                   <TabsTrigger value="google">
                     {section.tab_google || (locale === 'zh' ? 'AI多语言配音' : 'AI Multilingual Voices')}
+                  </TabsTrigger>
+                  <TabsTrigger value="microsoft">
+                    {section.tab_microsoft || (locale === 'zh' ? '500+AI配音' : '500+ AI Voices')}
                   </TabsTrigger>
                 </TabsList>
               

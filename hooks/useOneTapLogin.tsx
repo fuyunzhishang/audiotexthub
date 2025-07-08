@@ -36,15 +36,11 @@ export default function () {
     // console.log("one tap login status", status, session);
 
     if (status === "unauthenticated") {
+      // 只在首次未认证时尝试一次
       oneTapLogin();
-
-      const intervalId = setInterval(() => {
-        oneTapLogin();
-      }, 3000);
-
-      return () => {
-        clearInterval(intervalId);
-      };
+      
+      // 移除自动重试的定时器，避免频繁请求
+      // 如果用户关闭了 One Tap 提示，不应该一直重试
     }
   }, [status]);
 

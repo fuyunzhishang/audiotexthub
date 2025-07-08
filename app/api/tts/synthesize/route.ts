@@ -5,7 +5,7 @@ import { checkTtsUsageLimit, incrementTtsUsage } from '@/models/tts-usage';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { provider = 'microsoft-api', text, voiceId, speed = 1, pitch = 1, volume = 1, format = 'mp3' } = body;
+    const { provider = 'microsoft-api', text, voiceId, speed = 1, pitch = 1, volume = 1, format = 'mp3', stylePrompt } = body;
 
     // 验证必需参数
     if (!text || !voiceId) {
@@ -31,16 +31,17 @@ export async function POST(request: NextRequest) {
           );
         }
         
-        // 检查使用限制（每天10次）
-        const usageLimit = await checkTtsUsageLimit(userUuid, 'google', 10);
+        // 检查使用限制（每天20次）
+        const usageLimit = await checkTtsUsageLimit(userUuid, 'google', 20);
         
         if (!usageLimit.allowed) {
           return NextResponse.json(
             { 
               error: 'Daily usage limit exceeded', 
-              message: `You have reached your daily limit of 10 uses for premium voices. Please try again tomorrow.`,
+              message: `You have reached your daily limit of 20 uses for premium voices. Please try again tomorrow.`,
               remaining: 0,
-              used: usageLimit.used
+              used: usageLimit.used,
+              limit: 20
             },
             { status: 429 }
           );
@@ -65,7 +66,8 @@ export async function POST(request: NextRequest) {
       speed,
       pitch,
       volume,
-      format
+      format,
+      stylePrompt: stylePrompt || 'none'
     });
 
     // 调用外部TTS API进行语音合成
@@ -78,7 +80,8 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({
           provider,
-          text,
+          // 对于 Google Gemini，将 stylePrompt 合并到文本中
+          text: (stylePrompt && provider === 'google-genai') ? `${stylePrompt}: ${text}` : text,
           voiceId,
           speed,
           pitch,
@@ -108,9 +111,31 @@ export async function POST(request: NextRequest) {
       console.error('TTS API Error Response:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorData
+        error: errorData,
+        request: {
+          provider,
+          voiceId,
+          hasStylePrompt: !!stylePrompt,
+          textLength: text.length
+        }
       });
-      throw new Error(`TTS API error: ${response.status} - ${errorData.error || 'Unknown error'}`);
+      
+      // 返回更友好的错误信息
+      let errorMessage = errorData.message || errorData.error || 'Unknown error';
+      
+      // 特殊处理 Google API key 错误
+      if (errorMessage.includes('Google API key not configured')) {
+        errorMessage = 'Google voice service is temporarily unavailable';
+      }
+      
+      return NextResponse.json(
+        { 
+          error: 'TTS synthesis failed',
+          message: errorMessage,
+          details: response.status === 500 ? 'The TTS service encountered an internal error. Please try again.' : errorMessage
+        },
+        { status: response.status }
+      );
     }
 
     const data = await response.json();

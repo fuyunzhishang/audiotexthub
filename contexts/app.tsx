@@ -115,10 +115,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    if (session && session.user) {
+    // 只在 session 从无到有时获取用户信息
+    // 避免因为 session 对象引用变化而频繁调用
+    if (session?.user?.email && !user) {
       fetchUserInfo();
     }
-  }, [session]);
+  }, [session?.user?.email, user]);
 
   return (
     <AppContext.Provider

@@ -171,5 +171,36 @@
       "success": "Success",
       "error": "Important"
     }
+  },
+  "tts": {
+    "gemini_title": "Google Gemini Intelligent Voice Synthesis",
+    "gemini_description": "Control voice style, accent, rhythm, and tone using natural language",
+    "single_speaker": "Single Speaker",
+    "multi_speaker": "Multi-Speaker",
+    "text_input": "Input Text",
+    "text_placeholder": "Enter the text you want to convert to speech...",
+    "style_prompt": "Style Prompt",
+    "prompt_tooltip": "Use natural language to describe your desired voice style",
+    "prompt_tooltip_multi": "Describe the overall dialogue style or characteristics of each speaker",
+    "prompt_placeholder_single": "e.g., Say in a gentle tone",
+    "prompt_placeholder_multi": "e.g., Make Speaker1 sound tired, Speaker2 sound excited",
+    "prompt_english_only": "* Please use English for best results",
+    "voice_selection": "Select Voice",
+    "speakers_config": "Speaker Configuration",
+    "speaker_name": "Speaker Name",
+    "speaker_text_placeholder": "{name}'s lines...",
+    "add_speaker": "Add Speaker",
+    "conversation_text": "Conversation Text (Optional)",
+    "conversation_placeholder": "Enter complete dialogue directly:\\nSpeaker1: Hello!\\nSpeaker2: Hi, how are you today?",
+    "generate": "Generate Voice",
+    "generating": "Generating...",
+    "generate_success": "Voice generated successfully!",
+    "generate_failed": "Voice generation failed",
+    "login_required": "Please login first",
+    "text_required": "Please enter text content",
+    "no_audio_url": "Server did not return audio file URL",
+    "daily_limit_exceeded": "You have reached your daily limit of {limit} uses for premium voices. Please try again tomorrow",
+    "fetch_voices_failed": "Failed to fetch voice list",
+    "google_api_key_error": "Google voice service is temporarily unavailable. Please try again later or use another voice"
   }
 }

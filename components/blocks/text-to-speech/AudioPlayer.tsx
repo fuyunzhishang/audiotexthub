@@ -66,50 +66,75 @@ export default function AudioPlayer({
     const audio = new Audio(fullAudioUrl);
     audioRef.current = audio;
 
-    // 设置音频元数据加载完成时的处理
-    audio.addEventListener('loadedmetadata', () => {
+    // 事件处理函数
+    const handleLoadedMetadata = () => {
       setDuration(audio.duration);
-    });
+    };
 
-    // 监听时间更新
-    audio.addEventListener('timeupdate', () => {
+    const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
-    });
+    };
 
-    // 监听播放结束
-    audio.addEventListener('ended', () => {
+    const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
       onPlayingChange?.(false);
-    });
+    };
 
-    // 监听播放状态变化
-    audio.addEventListener('play', () => {
+    const handlePlay = () => {
       setIsPlaying(true);
       onPlayingChange?.(true);
-    });
+    };
 
-    audio.addEventListener('pause', () => {
+    const handlePause = () => {
       setIsPlaying(false);
       onPlayingChange?.(false);
-    });
+    };
 
-    // 如果设置了自动播放
+    // 添加事件监听器
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+
+    // 如果设置了自动播放，等待音频加载后再播放
     if (autoPlay) {
-      audio.play().catch(error => {
-        console.error('自动播放失败:', error);
-      });
+      const playAudio = () => {
+        // 停止其他音频
+        const allAudioElements = document.querySelectorAll('audio');
+        allAudioElements.forEach(otherAudio => {
+          if (otherAudio !== audio && !otherAudio.paused) {
+            otherAudio.pause();
+          }
+        });
+        
+        audio.play().catch(error => {
+          console.error('自动播放失败:', error);
+        });
+      };
+
+      if (audio.readyState >= 3) { // HAVE_FUTURE_DATA
+        playAudio();
+      } else {
+        audio.addEventListener('canplay', playAudio, { once: true });
+      }
     }
 
     return () => {
-      audio.pause();
-      audio.removeEventListener('loadedmetadata', () => {});
-      audio.removeEventListener('timeupdate', () => {});
-      audio.removeEventListener('ended', () => {});
-      audio.removeEventListener('play', () => {});
-      audio.removeEventListener('pause', () => {});
+      // 移除事件监听器
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      
+      // 只有在组件真正卸载时才暂停音频
+      if (audioRef.current === audio) {
+        audio.pause();
+      }
     };
-  }, [fullAudioUrl, autoPlay, onPlayingChange]);
+  }, [fullAudioUrl]);
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
@@ -135,13 +160,30 @@ export default function AudioPlayer({
     setCurrentTime(newTime);
   };
 
-  const handleDownload = () => {
-    const a = document.createElement('a');
-    a.href = fullAudioUrl;
-    a.download = `${voiceFilePrefix}_${voiceName}_${new Date().getTime()}.mp3`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownload = async () => {
+    try {
+      // 先尝试通过 fetch 获取音频文件
+      const response = await fetch(fullAudioUrl);
+      const blob = await response.blob();
+      
+      // 创建 blob URL
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // 创建下载链接
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `${voiceFilePrefix}_${voiceName}_${new Date().getTime()}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // 清理 blob URL
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('下载失败:', error);
+      // 如果 fetch 失败（比如跨域），回退到直接打开链接
+      window.open(fullAudioUrl, '_blank');
+    }
   };
 
   const formatTime = (time: number) => {

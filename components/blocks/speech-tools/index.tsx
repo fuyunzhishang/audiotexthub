@@ -40,12 +40,12 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
             {locale === 'zh' ? 'AI语音工具' : 'AI Speech Tools'}
           </div>
           <h2 className="text-center text-3xl font-semibold lg:text-4xl">
-            {locale === 'zh' ? '智能语音转换工具' : 'Smart Speech Conversion Tools'}
+            {locale === 'zh' ? '全球化AI语音营销平台' : 'Global AI Voice Marketing Platform'}
           </h2>
           <p className="text-center text-muted-foreground lg:text-lg max-w-2xl">
             {locale === 'zh' 
-              ? '提供文本转语音和音/视频转文本两大核心功能，让您的内容在文字和语音之间自由转换'
-              : 'Providing text-to-speech and audio/video to text features to convert between text and speech seamlessly'}
+              ? '支持30+种语言的AI语音合成，通过智能风格控制实现个性化语音效果，为您的全球营销内容注入生命力'
+              : 'Create personalized voices in 30+ languages with intelligent style prompts. Perfect for global marketing content that speaks to every audience'}
           </p>
         </div>
 

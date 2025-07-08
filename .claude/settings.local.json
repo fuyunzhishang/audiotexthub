@@ -23,7 +23,9 @@
       "Bash(rg:*)",
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
-      "Bash(pnpm build)"
+      "Bash(pnpm build)",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

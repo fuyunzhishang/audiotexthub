@@ -171,5 +171,36 @@
       "success": "成功",
       "error": "重要"
     }
+  },
+  "tts": {
+    "gemini_title": "Google Gemini 智能语音合成",
+    "gemini_description": "使用自然语言控制语音风格、口音、节奏和语气",
+    "single_speaker": "单人语音",
+    "multi_speaker": "多人对话",
+    "text_input": "输入文本",
+    "text_placeholder": "请输入要转换为语音的文本...",
+    "style_prompt": "风格提示词",
+    "prompt_tooltip": "使用自然语言描述您想要的语音风格",
+    "prompt_tooltip_multi": "描述整体对话风格或各个说话者的特点",
+    "prompt_placeholder_single": "例如：Say in a gentle tone",
+    "prompt_placeholder_multi": "例如：Make Speaker1 sound tired, Speaker2 sound excited",
+    "prompt_english_only": "* 请使用英文输入以获得最佳效果",
+    "voice_selection": "选择语音",
+    "speakers_config": "说话者配置",
+    "speaker_name": "说话者名称",
+    "speaker_text_placeholder": "{name} 的台词...",
+    "add_speaker": "添加说话者",
+    "conversation_text": "对话文本（可选）",
+    "conversation_placeholder": "直接输入完整对话，格式：\\nSpeaker1: 你好！\\nSpeaker2: 你好，今天怎么样？",
+    "generate": "生成语音",
+    "generating": "生成中...",
+    "generate_success": "语音生成成功！",
+    "generate_failed": "语音生成失败",
+    "login_required": "请先登录",
+    "text_required": "请输入文本内容",
+    "no_audio_url": "服务器未返回音频文件地址",
+    "daily_limit_exceeded": "您已达到今日高级语音使用限额（{limit}次），请明天再试",
+    "fetch_voices_failed": "获取语音列表失败",
+    "google_api_key_error": "Google 语音服务暂时不可用，请稍后再试或使用其他语音"
   }
 }
