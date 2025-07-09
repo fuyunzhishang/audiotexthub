@@ -18,7 +18,7 @@
           "icon": "RiVoiceprintFill"
         },
         {
-          "title": "Audio/Video to Text",
+          "title": "Speech to Text",
           "url": "/speech-recognition",
           "icon": "RiMicFill"
         },
@@ -53,12 +53,12 @@
     "show_locale": true
   },
   "hero": {
-    "title": "Free Text to Speech: Convert Text to Natural AI Speech in Seconds",
-    "highlight_text": "Free Text to Speech:",
-    "description": "AudioTextHub is a free online text to speech platform powered by advanced AI voice technology.<br/>Transform your text into natural speech instantly with our free text to speech reader - no registration required.",
+    "title": "Free AI Text to Speech with Style Control - Natural TTS Reader",
+    "highlight_text": "AI Text to Speech",
+    "description": "AudioTextHub is the most advanced free text to speech platform with AI style prompts.<br/>Control voice emotion, tone, and expression with our free TTS reader. Transform any text to speech with personalized AI voices.",
     "announcement": {
       "label": "New",
-      "title": "🎉 30+ Multi-Langeuage Voices",
+      "title": "🎨 AI Style Prompts - Control Voice Emotion & Tone",
       "url": "/text-to-speech"
     },
     "buttons": [
@@ -237,9 +237,9 @@
     "multilingual_description": "Say goodbye to expensive and time-consuming traditional dubbing. One voice, multiple languages, instant generation. Professional, natural, and consistent voice solutions for your global content."
   },
   "speechRecognition": {
-    "label": "Audio/Video to Text",
+    "label": "Speech to Text",
     "description": "Convert audio or video files to text with multi-language support",
-    "title": "AI Audio/Video to Text",
+    "title": "AI Speech to Text",
     "subtitle": "Upload audio or video files and convert to text quickly",
     "select_engine": "Select Engine",
     "select_engine_placeholder": "Please select recognition engine",
@@ -266,39 +266,39 @@
   },
   "introduce": {
     "name": "introduce",
-    "title": "What is AudioTextHub",
+    "title": "Advanced Free TTS with AI Style Control",
     "label": "Introduce",
-    "description": "AudioTextHub is your go-to free text to speech online platform. Whether you need AI text to speech conversion or professional voice generation, our advanced technology delivers natural-sounding results in seconds.",
+    "description": "AudioTextHub revolutionizes free text to speech with AI style prompts. Control emotion, tone, speed, and expression in your TTS output. Our free TTS reader uses cutting-edge AI text to speech technology for unmatched voice customization.",
     "image": {
       "src": "/imgs/features/1.png"
     },
     "items": [
       {
-        "title": "Natural Voice Synthesis",
-        "description": "Access a variety of natural-sounding voices to bring your text to life with emotion and clarity.",
+        "title": "AI Style Prompt Control",
+        "description": "Unique style prompts let you control emotion, tone, and expression in your text to speech output - from energetic to calm, formal to friendly.",
         "icon": "RiVoiceprintFill"
       },
       {
-        "title": "Multi-language Support",
-        "description": "Convert text to speech in multiple languages and accents to reach global audiences.",
+        "title": "Free TTS in 30+ Languages",
+        "description": "Our free text to speech platform supports multilingual TTS with consistent voice quality across all languages.",
         "icon": "RiTranslate"
       },
       {
-        "title": "Quick Conversion",
-        "description": "Transform your text into high-quality audio in seconds, not hours.",
+        "title": "Instant TTS Reader",
+        "description": "Professional text to speech conversion in seconds. Our free TTS reader delivers studio-quality audio instantly.",
         "icon": "RiFlashlightFill"
       }
     ]
   },
   "benefit": {
     "name": "benefit",
-    "title": "Why Choose AudioTextHub",
+    "title": "Why AudioTextHub is the Best Free Text to Speech Platform",
     "label": "Benefits",
-    "description": "Get everything you need for high-quality text-to-speech conversion - from natural voices to multiple language support.",
+    "description": "Revolutionary AI text to speech with style prompts, free TTS reader features, and advanced voice control - all in one powerful platform.",
     "items": [
       {
-        "title": "Advanced Voice Technology",
-        "description": "Powered by cutting-edge AI voice synthesis to deliver natural-sounding speech that captures nuances and emotions.",
+        "title": "AI Style Prompts for TTS",
+        "description": "Industry-first style prompt technology lets you control every aspect of your text to speech output - emotion, tone, speed, and special effects.",
         "icon": "RiVoiceprintFill",
         "image": {
           "src": "/imgs/features/2.png"
@@ -368,13 +368,13 @@
     "description": "Everything you need for professional text-to-speech conversion.",
     "items": [
       {
-        "title": "Natural Voice Quality",
-        "description": "State-of-the-art AI voice models that create human-like speech with proper intonation and emotion.",
+        "title": "Style-Controlled TTS",
+        "description": "Revolutionary AI text to speech with style prompts. Control emotion, tone, and expression for truly personalized free TTS output.",
         "icon": "RiVoiceprintFill"
       },
       {
-        "title": "Speech/Video to Text",
-        "description": "Smart recognition of audio and video content, supporting multiple formats and languages with 98% accuracy.",
+        "title": "Speech to Text AI",
+        "description": "Advanced speech to text conversion with 98% accuracy. Convert audio and video to text in multiple languages instantly.",
         "icon": "RiMicFill"
       },
       {
@@ -383,8 +383,8 @@
         "icon": "RiTranslate"
       },
       {
-        "title": "Voice Customization",
-        "description": "Adjust speed, pitch, and emphasis to get exactly the voice output you need.",
+        "title": "Advanced TTS Controls",
+        "description": "Beyond basic settings - use AI style prompts to control emotion, personality, and expression in your free text to speech output.",
         "icon": "RiSettings3Fill"
       },
       {
@@ -487,20 +487,20 @@
     "description": "Have more questions? Contact us via Discord or email.",
     "items": [
       {
-        "title": "Is AudioTextHub really free to use?",
-        "description": "Yes, AudioTextHub offers a free text to speech service that allows you to convert up to 2000 characters per time. Our free plan includes access to multiple AI voices and languages."
+        "title": "Is this really a free text to speech platform?",
+        "description": "Yes! AudioTextHub provides free TTS with AI style prompts. Convert text to speech free with 2000 characters per session, including advanced style control features."
       },
       {
-        "title": "What exactly is AudioTextHub and how does it work?",
-        "description": "AudioTextHub is a comprehensive text-to-speech platform that converts written text into natural-sounding speech. It uses advanced AI voice models to generate human-like audio from your text in seconds."
+        "title": "What makes your AI text to speech unique?",
+        "description": "AudioTextHub is the first free TTS reader with AI style prompts. Control voice emotion, tone, and expression while converting text to speech. Our AI text to speech technology delivers personalized, natural-sounding voices."
       },
       {
         "title": "Do I need technical skills to use AudioTextHub?",
         "description": "Not at all! AudioTextHub is designed to be user-friendly. Our intuitive interface makes it easy for anyone to convert text to speech, regardless of technical background."
       },
       {
-        "title": "What languages and voices does AudioTextHub support?",
-        "description": "AudioTextHub supports a wide range of languages and regional accents. We offer over 500 different voices across multiple languages to help you reach global audiences with localized content."
+        "title": "Can I use style prompts with all TTS languages?",
+        "description": "Our AI style prompt feature works with multilingual voices, allowing consistent emotion and tone control across 30+ languages in our free text to speech platform."
       },
       {
         "title": "How long does it take to convert text to speech?",
@@ -514,8 +514,8 @@
   },
   "cta": {
     "name": "cta",
-    "title": "Start Converting Your Text to Speech Today",
-    "description": "Begin your journey with AudioTextHub now.",
+    "title": "Experience AI Text to Speech with Style Control - Free",
+    "description": "Join thousands using our free TTS reader with revolutionary AI style prompts.",
     "buttons": [
       {
         "title": "Try AudioTextHub",
@@ -529,7 +529,7 @@
     "name": "footer",
     "brand": {
       "title": "AudioTextHub",
-      "description": "AudioTextHub is a smart text-to-speech platform that converts your written content into high-quality natural-sounding speech in seconds.",
+      "description": "AudioTextHub is the premier free text to speech platform with AI style prompts. Our free TTS reader revolutionizes AI text to speech with emotion and tone control, making it the most advanced text to speech free solution available.",
       "logo": {
         "src": "/logo.png",
         "alt": "AudioTextHub"

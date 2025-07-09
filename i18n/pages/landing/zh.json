@@ -18,7 +18,7 @@
           "icon": "RiVoiceprintFill"
         },
         {
-          "title": "音/视频转文本",
+          "title": "语音转文本",
           "url": "/speech-recognition",
           "icon": "RiMicFill"
         },
@@ -53,12 +53,12 @@
     "show_locale": true
   },
   "hero": {
-    "title": "免费AI文本转语音工具，让文字瞬间发声",
-    "highlight_text": "AI语音",
-    "description": "AudioTextHub是一款智能AI文本转语音平台。<br/>只需几秒钟，即可将文字转换成自然流畅的语音，支持100+种语言。",
+    "title": "免费AI文本转语音 - 支持风格提示词控制的TTS平台",
+    "highlight_text": "AI风格语音",
+    "description": "AudioTextHub是最先进的免费文本转语音平台，独创AI风格提示词技术。<br/>通过智能提示词控制语音情感、语调和表现力，打造个性化的AI语音体验。",
     "announcement": {
-      "label": "新增",
-      "title": "🎉 30+ 多语言音色",
+      "label": "新功能",
+      "title": "🎨 AI风格提示词 - 控制语音情感与语调",
       "url": "/text-to-speech"
     },
     "tip": "🎁 速度提升50%",
@@ -238,9 +238,9 @@
     "multilingual_description": "告别传统配音的高成本和长周期。一个声音，多种语言，即时生成。为您的全球化内容提供专业、自然、一致的语音解决方案。"
   },
   "speechRecognition": {
-    "label": "音/视频转文本",
+    "label": "语音转文本",
     "description": "将音频或视频文件转换为文字，支持多种语言识别",
-    "title": "AI 音/视频转文本",
+    "title": "AI 语音转文本",
     "subtitle": "上传音频或视频文件，快速转换为文字",
     "select_engine": "选择引擎",
     "select_engine_placeholder": "请选择识别引擎",
@@ -267,39 +267,39 @@
   },
   "introduce": {
     "name": "introduce",
-    "title": "什么是 AudioTextHub",
+    "title": "革命性的免费TTS工具 - AI风格控制",
     "label": "介绍",
-    "description": "AudioTextHub是一款在线免费的AI文本转语音工具。无需下载软件，即可将文字快速转换成自然的语音，支持多语言和多场景应用。",
+    "description": "AudioTextHub创新推出AI风格提示词功能，让免费文本转语音更加智能。通过提示词控制情感、语调、语速和特效，打造独一无二的AI语音内容。",
     "image": {
       "src": "/imgs/features/1.png"
     },
     "items": [
       {
-        "title": "AI语音合成技术",
-        "description": "采用先进的AI语音合成技术，生成自然流畅、富有情感的语音内容。",
+        "title": "AI风格提示词控制",
+        "description": "独创的风格提示词技术，让您控制文本转语音的情感、语调和表现力 - 从活力十足到沉稳冷静，从正式到友好。",
         "icon": "RiVoiceprintFill"
       },
       {
-        "title": "免费在线使用",
-        "description": "无需注册，每天免费使用200次，支持2000字符以内的文本转换。",
+        "title": "免费TTS支持30+语言",
+        "description": "我们的免费文本转语音平台支持多语言TTS，所有语言都保持一致的高质量语音输出。",
         "icon": "RiTranslate"
       },
       {
-        "title": "极速转换体验",
-        "description": "5秒内完成转换，支持批量处理，效率提升50%。",
+        "title": "即时TTS阅读器",
+        "description": "专业级文本转语音，秒速完成。我们的免费TTS阅读器即时生成录音棚品质的音频。",
         "icon": "RiFlashlightFill"
       }
     ]
   },
   "benefit": {
     "name": "benefit",
-    "title": "为什么选择 AudioTextHub",
+    "title": "为什么AudioTextHub是最好的免费文本转语音平台",
     "label": "优势",
-    "description": "一站式AI语音转换解决方案，让您的内容更有声有色。",
+    "description": "革命性的AI文本转语音技术，独创风格提示词功能，免费TTS阅读器，先进的语音控制 - 所有功能集于一身。",
     "items": [
       {
-        "title": "智能AI语音技术",
-        "description": "采用最新AI语音合成技术，生成自然流畅的语音，让您的内容更具吸引力。",
+        "title": "AI风格提示词TTS",
+        "description": "业界首创的风格提示词技术，让您控制文本转语音的每个细节 - 情感、语调、语速和特殊效果。",
         "icon": "RiVoiceprintFill",
         "image": {
           "src": "/imgs/features/2.png"
@@ -369,13 +369,13 @@
     "description": "专业文本转语音所需的一切。",
     "items": [
       {
-        "title": "自然语音质量",
-        "description": "先进的 AI 语音模型，创造带有适当语调和情感的类人语音。",
+        "title": "风格可控的TTS",
+        "description": "革命性的AI文本转语音，支持风格提示词。控制情感、语调和表现力，打造真正个性化的免费TTS输出。",
         "icon": "RiVoiceprintFill"
       },
       {
-        "title": "音/视频转文本",
-        "description": "智能识别音视频内容，支持多种格式和语言，准确率高达98%。",
+        "title": "AI语音转文本",
+        "description": "先进的语音转文本技术，准确率高达98%。支持多语言音视频即时转文字。",
         "icon": "RiMicFill"
       },
       {
@@ -384,8 +384,8 @@
         "icon": "RiTranslate"
       },
       {
-        "title": "语音定制",
-        "description": "调整速度、音调和重音，获得您所需的精确语音输出。",
+        "title": "高级TTS控制",
+        "description": "不仅是基础设置 - 使用AI风格提示词控制情感、个性和表现力，让免费文本转语音更加生动。",
         "icon": "RiSettings3Fill"
       },
       {
@@ -488,20 +488,20 @@
     "description": "还有其他问题？通过 Discord 或电子邮件联系我们。",
     "items": [
       {
-        "title": "AudioTextHub 是免费的吗？",
-        "description": "是的！AudioTextHub提供免费的在线文本转语音服务。每天可免费使用200次，每次支持最多2000字符的转换，无需注册即可使用。"
+        "title": "这真的是免费文本转语音平台吗？",
+        "description": "是的！AudioTextHub提供带AI风格提示词的免费TTS服务。每次可免费转换2000字符的文本到语音，包含高级风格控制功能。"
       },
       {
         "title": "支持哪些语言和声音？",
         "description": "AudioTextHub支持100多种语言，400多种声音选择。覆盖全球主要语言，并提供多种音色和语气选项，满足不同场景需求。"
       },
       {
-        "title": "将文本转换为语音需要多长时间？",
-        "description": "使用 AudioTextHub，大多数转换在短短5秒内完成。即使是较长的文本也能快速处理，让您在几分钟而不是几小时内准备好音频内容。"
+        "title": "什么让你们的AI文本转语音独一无二？",
+        "description": "AudioTextHub是首个带AI风格提示词的免费TTS阅读器。在文本转语音时控制语音情感、语调和表现力。我们的AI文本转语音技术提供个性化、自然的声音。"
       },
       {
-        "title": "AudioTextHub 支持哪些音频格式？",
-        "description": "AudioTextHub 允许您以多种格式下载音频，包括 MP3、WAV 和 OGG，使其与您需要的几乎任何平台或应用程序兼容。"
+        "title": "我可以在所有TTS语言中使用风格提示词吗？",
+        "description": "我们的AI风格提示词功能支持多语言音色，让您在我们免费文本转语音平台的30+种语言中保持一致的情感和语调控制。"
       },
       {
         "title": "我可以自定义声音以匹配我的品牌吗？",
@@ -511,8 +511,8 @@
   },
   "cta": {
     "name": "cta",
-    "title": "立即开始将文本转换为语音",
-    "description": "现在就开始使用 AudioTextHub。",
+    "title": "体验带风格控制的AI文本转语音 - 免费",
+    "description": "加入数千用户，使用我们革命性的AI风格提示词免费TTS阅读器。",
     "buttons": [
       {
         "title": "试用 AudioTextHub",
@@ -532,7 +532,7 @@
     "name": "footer",
     "brand": {
       "title": "AudioTextHub",
-      "description": "AudioTextHub是您的智能AI文本转语音助手，支持在线免费使用。只需几秒钟，即可将文字转换成自然流畅的语音内容。",
+      "description": "AudioTextHub是领先的免费文本转语音平台，提供AI风格提示词功能。我们的免费TTS阅读器通过情感和语调控制彻底改变AI文本转语音，成为最先进的免费文本转语音解决方案。",
       "logo": {
         "src": "/logo.png",
         "alt": "AudioTextHub"
