@@ -1,5 +1,6 @@
 import Branding from "@/components/blocks/branding";
 import CTA from "@/components/blocks/cta";
+import BlogSection from "@/components/blocks/blog-section/server";
 import FAQ from "@/components/blocks/faq";
 import Feature from "@/components/blocks/feature";
 import Feature1 from "@/components/blocks/feature1";
@@ -62,7 +63,19 @@ export default async function LandingPage({
       {page.pricing && <Pricing pricing={page.pricing} />}
       {page.testimonial && <Testimonial section={page.testimonial} />}
       {page.faq && <FAQ section={page.faq} />}
-      {page.cta && <CTA section={page.cta} />}
+      
+      {/* 动态博客部分 */}
+      <BlogSection 
+        locale={locale}
+        title={locale === 'zh' ? '深入了解语音技术' : 'Learn More About Voice Technology'}
+        description={locale === 'zh' 
+          ? '探索如何利用AI语音技术为您的业务赋能的技巧、教程和洞察'
+          : 'Discover tips, tutorials, and insights on how to leverage AI voice technology for your business'}
+        label={locale === 'zh' ? '最新文章' : 'Latest Articles'}
+        readMoreText={locale === 'zh' ? '阅读更多' : 'Read More'}
+      />
+      
+      {/* {page.cta && <CTA section={page.cta} />} */}
     </>
   );
 }
