@@ -26,6 +26,7 @@ import { MultilingualBanner } from "./components/MultilingualBanner";
 import AIModelVoices from "@/components/blocks/ai-model-voices";
 import LongTextSynthesis from "@/components/blocks/long-text-synthesis";
 import MultiSpeakerDialogue from "@/components/blocks/multi-speaker-dialogue";
+import { trackEvent, trackPerformance, trackError, GA_EVENTS, GA_SCENES } from "@/utils/analytics";
 
 
 // 定义语言分类接口
@@ -555,6 +556,17 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
 
   const handleLanguageChange = (value: string) => {
     userHasSelectedLanguage.current = true; // 标记用户已手动选择
+    
+    // Track language change event
+    trackEvent(GA_EVENTS.TTS_LANGUAGE_CHANGE, {
+      category: 'TTS',
+      label: value,
+      scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+      from_language: currentLanguage,
+      to_language: value,
+      tab_context: showTabs ? activeTab : 'home'
+    });
+    
     setCurrentLanguage(value);
     setCurrentAudio(null);
     setIsPlaying(false);
@@ -566,7 +578,25 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   // 添加选择角色的处理函数
   const handleSelectVoice = (voice: VoiceActor) => {
     // 允许选择任何语音（包括高级语音），但在生成时进行验证
-    setSelectedVoice(voice === selectedVoice ? null : voice);
+    const isSelecting = voice !== selectedVoice;
+    setSelectedVoice(isSelecting ? voice : null);
+    
+    // Track voice selection event
+    if (isSelecting) {
+      trackEvent(GA_EVENTS.TTS_VOICE_SELECT, {
+        category: 'TTS',
+        label: voice.name,
+        scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+        voice_id: voice.id,
+        voice_language: voice.lang,
+        voice_gender: voice.gender,
+        voice_provider: voice.provider || voice.type,
+        is_premium: voice.isPremium || false,
+        current_language: currentLanguage,
+        tab_context: showTabs ? activeTab : 'home',
+        user_logged_in: isLoggedIn
+      });
+    }
   };
 
   // 处理语音URL，为谷歌语音的相对路径添加baseURL
@@ -1050,7 +1080,22 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
             {/* 根据 showTabs 决定显示方式 */}
             {showTabs ? (
               // Tab 模式（独立页面）
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "microsoft" | "google" | "ai-models" | "long-text" | "multi-speaker")} className="w-full">
+              <Tabs 
+                value={activeTab} 
+                onValueChange={(value) => {
+                  const newTab = value as "microsoft" | "google" | "ai-models" | "long-text" | "multi-speaker";
+                  setActiveTab(newTab);
+                  // 追踪Tab切换
+                  trackEvent(GA_EVENTS.PAGE_TAB_SWITCH, {
+                    category: 'TTS',
+                    label: newTab,
+                    scene: GA_SCENES.TTS_PAGE,
+                    from_tab: activeTab,
+                    to_tab: newTab
+                  });
+                }} 
+                className="w-full"
+              >
                 <div className="overflow-x-auto mb-6">
                   <TabsList className="inline-flex h-12 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max gap-1">
                     <TabsTrigger value="google" className="whitespace-nowrap px-4 py-2">
