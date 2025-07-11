@@ -16,6 +16,9 @@ import { AnnouncementProvider } from "@/components/announcement";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: 'swap',
+  preload: false,
+  fallback: ['system-ui', 'arial'],
 });
 
 export async function generateMetadata({

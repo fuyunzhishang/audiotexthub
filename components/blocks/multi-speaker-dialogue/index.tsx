@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import { useLocale } from "next-intl";
+import { trackEvent, GA_EVENTS, GA_SCENES } from "@/utils/analytics";
 
 export default function MultiSpeakerDialogue() {
   const locale = useLocale();
@@ -179,7 +180,18 @@ export default function MultiSpeakerDialogue() {
           <Button 
             size="lg" 
             className="gap-2"
-            onClick={() => window.open("https://discord.gg/2q8TWknHeW", "_blank")}
+            onClick={() => {
+              // 追踪Discord点击
+              trackEvent(GA_EVENTS.WAITLIST_MULTI_SPEAKER_JOIN_CLICK, {
+                category: 'Waitlist',
+                label: 'multi_speaker_discord',
+                scene: GA_SCENES.TTS_PAGE,
+                feature: 'multi_speaker_dialogue',
+                action: 'click',
+                tab_context: 'multi_speaker'
+              });
+              window.open("https://discord.gg/2q8TWknHeW", "_blank");
+            }}
           >
             <Icon name="RiDiscordFill" className="h-4 w-4" />
             {locale === 'zh' ? '加入 Discord 等待列表' : 'Join Discord Waitlist'}

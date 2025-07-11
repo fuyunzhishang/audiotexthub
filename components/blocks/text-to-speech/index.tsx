@@ -558,7 +558,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     userHasSelectedLanguage.current = true; // 标记用户已手动选择
     
     // Track language change event
-    trackEvent(GA_EVENTS.TTS_LANGUAGE_CHANGE, {
+    trackEvent(GA_EVENTS.TTS_LANGUAGE_SELECTOR_CHANGE, {
       category: 'TTS',
       label: value,
       scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
@@ -583,7 +583,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     
     // Track voice selection event
     if (isSelecting) {
-      trackEvent(GA_EVENTS.TTS_VOICE_SELECT, {
+      trackEvent(GA_EVENTS.TTS_VOICE_ITEM_SELECT, {
         category: 'TTS',
         label: voice.name,
         scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
@@ -625,6 +625,23 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       }
       setIsPlaying(false);
       setCurrentAudio(null);
+      
+      // Track voice preview pause
+      if (selectedVoice) {
+        trackEvent(GA_EVENTS.TTS_AUDIO_PAUSE_CLICK, {
+          category: 'TTS',
+          label: `Preview - ${selectedVoice.name}`,
+          scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+          voice_id: selectedVoice.id,
+          voice_name: selectedVoice.name,
+          voice_provider: selectedVoice.type || selectedVoice.provider,
+          voice_language: selectedVoice.lang,
+          is_premium: selectedVoice.isPremium || false,
+          tab_context: showTabs ? activeTab : 'home',
+          user_logged_in: isLoggedIn,
+          is_preview: true
+        });
+      }
     } else {
       // 停止所有正在播放的音频（包括AudioPlayer中的音频）
       if (audioRef.current) {
@@ -646,7 +663,32 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
 
       if (audioRef.current) {
         audioRef.current.src = audioSrc;
-        audioRef.current.play().catch(error => {
+        audioRef.current.play().then(() => {
+          // Track voice preview play
+          // Find the voice based on the audio URL to get correct metadata
+          const voice = currentVoices.find(v => {
+            const fullUrl = getFullAudioUrl(v.example_voice_url, v.provider);
+            return fullUrl === audioSrc;
+          });
+          
+          if (voice) {
+            trackEvent(GA_EVENTS.TTS_AUDIO_PLAY_CLICK, {
+              category: 'TTS',
+              label: `Preview - ${voice.name}`,
+              scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+              voice_id: voice.id,
+              voice_name: voice.name,
+              voice_provider: voice.type || voice.provider,
+              voice_language: voice.lang,
+              voice_gender: voice.gender,
+              is_premium: voice.isPremium || false,
+              current_language: currentLanguage,
+              tab_context: showTabs ? activeTab : 'home',
+              user_logged_in: isLoggedIn,
+              is_preview: true
+            });
+          }
+        }).catch(error => {
           console.error('音频播放失败:', error);
           setIsPlaying(false);
           setCurrentAudio(null);
@@ -665,9 +707,31 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       return;
     }
 
+    const startTime = Date.now(); // 记录开始时间用于性能追踪
+
     try {
       setIsGenerating(true);
 
+      // Track TTS generation start
+      trackEvent(GA_EVENTS.TTS_SYNTHESIS_GENERATE_CLICK, {
+        category: 'TTS',
+        label: selectedVoice.name,
+        scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+        voice_id: selectedVoice.id,
+        voice_provider: selectedVoice.type || selectedVoice.provider,
+        voice_language: selectedVoice.lang,
+        voice_gender: selectedVoice.gender,
+        is_premium: selectedVoice.isPremium || false,
+        text_length: text.length,
+        has_style_prompt: !!prompt,
+        style_prompt: prompt || undefined,
+        speed_setting: speed,
+        pitch_setting: pitch,
+        volume_setting: volume,
+        current_language: currentLanguage,
+        tab_context: showTabs ? activeTab : 'home',
+        user_logged_in: isLoggedIn
+      });
 
       // 调用本地API包装接口
       const response = await fetch('/api/tts/synthesize', {
@@ -742,11 +806,67 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       setResults(prev => [newResult, ...prev]);
       setLatestResultId(newResult.id); // 标记为最新结果
 
+      const duration = Date.now() - startTime;
+
+      // Track TTS generation success
+      trackEvent(GA_EVENTS.TTS_SYNTHESIS_GENERATE_SUCCESS, {
+        category: 'TTS',
+        label: selectedVoice.name,
+        scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+        voice_id: selectedVoice.id,
+        voice_provider: selectedVoice.type || selectedVoice.provider,
+        voice_language: selectedVoice.lang,
+        voice_gender: selectedVoice.gender,
+        is_premium: selectedVoice.isPremium || false,
+        text_length: text.length,
+        has_style_prompt: !!prompt,
+        style_prompt: prompt || undefined,
+        speed_setting: speed,
+        pitch_setting: pitch,
+        volume_setting: volume,
+        current_language: currentLanguage,
+        tab_context: showTabs ? activeTab : 'home',
+        user_logged_in: isLoggedIn,
+        duration_ms: duration
+      });
+
+      // Track performance
+      trackPerformance(GA_EVENTS.PERF_TTS_GENERATION_TIME, duration, {
+        voice_provider: selectedVoice.type || selectedVoice.provider,
+        text_length: text.length,
+        is_premium: selectedVoice.isPremium || false
+      });
+
     } catch (error) {
       console.error('生成语音失败:', error);
       // 显示具体的错误信息
       const errorMessage = error instanceof Error ? error.message : t('tts.generate_failed');
       toast.error(errorMessage);
+
+      // Track TTS generation error
+      trackEvent(GA_EVENTS.TTS_SYNTHESIS_GENERATE_ERROR, {
+        category: 'TTS',
+        label: errorMessage,
+        scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+        voice_id: selectedVoice.id,
+        voice_provider: selectedVoice.type || selectedVoice.provider,
+        voice_language: selectedVoice.lang,
+        is_premium: selectedVoice.isPremium || false,
+        text_length: text.length,
+        has_style_prompt: !!prompt,
+        current_language: currentLanguage,
+        tab_context: showTabs ? activeTab : 'home',
+        user_logged_in: isLoggedIn,
+        error_message: errorMessage,
+        error_type: error instanceof Error ? error.name : 'UnknownError'
+      });
+
+      // Track error details
+      trackError(error instanceof Error ? error : new Error(errorMessage), {
+        scene: showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE,
+        action: 'tts_generate',
+        voice_provider: selectedVoice.type || selectedVoice.provider
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -1071,6 +1191,11 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
                           setCurrentAudio(null);
                         }
                       }}
+                      voiceId={result.voiceKey}
+                      voiceLanguage={selectedVoice?.lang}
+                      isPremium={selectedVoice?.isPremium || false}
+                      scene={showTabs ? GA_SCENES.TTS_PAGE : GA_SCENES.HOMEPAGE}
+                      tabContext={showTabs ? activeTab : 'home'}
                     />
                   </Card>
                 ))}
@@ -1086,9 +1211,9 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
                   const newTab = value as "microsoft" | "google" | "ai-models" | "long-text" | "multi-speaker";
                   setActiveTab(newTab);
                   // 追踪Tab切换
-                  trackEvent(GA_EVENTS.PAGE_TAB_SWITCH, {
+                  trackEvent(GA_EVENTS.TTS_PROVIDER_TAB_SWITCH, {
                     category: 'TTS',
-                    label: newTab,
+                    label: `${activeTab}_to_${newTab}`,
                     scene: GA_SCENES.TTS_PAGE,
                     from_tab: activeTab,
                     to_tab: newTab

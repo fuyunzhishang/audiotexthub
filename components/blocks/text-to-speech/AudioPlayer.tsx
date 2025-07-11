@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Download } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { trackEvent, GA_EVENTS, GA_SCENES } from "@/utils/analytics";
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -14,6 +15,11 @@ interface AudioPlayerProps {
   provider?: string;
   autoPlay?: boolean;
   onPlayingChange?: (isPlaying: boolean) => void;
+  voiceId?: string;
+  voiceLanguage?: string;
+  isPremium?: boolean;
+  scene?: string;
+  tabContext?: string;
 }
 
 export default function AudioPlayer({ 
@@ -24,7 +30,12 @@ export default function AudioPlayer({
   pauseLabel,
   provider,
   autoPlay = false,
-  onPlayingChange
+  onPlayingChange,
+  voiceId,
+  voiceLanguage,
+  isPremium = false,
+  scene = GA_SCENES.HOMEPAGE,
+  tabContext = 'home'
 }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -84,11 +95,40 @@ export default function AudioPlayer({
     const handlePlay = () => {
       setIsPlaying(true);
       onPlayingChange?.(true);
+      
+      // Track play event
+      trackEvent(GA_EVENTS.TTS_AUDIO_PLAY_CLICK, {
+        category: 'TTS',
+        label: voiceName,
+        scene: scene,
+        voice_id: voiceId,
+        voice_name: voiceName,
+        voice_provider: provider,
+        voice_language: voiceLanguage,
+        is_premium: isPremium,
+        tab_context: tabContext,
+        is_auto_play: false
+      });
     };
 
     const handlePause = () => {
       setIsPlaying(false);
       onPlayingChange?.(false);
+      
+      // Track pause event
+      trackEvent(GA_EVENTS.TTS_AUDIO_PAUSE_CLICK, {
+        category: 'TTS',
+        label: voiceName,
+        scene: scene,
+        voice_id: voiceId,
+        voice_name: voiceName,
+        voice_provider: provider,
+        voice_language: voiceLanguage,
+        is_premium: isPremium,
+        tab_context: tabContext,
+        audio_time: audioRef.current?.currentTime || 0,
+        audio_duration: audioRef.current?.duration || 0
+      });
     };
 
     // 添加事件监听器
@@ -109,7 +149,21 @@ export default function AudioPlayer({
           }
         });
         
-        audio.play().catch(error => {
+        audio.play().then(() => {
+          // Track auto-play event
+          trackEvent(GA_EVENTS.TTS_AUDIO_PLAY_CLICK, {
+            category: 'TTS',
+            label: voiceName,
+            scene: scene,
+            voice_id: voiceId,
+            voice_name: voiceName,
+            voice_provider: provider,
+            voice_language: voiceLanguage,
+            is_premium: isPremium,
+            tab_context: tabContext,
+            is_auto_play: true
+          });
+        }).catch(error => {
           console.error('自动播放失败:', error);
         });
       };
@@ -161,6 +215,20 @@ export default function AudioPlayer({
   };
 
   const handleDownload = async () => {
+    // Track download event
+    trackEvent(GA_EVENTS.TTS_AUDIO_DOWNLOAD_CLICK, {
+      category: 'TTS',
+      label: voiceName,
+      scene: scene,
+      voice_id: voiceId,
+      voice_name: voiceName,
+      voice_provider: provider,
+      voice_language: voiceLanguage,
+      is_premium: isPremium,
+      tab_context: tabContext,
+      audio_duration: audioRef.current?.duration || 0
+    });
+    
     try {
       // 先尝试通过 fetch 获取音频文件
       const response = await fetch(fullAudioUrl);

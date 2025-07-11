@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Icon from "@/components/icon";
 import { useLocale } from "next-intl";
+import { trackEvent, GA_EVENTS, GA_SCENES } from "@/utils/analytics";
 
 export default function LongTextSynthesis() {
   const locale = useLocale();
@@ -128,7 +129,18 @@ export default function LongTextSynthesis() {
           <Button 
             size="lg" 
             className="gap-2"
-            onClick={() => window.open("https://discord.gg/2q8TWknHeW", "_blank")}
+            onClick={() => {
+              // 追踪Discord点击
+              trackEvent(GA_EVENTS.WAITLIST_LONG_TEXT_JOIN_CLICK, {
+                category: 'Waitlist',
+                label: 'long_text_discord',
+                scene: GA_SCENES.TTS_PAGE,
+                feature: 'long_text_synthesis',
+                action: 'click',
+                tab_context: 'long_text'
+              });
+              window.open("https://discord.gg/2q8TWknHeW", "_blank");
+            }}
           >
             <Icon name="RiDiscordFill" className="h-4 w-4" />
             {locale === 'zh' ? '加入 Discord 等待列表' : 'Join Discord Waitlist'}
