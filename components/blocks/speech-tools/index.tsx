@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TextToSpeech from "@/components/blocks/text-to-speech";
 import SpeechRecognition from "@/components/blocks/speech-recognition";
+import VoiceCloning from "@/components/blocks/voice-cloning";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
 import { SpeechRecognitionSection } from "@/types/blocks/speech-recognition";
 import Icon from "@/components/icon";
@@ -50,7 +51,7 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+          <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
             {textToSpeech && !textToSpeech.disabled && (
               <TabsTrigger value="text-to-speech" className="flex items-center gap-2">
                 <Icon name={textToSpeech.icon || "RiVoiceprintFill"} className="h-4 w-4" />
@@ -63,6 +64,10 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
                 {speechRecognition.label || "音/视频转文本"}
               </TabsTrigger>
             )}
+            <TabsTrigger value="voice-cloning" className="flex items-center gap-2">
+              <Icon name="RiUserVoiceFill" className="h-4 w-4" />
+              {locale === 'zh' ? '声音克隆' : 'Voice Cloning'}
+            </TabsTrigger>
           </TabsList>
 
           {textToSpeech && !textToSpeech.disabled && (
@@ -76,6 +81,10 @@ export default function SpeechTools({ textToSpeech, speechRecognition }: SpeechT
               <SpeechRecognition section={speechRecognition} />
             </TabsContent>
           )}
+          
+          <TabsContent value="voice-cloning" className="mt-0">
+            <VoiceCloning />
+          </TabsContent>
         </Tabs>
       </div>
     </section>

@@ -23,6 +23,9 @@ import { FlagIcon } from "@/components/ui/flag-icon";
 import { VoiceGrid } from "./components/VoiceGrid";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { MultilingualBanner } from "./components/MultilingualBanner";
+import AIModelVoices from "@/components/blocks/ai-model-voices";
+import LongTextSynthesis from "@/components/blocks/long-text-synthesis";
+import MultiSpeakerDialogue from "@/components/blocks/multi-speaker-dialogue";
 
 
 // 定义语言分类接口
@@ -167,8 +170,8 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
     emotion: "",
     special: ""
   });
-  // 将初始语言设置为美式英语，但如果是首页则默认为多语言
-  const [currentLanguage, setCurrentLanguage] = useState(!showTabs ? "multilingual" : "en");
+  // 将初始语言设置为美式英语
+  const [currentLanguage, setCurrentLanguage] = useState("en-US");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -178,7 +181,7 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
   const [isGenerating, setIsGenerating] = useState(false);
   const [results, setResults] = useState<SpeechResult[]>([]);
   const [latestResultId, setLatestResultId] = useState<string | null>(null); // 跟踪最新生成的结果
-  const [activeTab, setActiveTab] = useState<"microsoft" | "google">("google"); // 添加Tab状态
+  const [activeTab, setActiveTab] = useState<"microsoft" | "google" | "ai-models" | "long-text" | "multi-speaker">("google"); // 添加Tab状态
   const isInitialMount = useRef(true); // 跟踪是否是初次加载
   const userHasSelectedLanguage = useRef(false); // 跟踪用户是否手动选择过语言
   const hasInitializedLanguage = useRef(false); // 跟踪是否已经初始化过语言
@@ -372,14 +375,14 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
       console.log('[processVoicesData] hasInitializedLanguage:', hasInitializedLanguage.current, 'userHasSelectedLanguage:', userHasSelectedLanguage.current);
       
       if (categoriesForDefault.length > 0) {
-        // 首页模式：优先选择multilingual
+        // 首页模式：优先选择en-US
         if (!showTabs) {
-          const multilingualCategory = categoriesForDefault.find(cat => cat.code === "multilingual");
-          console.log('[processVoicesData] Looking for multilingual category, found:', multilingualCategory?.name);
-          if (multilingualCategory) {
-            console.log('[processVoicesData] Setting language to multilingual');
-            setCurrentLanguage("multilingual");
-            setCurrentVoices(multilingualCategory.voices);
+          const enUSCategory = categoriesForDefault.find(cat => cat.code === "en-US");
+          console.log('[processVoicesData] Looking for en-US category, found:', enUSCategory?.name);
+          if (enUSCategory) {
+            console.log('[processVoicesData] Setting language to en-US');
+            setCurrentLanguage("en-US");
+            setCurrentVoices(enUSCategory.voices);
             hasInitializedLanguage.current = true;
             return;
           }
@@ -1047,15 +1050,26 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
             {/* 根据 showTabs 决定显示方式 */}
             {showTabs ? (
               // Tab 模式（独立页面）
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "microsoft" | "google")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="google">
-                    {section.tab_google || (locale === 'zh' ? 'AI多语言配音' : 'AI Multilingual Voices')}
-                  </TabsTrigger>
-                  <TabsTrigger value="microsoft">
-                    {section.tab_microsoft || (locale === 'zh' ? '500+AI配音' : '500+ AI Voices')}
-                  </TabsTrigger>
-                </TabsList>
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "microsoft" | "google" | "ai-models" | "long-text" | "multi-speaker")} className="w-full">
+                <div className="overflow-x-auto mb-6">
+                  <TabsList className="inline-flex h-12 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-max gap-1">
+                    <TabsTrigger value="google" className="whitespace-nowrap px-4 py-2">
+                      {section.tab_google || (locale === 'zh' ? 'AI多语言配音' : 'AI Multilingual Voices')}
+                    </TabsTrigger>
+                    <TabsTrigger value="microsoft" className="whitespace-nowrap px-4 py-2">
+                      {section.tab_microsoft || (locale === 'zh' ? '500+AI配音' : '500+ AI Voices')}
+                    </TabsTrigger>
+                    <TabsTrigger value="ai-models" className="whitespace-nowrap px-4 py-2">
+                      {locale === 'zh' ? '100+大模型音色' : '100+ AI Model Voices'}
+                    </TabsTrigger>
+                    <TabsTrigger value="long-text" className="whitespace-nowrap px-4 py-2">
+                      {locale === 'zh' ? '长文本合成' : 'Long Text Synthesis'}
+                    </TabsTrigger>
+                    <TabsTrigger value="multi-speaker" className="whitespace-nowrap px-4 py-2">
+                      {locale === 'zh' ? '多人对话' : 'Multi-speaker Dialogue'}
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
               
               <TabsContent value="microsoft" className="mt-0">
                 {/* 语言选择、设置和生成按钮 */}
@@ -1279,6 +1293,18 @@ export default function TextToSpeech({ section, showTabs = false }: TextToSpeech
                   voiceSelectedLabel={section.voice_selected}
                   voicePremiumLabel={section.voice_premium}
                 />
+              </TabsContent>
+              
+              <TabsContent value="ai-models" className="mt-0">
+                <AIModelVoices />
+              </TabsContent>
+              
+              <TabsContent value="long-text" className="mt-0">
+                <LongTextSynthesis />
+              </TabsContent>
+              
+              <TabsContent value="multi-speaker" className="mt-0">
+                <MultiSpeakerDialogue />
               </TabsContent>
             </Tabs>
           ) : (

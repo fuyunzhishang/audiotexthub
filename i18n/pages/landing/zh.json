@@ -23,9 +23,9 @@
           "icon": "RiMicFill"
         },
         {
-          "title": "功能特点",
-          "url": "/#feature",
-          "icon": "RiSparkling2Line"
+          "title": "声音克隆",
+          "url": "/voice-cloning",
+          "icon": "RiUserVoiceFill"
         },
         {
           "title": "定价",

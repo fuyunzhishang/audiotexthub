@@ -23,9 +23,9 @@
           "icon": "RiMicFill"
         },
         {
-          "title": "Features",
-          "url": "/#feature",
-          "icon": "RiSparkling2Line"
+          "title": "Voice Cloning",
+          "url": "/voice-cloning",
+          "icon": "RiUserVoiceFill"
         },
         {
           "title": "Pricing",

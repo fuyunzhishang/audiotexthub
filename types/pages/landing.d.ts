@@ -4,6 +4,7 @@ import { Section } from "@/types/blocks/section";
 import { Footer } from "@/types/blocks/footer";
 import { Pricing } from "@/types/blocks/pricing";
 import { TextToSpeech } from "@/types/blocks/text-to-speech";
+import { VoiceCloningSection } from "@/types/blocks/voice-cloning";
 
 export interface LandingPage {
   header?: Header;
@@ -12,6 +13,7 @@ export interface LandingPage {
   introduce?: Section;
   textToSpeech?: Section;
   speechRecognition?: Section;
+  voiceCloning?: VoiceCloningSection;
   benefit?: Section;
   usage?: Section;
   feature?: Section;
