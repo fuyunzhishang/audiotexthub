@@ -1,8 +1,31 @@
 {
   "metadata": {
-    "title": "Free & Easy · AudioTextHub Smart Text‑to‑Speech",
-    "description": "AudioTextHub offers fast, free text-to-speech conversion with natural voices and multi-language support, enhancing your content effortlessly.",
-    "keywords": "text to speech, audio conversion, natural voice synthesis, multi-language support, AI voice technology, easy audio export, voice customization, secure text processing"
+    "title": "Free AI Voice Tools - Text to Speech, Speech to Text, Voice Cloning | AudioTextHub",
+    "description": "Professional AI voice platform offering free text to speech, speech to text, and AI voice cloning services. Support 100+ languages with 500+ natural AI voices.",
+    "keywords": "ai voice tools, text to speech, speech to text, voice cloning, tts, free tts, ai text to speech, voice synthesis, speech recognition",
+    "pages": {
+      "textToSpeech": {
+        "title": "Free AI Text to Speech Online - TTS Reader | AudioTextHub",
+        "h1": "Free AI Text to Speech Online",
+        "subtitle": "Convert text to natural speech free with our AI TTS reader. Best free text to speech tool online.",
+        "description": "Convert text to speech free with our AI TTS reader. Best free text to speech online tool supporting 100+ languages and natural AI voices. Try our free TTS service now!",
+        "keywords": "text to speech, text to speech free, ai text to speech, tts, free tts, tts reader, text to speech online, free text to speech online"
+      },
+      "speechRecognition": {
+        "title": "AI Speech to Text Online Free - Audio to Text Converter | AudioTextHub",
+        "h1": "AI Speech to Text Online Free",
+        "subtitle": "Convert speech to text online free. Fast and accurate AI audio to text converter supporting 30+ languages.",
+        "description": "Free speech to text converter online. Convert audio to text instantly with AI speech recognition. Transcribe audio files, videos to text free. Support 30+ languages.",
+        "keywords": "speech to text, ai speech to text, speech to text online, audio to text, text in to speech, speech recognition, free speech to text, audio transcription"
+      },
+      "voiceCloning": {
+        "title": "AI Voice Cloning Services - Free Voice Cloning AI Online | AudioTextHub",
+        "h1": "AI Voice Cloning Services",
+        "subtitle": "Professional voice cloning AI technology. Create your unique voice online with advanced AI voice cloning services.",
+        "description": "Professional AI voice cloning services online. Clone your voice with advanced voice cloning AI technology. Create unique AI voices for multiple languages. Try virbo AI voice cloning free.",
+        "keywords": "ai voice cloning, voice cloning, ai voice cloning services, voice cloning ai, virbo ai voice cloning, free voice cloning, online voice cloning"
+      }
+    }
   },
   "user": {
     "sign_in": "Sign In",
@@ -113,7 +136,13 @@
   "blog": {
     "title": "Blog",
     "description": "News, resources, and updates about AudioTextHub",
-    "read_more_text": "Read More"
+    "read_more_text": "Read More",
+    "homepage": {
+      "title": "Learn More About Voice Technology",
+      "description": "Discover tips, tutorials, and insights on how to leverage AI voice technology for your business",
+      "label": "Latest Articles",
+      "readMoreText": "Read More"
+    }
   },
   "my_invites": {
     "title": "My Invites",

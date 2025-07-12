@@ -15,6 +15,7 @@ import SpeechTools from "@/components/blocks/speech-tools";
 import { TextToSpeechSection } from "@/types/blocks/text-to-speech";
 import { SpeechRecognitionSection } from "@/types/blocks/speech-recognition";
 import { getLandingPage } from "@/services/page";
+import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({
   params,
@@ -22,13 +23,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  
   let canonicalUrl = `${process.env.NEXT_PUBLIC_WEB_URL}`;
-
   if (locale !== "en") {
     canonicalUrl = `${process.env.NEXT_PUBLIC_WEB_URL}/${locale}`;
   }
 
   return {
+    title: t("title"),
+    description: t("description"),
+    keywords: t("keywords"),
     alternates: {
       canonical: canonicalUrl,
     },
@@ -42,6 +47,7 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   const page = await getLandingPage(locale);
+  const t = await getTranslations({ locale, namespace: "blog.homepage" });
 
   return (
     <>
@@ -67,12 +73,10 @@ export default async function LandingPage({
       {/* 动态博客部分 */}
       <BlogSection 
         locale={locale}
-        title={locale === 'zh' ? '深入了解语音技术' : 'Learn More About Voice Technology'}
-        description={locale === 'zh' 
-          ? '探索如何利用AI语音技术为您的业务赋能的技巧、教程和洞察'
-          : 'Discover tips, tutorials, and insights on how to leverage AI voice technology for your business'}
-        label={locale === 'zh' ? '最新文章' : 'Latest Articles'}
-        readMoreText={locale === 'zh' ? '阅读更多' : 'Read More'}
+        title={t("title")}
+        description={t("description")}
+        label={t("label")}
+        readMoreText={t("readMoreText")}
       />
       
       {/* {page.cta && <CTA section={page.cta} />} */}

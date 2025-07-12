@@ -1,8 +1,31 @@
 {
   "metadata": {
-    "title": "免费好用·AudioTextHub 智能文字变声音",
-    "description": "AudioTextHub是一个智能文本转语音平台。轻松将您的文字内容转换成自然流畅、高质量的语音，我们的文本转语音服务既免费又直观易用。",
-    "keywords": "AudioTextHub, 文本转语音, 语音合成, 声音生成, 音频转换, 免费TTS, AI语音"
+    "title": "免费AI语音工具 - 文本转语音、语音转文字、声音克隆 | AudioTextHub",
+    "description": "专业的AI语音处理平台。提供免费文本转语音(TTS)、语音转文字、AI声音克隆服务。支持100+语言，500+AI音色。",
+    "keywords": "ai语音工具, 文本转语音, 语音转文字, 声音克隆, tts, 免费tts, ai配音, 语音合成, 语音识别",
+    "pages": {
+      "textToSpeech": {
+        "title": "免费AI文本转语音在线工具 - TTS配音 | AudioTextHub",
+        "h1": "AI 文本转语音在线工具",
+        "subtitle": "使用我们的免费 TTS 工具，将文本转换为自然流畅的语音。支持 100+ 种语言和声音。",
+        "description": "免费在线文本转语音工具，AI智能配音。支持100+种语言，500+自然音色。专业TTS服务，立即免费试用！",
+        "keywords": "文本转语音, 免费文本转语音, ai文本转语音, tts, 免费tts, tts配音, 在线文本转语音, ai配音"
+      },
+      "speechRecognition": {
+        "title": "免费AI语音转文字在线工具 - 音频转文本 | AudioTextHub",
+        "h1": "AI 语音转文字在线工具",
+        "subtitle": "免费在线语音转文字工具。使用 AI 技术快速准确地将音频转换为文本，支持 30+ 种语言。",
+        "description": "免费语音转文字在线转换器。使用AI语音识别技术，快速将音频、视频转换为文字。支持30+种语言。",
+        "keywords": "语音转文字, ai语音转文字, 语音转文字在线, 音频转文字, 语音识别, 免费语音转文字, 音频转文本, 语音转写"
+      },
+      "voiceCloning": {
+        "title": "AI声音克隆服务 - 在线语音克隆工具 | AudioTextHub",
+        "h1": "AI 声音克隆服务",
+        "subtitle": "专业的 AI 声音克隆技术，在线创建您的独特语音。支持多语言，适用于多种场景。",
+        "description": "专业的AI声音克隆服务，在线克隆您的声音。支持多语言语音克隆，创建独特的AI语音。免费试用声音克隆工具。",
+        "keywords": "ai声音克隆, 声音克隆, 语音克隆, 在线声音克隆, ai语音克隆服务, 声音克隆工具, 免费声音克隆"
+      }
+    }
   },
   "user": {
     "sign_in": "登录",
@@ -113,7 +136,13 @@
   "blog": {
     "title": "博客",
     "description": "关于 AudioTextHub 的新闻、资源和更新",
-    "read_more_text": "阅读更多"
+    "read_more_text": "阅读更多",
+    "homepage": {
+      "title": "深入了解语音技术",
+      "description": "探索如何利用AI语音技术为您的业务赋能的技巧、教程和洞察",
+      "label": "最新文章",
+      "readMoreText": "阅读更多"
+    }
   },
   "my_invites": {
     "title": "我的邀请",
